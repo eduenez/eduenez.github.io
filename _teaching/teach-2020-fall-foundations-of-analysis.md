@@ -1,0 +1,9 @@
+---
+collection: teaching
+date: '2020-08-01'
+generated: true
+permalink: /teaching/teach-2020-fall-foundations-of-analysis
+title: Foundations of Analysis
+type: Course
+venue: The University of Texas at San Antonio
+---

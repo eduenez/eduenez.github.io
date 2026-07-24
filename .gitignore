@@ -4,6 +4,7 @@ _site/
 .jekyll-metadata
 .bundle/
 vendor/
+.sass-cache/
 
 # Python (generator scripts)
 __pycache__/
