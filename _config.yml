@@ -166,6 +166,7 @@ exclude:
   - math-bibliography
   - scripts
   - .venv
+  - cv-latex
   - "*.sublime-workspace"
   - .asset-cache
   - .bundle

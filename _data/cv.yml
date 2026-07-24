@@ -154,9 +154,8 @@ service:
     institution: "Meeting of the AMS Central Section, University of Texas at San Antonio"
     start_year: 2024
     end_year: 2024
-    details: "September 2024."
   - id: sacnas-summer-leadership-2015
-    role: "Member, SACNAS Summer Leadership Institute (2015 cohort)"
+    role: "Member, SACNAS Summer Leadership Institute"
     start_year: 2015
     end_year: 2015
   - id: manuscript-reviewer-university-presses

@@ -11,13 +11,15 @@ __pycache__/
 *.pyc
 .venv/
 
-# LaTeX build artifacts
+# LaTeX build artifacts (cv-latex/*.tex and *.pdf ARE committed -- see
+# scripts/generate_latex.py and cv-latex/full-cv.tex.jinja/resume.tex.jinja)
 *.aux
 *.fdb_latexmk
 *.fls
 *.log
 *.out
 *.synctex.gz
+*.xmpi
 
 # macOS
 .DS_Store

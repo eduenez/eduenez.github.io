@@ -5,16 +5,11 @@ previously generated (marked with `generated: true` in front matter)
 before writing fresh ones.
 """
 import re
-from pathlib import Path
 
-import bibtexparser
 import yaml
-from bibtexparser.bparser import BibTexParser
 from pylatexenc.latex2text import LatexNodes2Text
 
-ROOT = Path(__file__).resolve().parent.parent
-DATA = ROOT / "_data"
-BIB_FILE = ROOT / "math-bibliography" / "references.bib"
+from cvlib import ROOT, load_bib_entries, load_yaml as _load_yaml
 
 L2T = LatexNodes2Text()
 
@@ -58,8 +53,7 @@ def slugify(s, maxlen=60):
 
 
 def load_yaml(name):
-    with open(DATA / name, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    return _load_yaml(name)
 
 
 def clear_generated(directory):
@@ -127,10 +121,7 @@ def paper_url(entry):
 
 
 def generate_publications(name_variants):
-    parser = BibTexParser(common_strings=True)
-    with open(BIB_FILE, encoding="utf-8") as f:
-        bibdb = bibtexparser.load(f, parser=parser)
-    entries_by_key = {e["ID"]: e for e in bibdb.entries}
+    entries_by_key = load_bib_entries()
 
     manifest = load_yaml("publications_manifest.yml")["publications"]
     out_dir = ROOT / "_publications"

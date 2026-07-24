@@ -10,6 +10,8 @@ redirect_from:
 {% include base_path %}
 {% assign cv = site.data.cv %}
 
+**PDF versions:** [Concise resume]({{ base_path }}/files/cv.pdf) &middot; [Full academic vita]({{ base_path }}/files/cv-full.pdf)
+
 Education
 ======
 <ul>
