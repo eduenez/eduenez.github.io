@@ -1,0 +1,178 @@
+# Canonical, hand-maintained CV content. This file is the single source of
+# truth for the sections below ONLY. It intentionally does NOT contain:
+#   - Publications: see `publications_manifest.yml` (bibtex keys resolved
+#     against the `math-bibliography` submodule at generation time).
+#   - Talks: see `talks.yml`.
+#   - Teaching: see `teaching.yml`.
+# All three are treated as derived-from-elsewhere content, even though (for
+# now, before the Jekyll site exists) they happen to be checked in as plain
+# YAML alongside this file.
+#
+# Conventions:
+#   - Prose fields (`details`, `summary`, etc.) are Markdown, rendered via
+#     Jekyll's `markdownify` for the web view and via Pandoc for the LaTeX/PDF
+#     view.
+#   - Every list entry has a stable, hand-assigned kebab-case `id` for
+#     permalinks/cross-references; never reuse or renumber an existing id.
+#   - Date ranges are structured as `start_year` / `end_year`; omit
+#     `end_year` to mean "present". Render the display string
+#     (e.g. "2011 - Present") at generation time, not by hand here.
+
+bio:
+  name: "Eduardo Dueñez"
+  name_variants: ["Dueñez", "Duenez"] # for self-highlighting in author lists resolved from BibTeX
+  title: "Associate Professor of Mathematics & AI Consultant"
+  institution: "The University of Texas at San Antonio"
+  email: "eduardo.duenez@utsa.edu"
+  location: "San Antonio, TX, USA"
+  github: "https://github.com/eduenez"
+  researchgate: "https://www.researchgate.net/profile/Eduardo-Duenez"
+
+education:
+  - id: phd-princeton-2001
+    degree: "Ph.D. in Mathematics"
+    institution: "Princeton University"
+    start_year: 2001
+    end_year: 2001
+    details: "Thesis advisor: Peter Sarnak."
+  - id: ma-princeton-1998
+    degree: "M.A. in Mathematics"
+    institution: "Princeton University"
+    start_year: 1998
+    end_year: 1998
+  - id: bsc-guanajuato-1996
+    degree: "B.Sc. in Mathematics"
+    institution: "University of Guanajuato, Mexico"
+    start_year: 1996
+    end_year: 1996
+
+employment:
+  - id: research-consultant-gibran-2026
+    role: "Research Consultant"
+    institution: "Gibran.ai (AI startup; seed funding from Together Fund)"
+    start_year: 2026
+    end_year: 2026
+    details: "Full-time research consulting, June-December 2026."
+  - id: assoc-prof-utsa
+    role: "Associate Professor"
+    institution: "The University of Texas at San Antonio"
+    start_year: 2011
+  - id: asst-prof-utsa
+    role: "Assistant Professor"
+    institution: "The University of Texas at San Antonio"
+    start_year: 2005
+    end_year: 2011
+  - id: presidential-fellow-utsa
+    role: "Presidential Fellow"
+    institution: "The University of Texas at San Antonio"
+    start_year: 2004
+    end_year: 2005
+  - id: sylvester-asst-prof-jhu
+    role: "J. J. Sylvester Assistant Professor"
+    institution: "The Johns Hopkins University"
+    start_year: 2002
+    end_year: 2004
+  - id: research-fellow-aim
+    role: "Research Fellow"
+    institution: "American Institute of Mathematics, Palo Alto"
+    start_year: 2001
+    end_year: 2001
+
+awards_grants:
+  - id: nsf-model-theory-ergodic-2015
+    title: "NSF Grant: \"Model Theory and Ergodic Theorems\""
+    start_year: 2015
+    end_year: 2019
+    details: "Co-PI with José N. Iovino."
+  - id: ams-tensor-summa-2007
+    title: "AMS/Tensor-SUMMA Grant"
+    start_year: 2007
+    end_year: 2008
+    details: "Supported UTSA's Problem-Solving Seminar."
+
+research_interests:
+  summary: >
+    My research revolves around analysis in the broadest sense. Originally focused on random matrix
+    theory and number theory (geometric matrix ensembles and L-functions), my work now concentrates
+    on the foundations of analysis from the perspective of continuous/real-valued logic.
+  applications:
+    - "Measure, integration, probability, and information theory"
+    - "Real-valued computability (deterministic, randomized, and quantum)"
+    - "Statistical/machine learning and AI foundations"
+
+mentorship:
+  masters_theses:
+    - id: sharon-utsa-2011
+      student: "Zachery Sharon"
+      institution: "UTSA"
+      year: 2011
+      title: "An Explicit Proof of the Weak Finite Basis Theorem and Applications to Computing Ranks of Elliptic Curves"
+    - id: quintero-vanegas-unal-2011
+      student: "Elkin O. Quintero Vanegas"
+      institution: "Universidad Nacional de Colombia"
+      year: 2011
+      title: "La Fórmula del Número de Clases y Valores Especiales de Funciones-L: Desde Dirichlet y Dedekind hasta Stark"
+  undergraduate_theses:
+    - id: galindo-lopez-unam-2013
+      student: "Julio C. Galindo López"
+      institution: "UNAM"
+      year: 2013
+      title: "Matrices Aleatorias y Funciones-L"
+    - id: yu-utsa-2011
+      student: "Dal S. Yu"
+      institution: "UTSA"
+      year: 2011
+      title: "Representation Theory of Classical Compact Lie Groups"
+  academic_synergy:
+    - id: problem-solving-club-mentor
+      role: "Faculty mentor, UTSA Problem-Solving Club"
+      start_year: 2006
+    - id: putnam-coach
+      role: "Coach and proctor, UTSA students entering the Putnam Competition"
+      start_year: 2006
+      details: "UTSA ranked top 8% nationwide in 2015."
+    - id: aaas-olympiad-coach-2012
+      role: "Academic coach/mentor, AAAS Olympiad program"
+      start_year: 2012
+      end_year: 2012
+      details: "20 students from underrepresented communities in mathematics."
+
+service:
+  - id: assoc-editor-mathematics-magazine
+    role: "Associate Editor, Mathematics Magazine"
+    start_year: 2016
+    end_year: 2019
+  - id: problems-editor-mathematics-magazine
+    role: "Co-editor, Problems and Solutions column, Mathematics Magazine"
+    start_year: 2016
+    end_year: 2019
+  - id: ams-central-session-organizer-2024
+    role: "Co-organizer (with J. Iovino), session \"Topological Methods in Model Theory\""
+    institution: "Meeting of the AMS Central Section, University of Texas at San Antonio"
+    start_year: 2024
+    end_year: 2024
+    details: "September 2024."
+  - id: sacnas-summer-leadership-2015
+    role: "Member, SACNAS Summer Leadership Institute (2015 cohort)"
+    start_year: 2015
+    end_year: 2015
+  - id: manuscript-reviewer-university-presses
+    role: "Reviewer of manuscripts for Princeton University Press, Oxford University Press"
+  - id: journal-referee
+    role: "Referee"
+    details: >
+      Annals of Pure and Applied Logic, Bulletin of the London Mathematical Society,
+      Communications in Mathematical Physics, Experimental Mathematics, Journal of Number Theory,
+      Journal of Physics A, Mathematics Magazine, The Ramanujan Journal, Indian Journal of Mathematics,
+      Random Matrices: Theory and Applications, and others.
+  - id: nsf-panelist
+    role: "NSF panelist; proposal reviewer for CONACyT (Mexico)"
+  - id: sacnas-abstract-judge
+    role: "Judge of abstracts and posters, SACNAS"
+    start_year: 2010
+    details: "Since 2010."
+
+memberships:
+  - "American Mathematical Society (AMS)"
+  - "Mathematical Association of America (MAA)"
+  - "Society for Advancement of Chicanos and Native Americans in Science (SACNAS)"

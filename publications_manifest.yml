@@ -1,0 +1,52 @@
+# Publication *content* (title, authors, venue, DOI, etc.) is NOT stored
+# here -- it lives in math-bibliography/references.bib (to be added as a
+# git submodule once the site repo exists). This file only records which
+# bibtex keys are Dueñez's own CV-relevant publications, plus the few
+# fields BibTeX doesn't carry. scripts/generate_collections.py resolves
+# each bibtex_key against the submodule to produce one _publications/*.md
+# file per entry.
+#
+# status: refereed | accepted | submitted | in_prep
+# highlight: true marks a "selected publications" subset (none yet)
+
+publications:
+  # -- Refereed --
+  - bibtex_key: Duenez-Hamakiotes-Miller:2025
+    status: refereed
+  - bibtex_key: Caicedo-Duenez-Iovino:2023
+    status: refereed
+  - bibtex_key: Duenez-Iovino:2021a
+    status: refereed
+  - bibtex_key: Duenez-Iovino:2017a
+    status: refereed
+  - bibtex_key: Duenez-Huynh-Keating-Miller-Snaith:2012
+    status: refereed
+  - bibtex_key: Duenez-Huynh-Keating-Miller-Snaith:2010
+    status: refereed
+  - bibtex_key: Duenez-Farmer-Froehlich-Hughes-Mezzadri-Phan:2010
+    status: refereed
+  - bibtex_key: Duenez-Miller:2009
+    status: refereed
+  - bibtex_key: Deacon-Duenez-Iovino:2007a
+    status: refereed
+  - bibtex_key: Duenez-Miller:2006
+    status: refereed
+  - bibtex_key: Duenez:2006
+    status: refereed
+    venue_note: "Appendix to S. J. Miller, \"Investigations of zeros near the central point of elliptic curve L-functions\""
+  - bibtex_key: Duenez-Miller-Roy-Straubing:2006
+    status: refereed
+  - bibtex_key: Duenez:2004
+    status: refereed
+
+  # -- Preprints and work in progress --
+  - bibtex_key: Duenez-Iovino-SalvettiMartinez-Wiederhold-Tall:2026
+    status: in_prep
+  - bibtex_key: Alva-Duenez-Iovino-Walton:2024
+    status: accepted
+    venue_note: "To appear in Mathematical Structures in Computer Science"
+  - bibtex_key: Casazza-Duenez-Iovino:0000
+    status: accepted
+  - bibtex_key: Duenez-Iovino:0000
+    status: in_prep
+    venue_note: "Book in preparation"

@@ -1,0 +1,434 @@
+# Auto-extracted from EDuenez_vita.txt by scripts/parse_vita.py.
+# cross_listed: true means the course is cross-listed UG/GR or graduate-only
+# (marked with '*' in the source vita).
+courses:
+- id: teach-2026-spring-mathematical-foundations-of-ai
+  season: Spring
+  year: 2026
+  course: Mathematical Foundations of AI
+  cross_listed: true
+- id: teach-2025-spring-foundations-of-cryptography
+  season: Spring
+  year: 2025
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2025-spring-modern-abstract-algebra
+  season: Spring
+  year: 2025
+  course: Modern Abstract Algebra
+  cross_listed: false
+- id: teach-2024-fall-foundations-of-analysis
+  season: Fall
+  year: 2024
+  course: Foundations of Analysis
+  cross_listed: false
+- id: teach-2024-fall-modern-algebra
+  season: Fall
+  year: 2024
+  course: Modern Algebra
+  cross_listed: false
+- id: teach-2023-spring-foundations-of-cryptography
+  season: Spring
+  year: 2023
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2023-spring-abstract-algebra
+  season: Spring
+  year: 2023
+  course: Abstract Algebra
+  cross_listed: false
+- id: teach-2022-fall-foundations-of-mathematics
+  season: Fall
+  year: 2022
+  course: Foundations of Mathematics
+  cross_listed: false
+- id: teach-2022-fall-algebra-i
+  season: Fall
+  year: 2022
+  course: Algebra I
+  cross_listed: true
+- id: teach-2022-spring-foundations-of-cryptography
+  season: Spring
+  year: 2022
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2022-spring-algebra-and-number-systems
+  season: Spring
+  year: 2022
+  course: Algebra and Number Systems
+  cross_listed: false
+- id: teach-2021-fall-linear-algebra
+  season: Fall
+  year: 2021
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2021-fall-algebra-and-number-systems
+  season: Fall
+  year: 2021
+  course: Algebra and Number Systems
+  cross_listed: false
+- id: teach-2021-spring-foundations-of-cryptography
+  season: Spring
+  year: 2021
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2021-spring-algebra-and-number-systems
+  season: Spring
+  year: 2021
+  course: Algebra and Number Systems
+  cross_listed: false
+- id: teach-2020-fall-foundations-of-mathematics
+  season: Fall
+  year: 2020
+  course: Foundations of Mathematics
+  cross_listed: false
+- id: teach-2020-fall-foundations-of-analysis
+  season: Fall
+  year: 2020
+  course: Foundations of Analysis
+  cross_listed: false
+- id: teach-2020-spring-foundations-of-cryptography
+  season: Spring
+  year: 2020
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2019-fall-linear-algebra
+  season: Fall
+  year: 2019
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2019-fall-topics-in-number-theory
+  season: Fall
+  year: 2019
+  course: Topics in Number Theory
+  cross_listed: true
+- id: teach-2019-spring-foundations-of-cryptography
+  season: Spring
+  year: 2019
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2019-spring-linear-algebra
+  season: Spring
+  year: 2019
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2018-fall-linear-algebra
+  season: Fall
+  year: 2018
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2018-fall-calculus-ii
+  season: Fall
+  year: 2018
+  course: Calculus II
+  cross_listed: false
+- id: teach-2018-spring-abstract-algebra-ii
+  season: Spring
+  year: 2018
+  course: Abstract Algebra II
+  cross_listed: false
+- id: teach-2018-spring-foundations-of-mathematics
+  season: Spring
+  year: 2018
+  course: Foundations of Mathematics
+  cross_listed: false
+- id: teach-2017-fall-abstract-algebra-i
+  season: Fall
+  year: 2017
+  course: Abstract Algebra I
+  cross_listed: false
+- id: teach-2017-fall-precalculus
+  season: Fall
+  year: 2017
+  course: Precalculus
+  cross_listed: false
+- id: teach-2017-spring-foundations-of-cryptography
+  season: Spring
+  year: 2017
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2017-spring-foundations-of-mathematics
+  season: Spring
+  year: 2017
+  course: Foundations of Mathematics
+  cross_listed: false
+- id: teach-2016-fall-foundations-of-mathematics
+  season: Fall
+  year: 2016
+  course: Foundations of Mathematics
+  cross_listed: false
+- id: teach-2016-fall-calculus-i
+  season: Fall
+  year: 2016
+  course: Calculus I
+  cross_listed: false
+- id: teach-2015-spring-foundations-of-cryptography
+  season: Spring
+  year: 2015
+  course: Foundations of Cryptography
+  cross_listed: true
+- id: teach-2015-spring-linear-algebra
+  season: Spring
+  year: 2015
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2014-fall-foundations-of-mathematics
+  season: Fall
+  year: 2014
+  course: Foundations of Mathematics
+  cross_listed: false
+- id: teach-2014-fall-calculus-i
+  season: Fall
+  year: 2014
+  course: Calculus I
+  cross_listed: false
+- id: teach-2014-fall-problem-solving-seminar
+  season: Fall
+  year: 2014
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2014-spring-foundations-of-analysis
+  season: Spring
+  year: 2014
+  course: Foundations of Analysis
+  cross_listed: false
+- id: teach-2014-spring-differential-equations-i
+  season: Spring
+  year: 2014
+  course: Differential Equations I
+  cross_listed: false
+- id: teach-2013-fall-calculus-ii
+  season: Fall
+  year: 2013
+  course: Calculus II
+  cross_listed: false
+- id: teach-2013-fall-problem-solving-seminar
+  season: Fall
+  year: 2013
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2013-spring-foundations-of-analysis
+  season: Spring
+  year: 2013
+  course: Foundations of Analysis
+  cross_listed: false
+- id: teach-2013-spring-complex-variables
+  season: Spring
+  year: 2013
+  course: Complex Variables
+  cross_listed: false
+- id: teach-2012-fall-calculus-i
+  season: Fall
+  year: 2012
+  course: Calculus I
+  cross_listed: false
+- id: teach-2012-fall-multilinear-algebra
+  season: Fall
+  year: 2012
+  course: Multilinear Algebra
+  cross_listed: false
+- id: teach-2012-spring-modern-abstract-algebra
+  season: Spring
+  year: 2012
+  course: Modern Abstract Algebra
+  cross_listed: false
+- id: teach-2012-spring-calculus-i
+  season: Spring
+  year: 2012
+  course: Calculus I
+  cross_listed: false
+- id: teach-2011-fall-number-theory
+  season: Fall
+  year: 2011
+  course: Number Theory
+  cross_listed: false
+- id: teach-2011-fall-problem-solving-seminar
+  season: Fall
+  year: 2011
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2011-spring-linear-algebra
+  season: Spring
+  year: 2011
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2011-spring-problem-solving-seminar
+  season: Spring
+  year: 2011
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2010-fall-calculus-ii
+  season: Fall
+  year: 2010
+  course: Calculus II
+  cross_listed: false
+- id: teach-2010-fall-problem-solving-seminar
+  season: Fall
+  year: 2010
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2010-spring-calculus-ii
+  season: Spring
+  year: 2010
+  course: Calculus II
+  cross_listed: false
+- id: teach-2010-spring-problem-solving-seminar
+  season: Spring
+  year: 2010
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2009-fall-number-theory
+  season: Fall
+  year: 2009
+  course: Number Theory
+  cross_listed: false
+- id: teach-2009-fall-problem-solving-seminar
+  season: Fall
+  year: 2009
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2009-spring-elliptic-curve-cryptography
+  season: Spring
+  year: 2009
+  course: Elliptic-Curve Cryptography
+  cross_listed: true
+- id: teach-2009-spring-problem-solving-seminar
+  season: Spring
+  year: 2009
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2008-fall-calculus-iii
+  season: Fall
+  year: 2008
+  course: Calculus III
+  cross_listed: false
+- id: teach-2008-fall-linear-algebra
+  season: Fall
+  year: 2008
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2008-fall-problem-solving-seminar
+  season: Fall
+  year: 2008
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2008-spring-calculus-ii
+  season: Spring
+  year: 2008
+  course: Calculus II
+  cross_listed: false
+- id: teach-2008-spring-problem-solving-seminar
+  season: Spring
+  year: 2008
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2007-fall-problem-solving-seminar
+  season: Fall
+  year: 2007
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2007-fall-foundations-of-mathematics
+  season: Fall
+  year: 2007
+  course: Foundations of Mathematics
+  cross_listed: false
+- id: teach-2007-spring-problem-solving-seminar
+  season: Spring
+  year: 2007
+  course: Problem-Solving Seminar
+  cross_listed: false
+- id: teach-2007-spring-foundations-of-analysis
+  season: Spring
+  year: 2007
+  course: Foundations of Analysis
+  cross_listed: false
+- id: teach-2007-spring-linear-algebra
+  season: Spring
+  year: 2007
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-2006-fall-general-topology-i
+  season: Fall
+  year: 2006
+  course: General Topology I
+  cross_listed: true
+- id: teach-2006-fall-calculus-iii
+  season: Fall
+  year: 2006
+  course: Calculus III
+  cross_listed: false
+- id: teach-2006-spring-foundations-of-analysis
+  season: Spring
+  year: 2006
+  course: Foundations of Analysis
+  cross_listed: false
+- id: teach-2005-fall-complex-variables-i
+  season: Fall
+  year: 2005
+  course: Complex Variables I
+  cross_listed: true
+- id: teach-2005-fall-freshman-seminar
+  season: Fall
+  year: 2005
+  course: Freshman Seminar
+  cross_listed: false
+- id: teach-2005-summer-calculus-ii
+  season: Summer
+  year: 2005
+  course: Calculus II
+  cross_listed: false
+- id: teach-2005-spring-modern-abstract-algebra
+  season: Spring
+  year: 2005
+  course: Modern Abstract Algebra
+  cross_listed: false
+- id: teach-2004-fall-modern-algebra
+  season: Fall
+  year: 2004
+  course: Modern Algebra
+  cross_listed: false
+- id: teach-2004-spring-random-matrices-with-applicati
+  season: Spring
+  year: 2004
+  course: Random Matrices with Applications
+  cross_listed: false
+- id: teach-2004-spring-fourier-analysis
+  season: Spring
+  year: 2004
+  course: Fourier Analysis
+  cross_listed: false
+- id: teach-2003-fall-complex-analysis-with-applicat
+  season: Fall
+  year: 2003
+  course: Complex Analysis with Applications
+  cross_listed: false
+- id: teach-2003-spring-calculus-ii-for-biology-and-me
+  season: Spring
+  year: 2003
+  course: Calculus II for Biology and Medicine
+  cross_listed: false
+- id: teach-2002-fall-calculus-i-for-biology-and-med
+  season: Fall
+  year: 2002
+  course: Calculus I for Biology and Medicine
+  cross_listed: false
+- id: teach-2002-spring-linear-algebra
+  season: Spring
+  year: 2002
+  course: Linear Algebra
+  cross_listed: false
+- id: teach-1999-fall-vector-calculus
+  season: Fall
+  year: 1999
+  course: Vector calculus
+  cross_listed: false
+leaves:
+- season: Fall
+  year: 2025
+  reason: Industrial consulting leave
+- season: Spring
+  year: 2016
+  reason: Research leave
+- season: Fall
+  year: 2015
+  reason: Research leave

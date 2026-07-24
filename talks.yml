@@ -1,0 +1,379 @@
+# Auto-extracted from EDuenez_vita.txt by scripts/parse_vita.py.
+# research_talks parsed cleanly (2-line venue/title format, 57 entries).
+# outreach_talks parsed cleanly after a manual fix to one entry that had no
+# clean title/venue delimiter in the source ("An Invitation to Diophantine
+# Geometry").
+#
+# PLEASE SPOT-CHECK: the source vita.txt systematically dropped the italic
+# "L" before "L-function(s)" in ~13 talk titles (evident copy/paste artifact
+# from a PDF -- "L-function" appears correctly elsewhere in the same vita and
+# throughout the published bibliography, so it was restored here). Affected
+# ids: talk-2016-random-matrices-and-automorphic-function,
+# talk-2013-a-random-matrix-model-for-elliptic-curve,
+# talk-2013-functions-and-random-matrices-in-classic,
+# talk-2012-matrices-aleatorias-y-ceros-de-funciones,
+# talk-2010-funciones-zeta-y-que-son-y-para-que-sirv,
+# talk-2010-zeros-of-functions-and-random-matrices-t,
+# talk-2008-la-zeta-y-las-s-como-se-metieron-las-mat,
+# talk-2008-low-lying-zeros-of-modular-and-automorph,
+# talk-2006-convolution-of-families-of-gl-2-function,
+# talk-2006-examples-and-conjectures-on-convolutions,
+# talk-2006-symmetry-in-twisted-families-of-function,
+# talk-2004-symmetry-flipping-in-families-of-functio,
+# talk-2004-the-symmetry-type-of-two-families-of-fun.
+research_talks:
+- id: talk-2026-real-valued-computations-a-perspective-v
+  kind: research
+  year: 2026
+  venue: Special Session on Ergodic Theory and Topological Dynamics (ISQGD-SS14), International Society
+    for Quantization, Topology and Dynamics, March 2026.
+  title: 'Real-valued computations: a perspective via topology and model theory.'
+- id: talk-2023-integration-of-generalized-functions-in
+  kind: research
+  year: 2023
+  venue: Fields Institute (Toronto), Dec 2023.
+  title: Integration of generalized functions in real-valued structures.
+- id: talk-2023-structures-of-random-variables-and-stabi
+  kind: research
+  year: 2023
+  venue: CMS Winter Meeting (Toronto), Dec 2023.
+  title: Structures of random variables and stability of Orlicz spaces.
+- id: talk-2021-an-lisis-y-l-gica-continua
+  kind: research
+  year: 2021
+  venue: Seminario FAMAT/DEMAT, Universidad de Guanajuato, Feb 2021.
+  title: Análisis y Lógica Continua.
+- id: talk-2018-convergencia-metaestable-y-teoremas-erg
+  kind: research
+  year: 2018
+  venue: Universidad de Colima, Sep 2018.
+  title: Convergencia metaestable y teoremas ergódicos desde la perspectiva de Lógica Continua.
+- id: talk-2018-convergencia-metaestable-y-teoremas-erg-2
+  kind: research
+  year: 2018
+  venue: Casa Matemática Oaxaca (Mexico), June 2018.
+  title: Convergencia metaestable y teoremas ergódicos desde la perspectiva de Lógica Continua.
+- id: talk-2017-mean-convergence-of-polynomial-averages
+  kind: research
+  year: 2017
+  venue: AMS Sectional Meeting, University of Central Florida (Orlando, FL), September 2017.
+  title: Mean convergence of polynomial averages and continuous logic.
+- id: talk-2017-ergodic-theorems-and-metastability
+  kind: research
+  year: 2017
+  venue: Mathematical Congress of the Americas.  Montreal (Canada), July 2017.
+  title: Ergodic theorems and metastability.
+- id: talk-2017-metastable-convergence-and-ergodic-theor
+  kind: research
+  year: 2017
+  venue: Simposio Latinoamericano de Logica y Modelos. Puebla (Mexico), June 2017.
+  title: 'Metastable convergence and ergodic theorems: a continuous logic viewpoint.'
+- id: talk-2017-polynomial-ergodic-descent-and-uniformly
+  kind: research
+  year: 2017
+  venue: Joint Mathematics Meeting (Atlanta), January 2017.
+  title: Polynomial ergodic descent and uniformly metastable convergence.
+- id: talk-2017-uniformly-metastable-convergence-in-metr
+  kind: research
+  year: 2017
+  venue: Joint Mathematics Meeting (Atlanta), January 2017.
+  title: Uniformly metastable convergence in metric structures.
+- id: talk-2016-metastable-convergence-of-ergodic-averag
+  kind: research
+  year: 2016
+  venue: National Security Agency, Ft. Meade, MD, October 2016.
+  title: Metastable convergence of ergodic averages and continuous model theory.
+- id: talk-2016-random-matrices-and-automorphic-function
+  kind: research
+  year: 2016
+  venue: SACNAS National Conference. Long Beach, CA, October 2016.
+  title: 'Random matrices and automorphic L-functions: Low-lying zeros and symmetry.'
+- id: talk-2016-the-locus-of-median-lines-of-sierpinski
+  kind: research
+  year: 2016
+  venue: MAA Southeastern Section Conference, University of Alabama at Birmingham, March 2016.
+  title: The locus of median lines of Sierpinski's Triangle.
+- id: talk-2016-convergence-of-ergodic-averages-and-cont
+  kind: research
+  year: 2016
+  venue: Georgia Tech, February 2016.
+  title: Convergence of ergodic averages and continuous model theory.
+- id: talk-2015-the-mean-ergodic-theorem-for-abelian-uni
+  kind: research
+  year: 2015
+  venue: Joint Mathematics Meeting. San Antonio, January 2015.
+  title: The Mean Ergodic Theorem for Abelian Unitary Actions.
+- id: talk-2014-families-of-polynomial-mappings-between
+  kind: research
+  year: 2014
+  venue: SACNAS national conference. Los Angeles, October 2014.
+  title: Families of polynomial mappings between groups.
+- id: talk-2014-some-arithmetic-problems-related-to-sier
+  kind: research
+  year: 2014
+  venue: University of Texas at Austin, March 2014.
+  title: Some arithmetic problems related to Sierpinski's Triangle.
+- id: talk-2013-a-random-matrix-model-for-elliptic-curve
+  kind: research
+  year: 2013
+  venue: Mathematical Congress of the Americas. Guanajuato, Mexico, August 2013.
+  title: A random matrix model for elliptic curve L-functions of finite conductor.
+- id: talk-2013-functions-and-random-matrices-in-classic
+  kind: research
+  year: 2013
+  venue: Purdue University, March 2013.
+  title: L-Functions and Random Matrices in Classical Compact Groups.
+- id: talk-2012-random-matrices-at-the-intersection-of-n
+  kind: research
+  year: 2012
+  venue: SACNAS National Conference, October 2012.
+  title: Random Matrices at the Intersection of Number Theory and Lie Groups.
+- id: talk-2012-matrices-aleatorias-y-ceros-de-funciones
+  kind: research
+  year: 2012
+  venue: Encuentro conjunto RSME-SMM. Malaga, Spain. January 2012.
+  title: Matrices aleatorias y ceros de funciones-L de twists cuadraticos de curvas elipticas.
+- id: talk-2011-una-invitacion-a-la-teoria-de-representa
+  kind: research
+  year: 2011
+  venue: Universidad Pedagogica y Tecnologica de Tunja, Colombia, November 2011.
+  title: Una invitacion a la teoria de representaciones.
+- id: talk-2011-funciones-zeta-y-l-aplicaciones-clasicas
+  kind: research
+  year: 2011
+  venue: Universidad Nacional de Colombia, July 2011.
+  title: 'Funciones Zeta y L: Aplicaciones clasicas y modernas en teoria de numeros.'
+- id: talk-2010-funciones-zeta-y-que-son-y-para-que-sirv
+  kind: research
+  year: 2010
+  venue: University of Colima, Mexico, November 2010.
+  title: 'Funciones Zeta y L: Que son y para que sirven?'
+- id: talk-2010-zeros-of-functions-and-random-matrices-t
+  kind: research
+  year: 2010
+  venue: U. T. Austin, October 2010.
+  title: 'Zeros of L-functions and Random Matrices: Two Recent Applications.'
+- id: talk-2008-la-zeta-y-las-s-como-se-metieron-las-mat
+  kind: research
+  year: 2008
+  venue: XLI Congreso de la Sociedad Matematica Mexicana, October 2008.
+  title: 'La Zeta y las L''s: Como se Metieron las Matrices Aleatorias a la Aritmetica?'
+- id: talk-2008-derivatives-of-zeros-of-the-riemann-zeta
+  kind: research
+  year: 2008
+  venue: X CNTA, Waterloo, July 2008.
+  title: Derivatives of Zeros of the Riemann Zeta-Function and of Characteristic Polynomials of Random
+    matrices.
+- id: talk-2008-derivatives-of-zeros-of-the-riemann-zeta-2
+  kind: research
+  year: 2008
+  venue: Texas AM University, April 2008.
+  title: Derivatives of Zeros of the Riemann Zeta-Function and of Characteristic Polynomials of Random
+    matrices.
+- id: talk-2008-low-lying-zeros-of-modular-and-automorph
+  kind: research
+  year: 2008
+  venue: 22nd Annual Workshop on Automorphic Forms and Related Topics, March 2008.
+  title: Low-Lying Zeros of Modular (and Automorphic) L-functions.
+- id: talk-2007-condensacion-de-zeros-de-funciones-l-de
+  kind: research
+  year: 2007
+  venue: XL Congress of the Mexican Mathematical Society, UANL, October 2007.
+  title: Condensacion de Zeros de Funciones-L de Curvas Elipticas.
+- id: talk-2007-finite-conductor-models-for-zeros-of-ell
+  kind: research
+  year: 2007
+  venue: The Banff International Research Station (BIRS), July 2007.
+  title: Finite-Conductor Models for Zeros of Elliptic Curves.
+- id: talk-2007-repulsion-of-low-zeros-in-families-of-el
+  kind: research
+  year: 2007
+  venue: Number Theory Fest at the University of Illinois at Urbana-Champaign, May 2007.
+  title: Repulsion of Low Zeros in Families of Elliptic Curves.
+- id: talk-2006-convolution-of-families-of-gl-2-function
+  kind: research
+  year: 2006
+  venue: Texas AM University, December 2006.
+  title: Convolution of Families of GL(2) L-functions.
+- id: talk-2006-what-dyson-wanted-to-tell-schrodinger-ra
+  kind: research
+  year: 2006
+  venue: Instituto de Matemáticas, UNAM. Morelia (Mexico), August 2006.
+  title: 'What Dyson Wanted to Tell Schrodinger: Random Matrices in Number Theory.'
+- id: talk-2006-examples-and-conjectures-on-convolutions
+  kind: research
+  year: 2006
+  venue: IX CNTA, Vancouver, July 2006.
+  title: Examples and Conjectures on Convolutions of Families of L-functions.
+- id: talk-2006-twists-and-functorial-liftings-of-famili
+  kind: research
+  year: 2006
+  venue: Progress in Random Matrix Theory and Number Theory, University of Rochester, June 2006.
+  title: Twists and Functorial Liftings of Families of L-functions.
+- id: talk-2006-symmetry-in-twisted-families-of-function
+  kind: research
+  year: 2006
+  venue: Joint Mathematics Meeting, San Antonio, January 2006.
+  title: Symmetry in Twisted Families of L-functions.
+- id: talk-2005-riemann-dyson-and-schrodinger-random-mat
+  kind: research
+  year: 2005
+  venue: National Congress of the Mexican Mathematical Society, Mexico City, October 2005.
+  title: 'Riemann, Dyson and Schrodinger: Random Matrices in Number Theory.'
+- id: talk-2005-counterexample-to-a-conjecture-of-keatin
+  kind: research
+  year: 2005
+  venue: The 2005 Conference on Automorphic Forms and Related Topics, University of North Texas, April
+    2005.
+  title: Counterexample to a Conjecture of Keating and Snaith.
+- id: talk-2004-symmetry-beyond-root-numbers
+  kind: research
+  year: 2004
+  venue: The University of Texas at Austin, November 2004.
+  title: Symmetry Beyond Root Numbers.
+- id: talk-2004-symmetric-space-ensembles-with-an-applic
+  kind: research
+  year: 2004
+  venue: The Pennsylvania State University, October 2004.
+  title: Symmetric Space Ensembles with an Application to Elliptic Curves.
+- id: talk-2004-random-matrices-from-quantum-physics-to
+  kind: research
+  year: 2004
+  venue: University of Texas at San Antonio colloquium, September 2004.
+  title: 'Random Matrices: From Quantum Physics to Number Theory.'
+- id: talk-2004-symmetry-beyond-root-numbers-a-gl-6-exam
+  kind: research
+  year: 2004
+  venue: Isaac Newton Institute (U.K.), July 2004.
+  title: 'Symmetry Beyond Root Numbers: a GL(6) example.'
+- id: talk-2004-symmetry-flipping-in-families-of-functio
+  kind: research
+  year: 2004
+  venue: Isaac Newton Institute (U.K.), June 2004.
+  title: Symmetry Flipping in Families of L-functions.
+- id: talk-2004-counterexample-to-a-conjecture-of-keatin
+  kind: research
+  year: 2004
+  venue: Centre de Recherches Mathematiques (University of Montreal, Canada), May 2004.
+  title: Counterexample to a Conjecture of Keating and Snaith.
+- id: talk-2004-the-symmetry-type-of-two-families-of-fun
+  kind: research
+  year: 2004
+  venue: American Mathematical Society Eastern Meeting, Lawrenceville, NJ, May 2004.
+  title: The Symmetry Type of Two Families of L-functions.
+- id: talk-2004-statistical-properties-of-energy-levels
+  kind: research
+  year: 2004
+  venue: Augusta State University, Augusta, GA, February 2004.
+  title: Statistical Properties of Energy Levels of Quantum Systems.
+- id: talk-2003-random-matrices-and-number-theory-a-happ
+  kind: research
+  year: 2003
+  venue: The Ohio State University, October 2003.
+  title: 'Random Matrices and Number Theory: A Happy Marriage?'
+- id: talk-2001-do-the-cohen-delaunay-lenstra-heuristics
+  kind: research
+  year: 2001
+  venue: The West Coast Number Theory Conference, Asilomar, December 2001.
+  title: Do the Cohen-Delaunay-Lenstra Heuristics apply to Quadratic Twists?
+- id: talk-2001-random-matrix-ensembles-associated-to-co
+  kind: research
+  year: 2001
+  venue: Stanford University, November 2001.
+  title: Random Matrix Ensembles associated to Compact Symmetric Spaces.
+- id: talk-2001-random-matrix-ensembles-associated-to-co-2
+  kind: research
+  year: 2001
+  venue: Centre de Recherches Mathematiques (University of Montreal, Canada), August 2001.
+  title: Random Matrix Ensembles associated to Compact Symmetric Spaces.
+- id: talk-2001-compact-symmetric-spaces-and-their-assoc
+  kind: research
+  year: 2001
+  venue: The Johns Hopkins University, February 2001.
+  title: Compact Symmetric Spaces and their associated Matrix Ensembles.
+- id: talk-2001-breaking-universality-in-a-family-of-cir
+  kind: research
+  year: 2001
+  venue: The American Institute of Mathematics, May 2001.
+  title: Breaking Universality in a Family of Circular Ensembles.
+- id: talk-2001-the-gaudin-mehta-method-and-classical-ra
+  kind: research
+  year: 2001
+  venue: The Institute for Advanced Study, February 2001.
+  title: The Gaudin-Mehta Method and Classical Random Matrix Theory.
+- id: talk-2000-compact-symmetric-spaces-and-their-assoc
+  kind: research
+  year: 2000
+  venue: Mathematisches Forschungsinstitut Oberwolfach, Germany, November 2000.
+  title: Compact Symmetric Spaces and their associated Matrix Ensembles.
+- id: talk-1994-div-grad-and-curl-according-to-lie
+  kind: research
+  year: 1994
+  venue: National Congress of the Mexican Mathematical Society, Morelia, Mexico, November 1994.
+  title: Div, Grad and Curl According to Lie.
+outreach_talks:
+- id: talk-2018-from-round-robin-tournaments-and-network
+  kind: outreach
+  year: 2018
+  venue: Morehouse College. Atlanta, GA, April 2018.
+  title: From round-robin tournaments and networking events to combinatorial designs.
+- id: talk-2016-from-round-robin-tournaments-and-network
+  kind: outreach
+  year: 2016
+  venue: Columbus State University, Columbus, GA, April 2016.
+  title: From round-robin tournaments and networking events to combinatorial designs.
+- id: talk-2016-introducci-n-a-la-teor-a-cl-sica-de-matr
+  kind: outreach
+  year: 2016
+  venue: 5-hour course at Centro de Investigación en Matemáticas, Merida, Mexico, April 2016.
+  title: Introducción a la Teoría Clásica de Matrices Aleatorias.
+- id: talk-2015-introducci-n-a-la-teor-a-cl-sica-de-matr
+  kind: outreach
+  year: 2015
+  venue: 5-hour course at Universidad Autónoma de Sinaloa, Mexico, October 2015.
+  title: Introducción a la Teoría Clásica de Matrices Aleatorias.
+- id: talk-2014-el-tri-ngulo-de-sierpinski-matrices-modu
+  kind: outreach
+  year: 2014
+  venue: SIDIM at Ponce, Puerto Rico. February 2014.
+  title: El triángulo de Sierpinski, matrices modulares y aritmética.
+- id: talk-2013-signed-harmonic-series-and-quadratic-num
+  kind: outreach
+  year: 2013
+  venue: Conference of the STMC (South Texas Mathematics Consortium). April 2013.
+  title: Signed Harmonic Series and Quadratic Number Fields.
+- id: talk-2012-matrices-aleatorias-gaussianas-y-circula
+  kind: outreach
+  year: 2012
+  venue: 7-hour course at "Escuela de Matrices Aleatorias", CIMAT, Mexico, November 2012.
+  title: Matrices Aleatorias Gaussianas y Circulares.
+- id: talk-2009-minicurso-de-matrices-aleatorias
+  kind: outreach
+  year: 2009
+  venue: 7-hour course. "Metodos Estocasticos en Sistemas Dinamicos". CIMAT, Mexico, February 2009.
+  title: Minicurso de Matrices Aleatorias.
+- id: talk-2007-an-invitation-to-diophantine-geometry
+  kind: outreach
+  year: 2007
+  venue: XL Congress of the Mexican Mathematical Society, Monterrey, October 2007.
+  title: An Invitation to Diophantine Geometry.
+- id: talk-2005-random-matrices-a-meeting-point-of-multi
+  kind: outreach
+  year: 2005
+  venue: Trinity University, San Antonio, September 2005.
+  title: 'Random Matrices: A Meeting Point of Multiple Theories.'
+- id: talk-2004-three-lectures-on-number-theory-and-rand
+  kind: outreach
+  year: 2004
+  venue: The Ohio State University, August 2004.
+  title: Three Lectures on Number Theory and Random Matrices.
+- id: talk-2000-card-tricks-de-bruijn-sequences-and-hind
+  kind: outreach
+  year: 2000
+  venue: The McGraw Hill Center for Teaching and Learning (Princeton University), September 2000.
+  title: Card Tricks, de Bruijn Sequences, and Hindu Music.
+- id: talk-1994-the-kinematic-method-in-geometry
+  kind: outreach
+  year: 1994
+  venue: UNAM, Mexico City, May 1994.
+  title: The Kinematic Method in Geometry.
