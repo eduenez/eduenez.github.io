@@ -1,0 +1,38 @@
+/* ==========================================================================
+   Self-hosted webfonts
+   --------------------------------------------------------------------------
+   Newsreader (serif) for body + headings; Inter (sans) for UI chrome.
+   Variable woff2, fontsource latin subset -- includes Latin-1 Supplement, so
+   accented names (Due\00f1ez) render in-font rather than via fallback.
+   Served from /assets/fonts; paths are relative to the compiled main.css.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/inter-latin-wght-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/inter-latin-wght-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("../fonts/newsreader-latin-wght-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("../fonts/newsreader-latin-wght-italic.woff2") format("woff2");
+}

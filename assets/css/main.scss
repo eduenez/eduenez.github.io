@@ -11,6 +11,7 @@
 @import
     "vendor/breakpoint/breakpoint",
 
+    "fonts",
     "themes",
     "theme/{{ site.site_theme | default: 'default' | append: '_light' }}",
     "theme/{{ site.site_theme | default: 'default' | append: '_dark' }}",
@@ -35,5 +36,7 @@
     "layout/page",
     "layout/archive",
     "layout/sidebar",
-    "layout/json_cv"
+    "layout/json_cv",
+
+    "custom"
 ;

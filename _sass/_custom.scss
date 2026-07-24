@@ -1,0 +1,85 @@
+/* ==========================================================================
+   Custom re-skin overrides  (Barrag\00e1n "warm scholarly")
+   --------------------------------------------------------------------------
+   Imported last in main.scss so these win over the vendored theme defaults.
+   Everything site-specific and non-vendored lives here, to keep the theme
+   files close to upstream and this layer easy to review or peel back.
+   ========================================================================== */
+
+/* --- Masthead wordmark ----------------------------------------------------
+   The numero mark before the name is a quiet nod to supern\00famero.us. Set in
+   the serif (Newsreader, falling back to Georgia which also carries the glyph)
+   for an editorial contrast against the Inter nav. The mark lives in the
+   masthead markup so site.title stays clean for SEO / feeds / OpenGraph. */
+.masthead .brand-mark {
+  color: var(--global-base-color);
+  font-family: $serif;
+  font-weight: 700;
+  margin-right: 0.4em;
+}
+
+/* Let the biographic sidebar lines wrap instead of clipping at the narrow
+   column width (the theme forces nowrap on every author__urls item). */
+.author__urls li.author__desktop {
+  white-space: normal;
+}
+
+/* --- Prose typography -----------------------------------------------------
+   Newsreader is a text face -- give it a comfortable measure, size, and
+   leading. Confined to content regions so UI metrics are untouched. */
+.page__content {
+  font-size: 1.08em;
+  line-height: 1.72;
+}
+.page__content p,
+.page__content li {
+  /* keep a readable line length on wide screens */
+  max-width: 46rem;
+}
+
+/* Headings: Newsreader looks best a touch lighter than the theme's bold,
+   with tightened tracking. */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.006em;
+}
+.page__title {
+  letter-spacing: -0.015em;
+}
+
+/* Section rules on the CV/archive h2 "======" headings: a thin warm rule
+   reads more editorial than the default heavy border. */
+.page__content h2 {
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--global-border-color);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* --- Author sidebar -------------------------------------------------------
+   No profile photo by design; reclaim the space the avatar used to hold and
+   let the name sit at the top of the card. */
+.author__avatar { display: none; }
+
+.author__name {
+  margin-top: 0;
+  font-size: $type-size-3;
+}
+.author__bio {
+  font-style: italic;
+  color: var(--global-text-color-light);
+}
+
+/* --- Links: keep prose links underlined for legibility on cream ---------- */
+.page__content a {
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.12em;
+}
+.page__content a:hover {
+  text-decoration-thickness: 0.11em;
+}

@@ -2,19 +2,26 @@
     DEFAULT THEME - DARK VERSION
     ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   Barrag\00e1n-inspired palette -- dark (warm) variant.
+   Rosa lifts to a warmer, lighter tone so it stays legible on dark paper.
+   -------------------------------------------------------------------------- */
+$rosa                       : #e08a95;   // lightened rosa for dark bg
+$ochre                      : #d6a94e;
+
 /* Color codes used for the theme */
-$primary-color              : #0ea1c5;
-$gray                       : #7a8288;
+$primary-color              : $rosa;
+$gray                       : #9a9186;
 $dark-gray                  : mix(#000, $gray, 40%);
 $darker-gray                : mix(#000, $gray, 60%);
 $light-gray                 : mix(#fff, $gray, 50%);
 
-$background                 : #474747;
-$background-light           : mix(#fff, $background, 80%);
-$background-lighter         : mix(#fff, $background, 90%);
-$text                       : #ffffff;
-$link                       : #0ea1c5;
-$link-dark                  : mix(#000, $link, 25%);
+$background                 : #23201c;   // warm near-black paper
+$background-light           : mix(#fff, $background, 12%);
+$background-lighter         : mix(#fff, $background, 20%);
+$text                       : #ece5d8;   // warm off-white ink
+$link                       : $rosa;
+$link-dark                  : mix($text, $link, 20%);
 $link-light                 : mix(#fff, $link, 25%);
 
 /* Color codes used for the site */
@@ -38,12 +45,12 @@ $sidebar-screen-min-width   : 1024px;
 html[data-theme="dark"] {
     --global-base-color                 : #{$primary-color};
     --global-bg-color                   : #{$background};
-    --global-footer-bg-color            : #{$background};
-    --global-border-color               : #{$light-gray};
+    --global-footer-bg-color            : #{mix(#000, $background, 18%)};
+    --global-border-color               : #{$background-lighter};
     --global-dark-border-color          : #{$background-light};
-    --global-code-background-color      : #fafafa;
-    --global-code-text-color            : #{$darker-gray};
-    --global-fig-caption-color          : #{$light-gray};
+    --global-code-background-color      : #{mix(#fff, $background, 6%)};
+    --global-code-text-color            : #{$text};
+    --global-fig-caption-color          : #{mix($text, $background, 60%)};
     --global-link-color                 : #{$link};
     --global-link-color-hover           : #{$link-dark};
     --global-link-color-visited         : #{$link-light};

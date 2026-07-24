@@ -1,20 +1,30 @@
 /* ==========================================================================
     DEFAULT THEME - LIGHT VERSION
     ========================================================================== */
+/* --------------------------------------------------------------------------
+   Barrag\00e1n-inspired palette (warm scholarly).
+   paper #faf5ec  ink #2c2622  rosa #b23a48  ochre #b8862f
+   -------------------------------------------------------------------------- */
+$rosa                       : #b23a48;   // rosa mexicano -- primary accent
+$rosa-dark                  : #8f2d39;
+$ochre                      : #b8862f;   // secondary, used sparingly
+$paper                      : #faf5ec;   // warm cream background
+$ink                        : #2c2622;   // warm near-black text
+
 /* Color codes used for the theme */
-$primary-color              : #2f7f93;
-$gray                       : #7a8288;
+$primary-color              : $rosa;
+$gray                       : #8a8177;   // warm neutral gray
 $dark-gray                  : mix(#000, $gray, 40%);
 $darker-gray                : mix(#000, $gray, 60%);
 $light-gray                 : mix(#fff, $gray, 50%);
-$lighter-gray               : mix(#fff, $gray, 90%);
+$lighter-gray               : mix($paper, $gray, 82%);
 
 /* Color codes used for the site */
 $danger-color               : #ee5f5b;
-$info-color                 : #2f7f93;
-$notice-color               : #7a8288;
+$info-color                 : $rosa;
+$notice-color               : $gray;
 $success-color              : #62c462;
-$warning-color              : #f89406;
+$warning-color              : $ochre;
 
 /* Other basic settings for the template */
 $border-radius              : 4px;
@@ -28,21 +38,21 @@ $sidebar-screen-min-width   : 1024px;
 
 /* Default light theme for the site */
 :root {
-    --global-base-color                 : #{$primary-color};
-    --global-bg-color                   : #fff;
-    --global-footer-bg-color            : #f2f3f3;
+    --global-base-color                 : #{$rosa};
+    --global-bg-color                   : #{$paper};
+    --global-footer-bg-color            : #{mix($ink, $paper, 6%)};
     --global-border-color               : #{$lighter-gray};
-    --global-dark-border-color          : #bdc1c4;
-    --global-code-background-color      : #fafafa;
-    --global-code-text-color            : #{$darker-gray};
-    --global-fig-caption-color          : mix(#fff,  #{$dark-gray}, 25%);
-    --global-link-color                 : #52adc8;
-    --global-link-color-hover           : mix(#000, #2f7f93, 25%);
-    --global-link-color-visited         : mix(#fff, #2f7f93, 25%);  
-    --global-masthead-link-color        : #{$dark-gray};
-    --global-masthead-link-color-hover  : mix(#000, #{$gray}, 25%);    
-    --global-text-color                 : #{$dark-gray};
-    --global-text-color-light           : #{$light-gray};
+    --global-dark-border-color          : #{mix($ink, $paper, 22%)};
+    --global-code-background-color      : #{mix($ink, $paper, 5%)};
+    --global-code-text-color            : #{mix($ink, $paper, 88%)};
+    --global-fig-caption-color          : #{mix($ink, $paper, 55%)};
+    --global-link-color                 : #{$rosa};
+    --global-link-color-hover           : #{$rosa-dark};
+    --global-link-color-visited         : #{mix($ink, $rosa, 25%)};
+    --global-masthead-link-color        : #{$ink};
+    --global-masthead-link-color-hover  : #{$rosa};
+    --global-text-color                 : #{$ink};
+    --global-text-color-light           : #{mix($ink, $paper, 60%)};
     --global-thead-color                : #{$lighter-gray};
 }
 

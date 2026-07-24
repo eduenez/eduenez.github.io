@@ -12,7 +12,7 @@ site_theme               : "default" # The available themes options are "default
 title                    : "Eduardo Dueñez"
 title_separator          : "-"
 name                     : &name "Eduardo Dueñez"
-description              : &description "Associate Professor of Mathematics & AI Consultant"
+description              : &description "Eduardo Dueñez — mathematician at UTSA: analysis, continuous logic, and the foundations of real-valued computing."
 url                      : https://supernumero.us
 baseurl                  : ""
 repository               : "eduenez/eduenez.github.io"
