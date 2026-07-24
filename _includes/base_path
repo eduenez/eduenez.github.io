@@ -1,5 +1,8 @@
-{% if site.url %}
-  {% assign base_path = site.url | append: site.baseurl %}
-{% else %}
-  {% assign base_path = site.github.url %}
-{% endif %}
+{% comment %}
+  Deliberately root-relative (baseurl only, never site.url): this site is
+  reachable at both eduenez.github.io and supernumero.us, and absolute
+  links baked to one domain break navigation on the other. Pages that
+  need a true absolute URL (canonical link, Open Graph, RSS/sitemap) build
+  it themselves from site.url -- see _includes/seo.html.
+{% endcomment %}
+{% assign base_path = site.baseurl %}
