@@ -7,18 +7,20 @@ redirect_from:
   - /about.html
 ---
 
-Associate Professor of Mathematics at [The University of Texas at San Antonio](https://www.utsa.edu).
+Associate Professor at the [Mathematics Department](https://sciences.utsa.edu/mathematics/) of [The University of Texas at San Antonio](https://www.utsa.edu).
+
+Since summer 2025, I have been research consultant at AI startup [Gibran.ai](https://gibran.ai).
 
 {{ site.data.cv.research_interests.summary | markdownify }}
 
-My recent and current research is on the foundations of analysis and the theory of computing 
-informed by real-valued and other continuous logics:
+{{ site.data.cv.research_interests.applications | markdownify }}
 
-- Measure and integration.
-- Probability and information theory.
-- Real-valued computability: classical/deterministic and randomized/quantum.
-- Statistical/machine learning.
+<!-- My recent and current research is on the foundations of analysis and the theory of computing  -->
+<!-- informed by real-valued and other continuous logics: -->
 
-See the [CV](/cv/) page for education, employment, and service history, [Publications](/publications/) for refereed papers and preprints, [Talks](/talks/) for research and outreach talks, and [Teaching](/teaching/) for courses taught.
+<!-- - Measure and integration. -->
+<!-- - Probability and information theory. -->
+<!-- - Real-valued computability: classical/deterministic and randomized/quantum. -->
+<!-- - Statistical/machine learning. -->
 
-Since summer 2025, I have been research consultant at AI startup [Gibran.ai](https://gibran.ai).
+See my [CV](/cv/) for education, employment, and service history; [Publications](/publications/) for refereed papers and preprints; [Talks](/talks/) for research and outreach talks; and [Teaching](/teaching/) for courses taught.

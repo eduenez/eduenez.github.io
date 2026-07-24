@@ -92,10 +92,11 @@ awards_grants:
 
 research_interests:
   summary: >
-    My research revolves around analysis in a broad sense. I have worked in random matrix
-    theory (Dyson's Threefold Way; linear group ensembles)
+    My research revolves around analysis in a broad sense.
+    I have worked on random matrix theory
+    (Dyson's “Threefold Way”; linear group ensembles)
     and number theory (zeros of L-functions);
-    nowadays, I work on the foundations of analysis, probability,
+    nowadays, my research is on the foundations of analysis and probability,
     as well as both theoretical and applied aspects of real-valued computing.
   applications:
     - "Measure, integration, probability, and information theory"
