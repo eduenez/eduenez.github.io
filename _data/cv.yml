@@ -21,7 +21,7 @@
 bio:
   name: "Eduardo Dueñez"
   name_variants: ["Dueñez", "Duenez"] # for self-highlighting in author lists resolved from BibTeX
-  title: "Associate Professor of Mathematics & AI Consultant"
+  title: "Associate Professor of Mathematics" # & AI Consultant
   institution: "The University of Texas at San Antonio"
   email: "eduardo.duenez@utsa.edu"
   location: "San Antonio, TX, USA"
@@ -35,11 +35,11 @@ education:
     start_year: 2001
     end_year: 2001
     details: "Thesis advisor: Peter Sarnak."
-  - id: ma-princeton-1998
-    degree: "M.A. in Mathematics"
-    institution: "Princeton University"
-    start_year: 1998
-    end_year: 1998
+  # - id: ma-princeton-1998
+  #   degree: "M.A. in Mathematics"
+  #   institution: "Princeton University"
+  #   start_year: 1998
+  #   end_year: 1998
   - id: bsc-guanajuato-1996
     degree: "B.Sc. in Mathematics"
     institution: "University of Guanajuato, Mexico"
@@ -47,12 +47,12 @@ education:
     end_year: 1996
 
 employment:
-  - id: research-consultant-gibran-2026
+  - id: research-consultant-gibran
     role: "Research Consultant"
     institution: "Gibran.ai (AI startup; seed funding from Together Fund)"
-    start_year: 2026
+    start_year: 2025
     end_year: 2026
-    details: "Full-time research consulting, June-December 2026."
+    details: "Full-time research consulting, June-December 2025."
   - id: assoc-prof-utsa
     role: "Associate Professor"
     institution: "The University of Texas at San Antonio"
@@ -92,9 +92,11 @@ awards_grants:
 
 research_interests:
   summary: >
-    My research revolves around analysis in the broadest sense. Originally focused on random matrix
-    theory and number theory (geometric matrix ensembles and L-functions), my work now concentrates
-    on the foundations of analysis from the perspective of continuous/real-valued logic.
+    My research revolves around analysis in a broad sense. I have worked in random matrix
+    theory (Dyson's Threefold Way; linear group ensembles)
+    and number theory (zeros of L-functions);
+    nowadays, I work on the foundations of analysis, probability,
+    as well as both theoretical and applied aspects of real-valued computing.
   applications:
     - "Measure, integration, probability, and information theory"
     - "Real-valued computability (deterministic, randomized, and quantum)"
@@ -128,14 +130,14 @@ mentorship:
       role: "Faculty mentor, UTSA Problem-Solving Club"
       start_year: 2006
     - id: putnam-coach
-      role: "Coach and proctor, UTSA students entering the Putnam Competition"
+      role: "UTSA Faculty Liaison to the Putnam Competition"
       start_year: 2006
       details: "UTSA ranked top 8% nationwide in 2015."
     - id: aaas-olympiad-coach-2012
       role: "Academic coach/mentor, AAAS Olympiad program"
       start_year: 2012
       end_year: 2012
-      details: "20 students from underrepresented communities in mathematics."
+      details: "Mentor/coach of 20 students from underrepresented communities in mathematics."
 
 service:
   - id: assoc-editor-mathematics-magazine
@@ -168,11 +170,13 @@ service:
   - id: nsf-panelist
     role: "NSF panelist; proposal reviewer for CONACyT (Mexico)"
   - id: sacnas-abstract-judge
-    role: "Judge of abstracts and posters, SACNAS"
+    role: "Judge of student abstracts and posters, SACNAS"
     start_year: 2010
-    details: "Since 2010."
+    end_year: 2018
+    # details: "Since 2010."
 
 memberships:
   - "American Mathematical Society (AMS)"
   - "Mathematical Association of America (MAA)"
+  - "Association for Symbolic Logic (ASL)"
   - "Society for Advancement of Chicanos and Native Americans in Science (SACNAS)"
