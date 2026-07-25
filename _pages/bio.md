@@ -42,11 +42,9 @@ the human and cultural aspects of the discipline are just as important.
 I take my role as educator to heart and like to push at curricular boundaries,
 try new pedagogical approaches, and hold students to high standards they can meet. 
 I will mentor any students having a sincere desire to learn 
-and the discipline and drive to go along with the hunger for knowledge
-—regardless of ethnic and socioeconomic background,
-gender identity, or any other personal and life circumstances.
-Nevertheless, opportunities to work with students from
-non-traditional, underprivileged or similar backgrounds to mine are special.
+and the discipline and drive to go along with the hunger for knowledge;
+nevertheless, opportunities to work with students from non-traditional, 
+underprivileged or similar backgrounds to mine are specially meaningful.
 My [acknowledgments](/thanks/) give context to these values
 I hold as a teacher.
 
