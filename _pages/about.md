@@ -4,10 +4,14 @@ title: "Eduardo Dueñez"
 author_profile: true
 ---
 
-I am an associate professor in the [Department of Mathematics](https://sciences.utsa.edu/mathematics/) at [The University of Texas at San Antonio](https://www.utsa.edu), and — since the summer of 2025 — a research consultant at the AI startup [Gibran.ai](https://gibran.ai).
+I am an associate professor at the [Department of Mathematics](https://sciences.utsa.edu/mathematics/) of [The University of Texas at San Antonio](https://www.utsa.edu).
 
-My work has always circled around *analysis* in a broad sense. Earlier on it took me through random matrix theory — Dyson's "threefold way," ensembles of the classical groups — and the number theory of *L*-function zeros. These days I think about the foundations of analysis, probability, and information, and about what it means to *compute* with real numbers and continuous logics.
+Starting summer of 2025, I have been a research consultant for AI startup [Gibran.ai](https://gibran.ai).
 
-Teaching and mentoring are not a sideline for me. I came up through the Mexican Mathematical Olympiad, carried by teachers and family who invested in me long before I could return the favor; I try to pass that along — especially to students who, like me, arrive from outside the usual doors.
+My research has revolved around *analysis* in a broad sense. My doctoral research was on random matrix theory —Dyson’s "Threefold Way", Lie group ensembles and beyond— which I later applied to the study of statistics of zeros of Riemann’s ζ and other *L*-functions. For the past few years, primarily in collaboration with my friend and colleague [José Iovino](https://iovino.us), my research has turned to the foundations of analysis, probability and information, and theoretical as well as applied aspects of real-valued computing from the perspective of model theory.
 
-This site is meant to be a small, slow thing. You'll find my [CV](/cv/), [publications](/publications/), [talks](/talks/), and [teaching](/teaching/); a little [more about me](/about/) beyond the vita; and the people I owe [thanks](/thanks/) to.
+I have been nourished by teachers and supported by family who selflessly invested in me for years on end expecting nothing in return, but with the implicit expectation that I would pass their generosity on. Repaying such debt of generosity has been a cornerstone of my academic trajectory as a teacher and mentor of students of all ages.
+
+For now, this barebone site contains little more than my [CV](/cv/), lists of my [publications](/publications/) and [talks](/talks/), as well as my [teaching](/teaching/) history.
+
+I am somewhat of a social media recluse not used to meandering aroung or posting to the internet, but for anybody interested I share a bit [more about me](/about/) —a peek beyond my vitæ— and gratefully [thank](/thanks/) some of the people to whom I am indebted.
