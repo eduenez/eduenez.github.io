@@ -14,4 +14,4 @@ I have been nourished by teachers and supported by family who selflessly investe
 
 For now, this barebone site contains little more than my [CV](/cv/), lists of my [publications](/publications/) and [talks](/talks/), as well as my [teaching](/teaching/) history.
 
-I am somewhat of a social media recluse not used to meandering aroung or posting to the internet, but for anybody interested I share a bit [more about me](/about/) —a peek beyond my vitæ— and gratefully [thank](/thanks/) some of the people to whom I am indebted.
+I am somewhat of a social media recluse not used to meandering around or posting to the internet, but for anybody interested I share a bit [more about me](/about/) —a peek beyond my vitæ— and gratefully [thank](/thanks/) some of the people to whom I am indebted.
