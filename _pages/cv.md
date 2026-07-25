@@ -99,7 +99,7 @@ Mentorship
 {% endfor %}
 </ul>
 
-Professional/Editorial Service and Distinctions
+Professional / Editorial Service
 ======
 <ul>
 {% for s in cv.service %}
