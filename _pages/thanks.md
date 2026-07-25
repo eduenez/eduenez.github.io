@@ -6,40 +6,8 @@ redirect_from:
   - /about/thanks/
 ---
 
-<!-- NOTE (for Eduardo): reconstructed from the old WordPress "About / Thanks"
-     page from memory of its content, not a verbatim copy. Please check every
-     name and detail against the original before this goes public — these are
-     real people and family, and they deserve to be named exactly right. -->
+Were it not for the scholarships I received during my college years at Universidad de Guanajuato (which allowed me to start my professional mathematics studies after two years of financially-hindered attempts), and the mentorship I received as a high-school student participating in Olimpíada Mexicana de Matemáticas (OMM), I would never have had the opportunity to pursue a career in mathematics, which (in hindsight) is my professional life's true calling. The only way I ever found to thank my math-olympiad coaches Pilar Morfín, María Eugenia "Maru" Guzmán, Julio Rodríguez and Pablo Macías in my home town of Guadalajara, as well as Alejandro Illanes, María Luisa (Malú) Pérez-Seguí and Javier Alfaro in Mexico City, is to pay it forward by helping nourish new generations of math olympians in Mexico and elsewhere. I must also acknowledge the guidance of my middle-school mathematics teacher Lucy Santiago, and the confidence that the late Guadalupe "Lupita", my middle-school's principal, had in me.
 
-Almost nothing I have done in mathematics is owed to me alone. This page is a
-standing thank-you to the people who made a mathematician out of a kid who
-might easily have become something else.
+To my mother Margarita and my uncle Ernesto "Neto" I owe too much to list; suffice it to say that every glimpse into mathematics and science more advanced than what was covered in elementary and early middle school came from conversations with Neto and reading the science books he gave me. On the other hand, had my mother not tutored me on the basics of multiplication and fractions while I endured criminally deficient 2nd- and 3rd-grade instruction at school (my 4th, 5th & 6th-grade teachers Altagracia and (Ed)Mundo were terrific!), the mathematics gene might well have been forever repressed in me. The extraordinary feats of resilience and endurance she had to pull off as a middle-class Mexican single mother of three are not easy to retell, and we would not have made it at all without the unfailing support of my late grandparents Ernesto and Amparo.
 
-## Teachers and coaches
-
-My path really began with the **Mexican Mathematical Olympiad (OMM)**, and with
-a scholarship from the **Universidad de Guanajuato** that made it possible to
-keep going. Along the way I was coached and encouraged by people I still think
-of with enormous gratitude: in Guadalajara, **Pilar Morfín**, **María Eugenia
-"Maru" Guzmán**, **Julio Rodríguez**, and **Pablo Macías**; and in Mexico City,
-**Alejandro Illanes**, **María Luisa "Malú" Pérez-Seguí**, and **Javier
-Alfaro**.
-
-Earlier still, my middle-school teacher **Lucy Santiago** and my principal
-**Guadalupe** saw something worth encouraging before there was much evidence
-for it.
-
-## Family
-
-My mother, **Margarita**, taught me multiplication and fractions herself during
-years when school was not doing the job — the first and most important of my
-teachers. My uncle **"Neto"** opened the door to mathematics and science well
-beyond my years. And my late grandparents, **Ernesto** and **Amparo**, stood
-behind my mother as she raised me on her own.
-
-## Paying it forward
-
-I know this list is incomplete, and I apologize to anyone I have carelessly
-left out. The debt is real, and the only honest way I know to repay it is to
-do for the next generation of students — and the next Olympiad hopefuls — a
-little of what all of these people did for me.
+Only years later does one realize the importance of early nurturing and mentorship, and I apologize for inadvertently missing people to whom I surely owe a debt of gratitude.
