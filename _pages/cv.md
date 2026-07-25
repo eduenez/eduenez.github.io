@@ -45,36 +45,17 @@ Research Interests
 {% endfor %}
 </ul>
 
-Publications
+[Publications](/publications/)
 ======
-{% for category in site.publication_category %}
-  {% assign has_items = false %}
-  {% for post in site.publications reversed %}
-    {% if post.category == category[0] %}{% assign has_items = true %}{% endif %}
-  {% endfor %}
-  {% if has_items %}
-  <h3>{{ category[1].title }}</h3>
-  <ul>
-  {% for post in site.publications reversed %}
-    {% if post.category == category[0] %}
-      {% include archive-single-cv.html %}
-    {% endif %}
-  {% endfor %}
-  </ul>
-  {% endif %}
-{% endfor %}
+Refereed papers and preprints — see the full list on the [Publications](/publications/) page.
 
-Talks
+[Talks](/talks/)
 ======
-<ul>{% for post in site.talks reversed %}
-  {% include archive-single-talk-cv.html %}
-{% endfor %}</ul>
+Research and outreach talks and short courses — see the [Talks](/talks/) page.
 
-Teaching
+[Teaching](/teaching/)
 ======
-<ul>{% for post in site.teaching reversed %}
-  {% include archive-single-cv.html %}
-{% endfor %}</ul>
+Courses taught, by term — see the [Teaching](/teaching/) page.
 
 Mentorship
 ======

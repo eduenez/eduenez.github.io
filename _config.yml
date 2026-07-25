@@ -28,20 +28,21 @@ author:
   bio              : "Associate Professor of Mathematics, UTSA. Research consultant, Gibran.ai."
   location         : "San Antonio, TX, USA"
   employer         : "The University of Texas at San Antonio"
+  employer_url     : "https://sciences.utsa.edu/mathematics/"
   uri              :
   email            : "eduardo.duenez@utsa.edu"
 
   # Academic websites
   academia         :
   arxiv            :
-  googlescholar    :
+  googlescholar    : "https://scholar.google.com/citations?user=hhlK1lAAAAAJ"
   inspire-hep      :
   impactstory      :
-  orcid            :
-  semantic         :
+  orcid            : "https://orcid.org/0000-0002-7152-3349"
+  semantic         : "https://www.semanticscholar.org/author/Eduardo-Due%C3%B1ez/101430229"
   ssrn             :
   pubmed           :
-  researchgate     : "https://www.researchgate.net/profile/Eduardo-Duenez"
+  researchgate     :   # ResearchGate intentionally omitted (commercial platform not endorsed)
   scopus           :
   zotero           :
 
@@ -65,7 +66,7 @@ author:
   keybase          : # Username
   instagram        : # Username
   lastfm           : # Username
-  linkedin         : # Username
+  linkedin         : "eduardo-dueñez-13ab36176" # profile slug -> https://www.linkedin.com/in/...
   mastodon         : # URL
   medium           : # URL
   pinterest        : # Username
