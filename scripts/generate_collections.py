@@ -211,6 +211,10 @@ def generate_teaching():
             "date": f"{c['year']}-{month:02d}-01",
             "generated": True,
         }
+        # Courses with a coursekit site link out to it (theme renders post.link
+        # as the title's href, plus a permalink icon to the internal page).
+        if c.get("url"):
+            front_matter["link"] = c["url"]
         text = "---\n" + yaml_str(front_matter) + "\n---\n"
         (out_dir / f"{c['id']}.md").write_text(text, encoding="utf-8")
 

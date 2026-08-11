@@ -2,6 +2,18 @@
 # cross_listed: true means the course is cross-listed UG/GR or graduate-only
 # (marked with '*' in the source vita).
 courses:
+- id: teach-2026-fall-modern-abstract-algebra
+  season: Fall
+  year: 2026
+  course: Modern Abstract Algebra
+  cross_listed: false
+  url: /courses/2026fall/mat4233/
+- id: teach-2026-fall-algebra-i
+  season: Fall
+  year: 2026
+  course: Algebra I
+  cross_listed: true
+  url: /courses/2026fall/mat5173/
 - id: teach-2026-spring-mathematical-foundations-of-ai
   season: Spring
   year: 2026
