@@ -15,7 +15,10 @@ All under `_data/`:
   `math-bibliography` submodule) are CV-relevant publications, plus fields
   BibTeX doesn't carry (status, venue notes).
 - `talks.yml` — research and outreach talks.
-- `teaching.yml` — courses taught, by term.
+- `teaching.yml` — courses taught, by term. An optional `url:` on a course
+  makes its teaching entry link out to a course site (e.g. a `coursekit`
+  site under `/courses/…`); without one, the entry stays a plain internal
+  page.
 
 None of these are edited by hand for publications/talks/teaching. Instead:
 
@@ -53,6 +56,20 @@ git push
 
 GitHub Pages rebuilds automatically on push (classic branch-based Jekyll
 build, no custom Actions needed).
+
+### Adding a course for a future term
+
+Add the entry to `_data/teaching.yml` (with a `url:` if it has a course
+site) and rerun just the teaching generator — no submodule needed:
+
+```bash
+cd ~/repos/eduenez.github.io
+.venv/bin/python -c "import sys; sys.path.insert(0,'scripts'); import generate_collections as g; g.generate_teaching()"
+```
+
+Running the full `scripts/generate_collections.py` also rebuilds
+publications/talks, which needs the `math-bibliography` submodule; the
+one-liner above regenerates `_teaching/` only and skips that dependency.
 
 ## LaTeX toolchain
 
