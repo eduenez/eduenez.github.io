@@ -12,7 +12,7 @@ A native of Guadalajara, Mexico, I am a mathematician trained in analysis and nu
 My research has included random matrix theory and analytic number theory, 
 but has shifted towards the foundations of analysis, probability, and computation 
 —with a growing interest in applications to artificial intelligence.
-I am faculty at UT San Antonio and have started consulting for the AI industry.
+I am faculty at UT San Antonio and have started consulting in or the AI industry.
 
 
 ## Research and explorations: what I enjoy thinking about
