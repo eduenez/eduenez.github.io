@@ -331,6 +331,17 @@ outreach_talks:
   year: 2026
   venue: Universidad Panamericana, 21 May 2026.
   title: 'Opening the "Black Box": From Linear Regression to ChatGPT in 60 Minutes.'
+  slides: /files/talks/talk-2026-opening-the-black-box/slides.pdf
+  notebooks:
+    - name: "Act I — MNIST Demo"
+      path: /files/talks/talk-2026-opening-the-black-box/notebooks/act1_mnist_demo.ipynb
+      colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-opening-the-black-box/notebooks/act1_mnist_demo.ipynb
+    - name: "Act II — Double Descent Demo"
+      path: /files/talks/talk-2026-opening-the-black-box/notebooks/act2_double_descent_demo.ipynb
+      colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-opening-the-black-box/notebooks/act2_double_descent_demo.ipynb
+    - name: "Act III — Attention Demo"
+      path: /files/talks/talk-2026-opening-the-black-box/notebooks/act3_attention_demo.ipynb
+      colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-opening-the-black-box/notebooks/act3_attention_demo.ipynb
 - id: talk-2018-from-round-robin-tournaments-and-network
   kind: outreach
   year: 2018
