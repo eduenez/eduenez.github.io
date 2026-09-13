@@ -22,6 +22,12 @@
 # talk-2004-symmetry-flipping-in-families-of-functio,
 # talk-2004-the-symmetry-type-of-two-families-of-fun.
 research_talks:
+- id: talk-2026-complexity-of-deep-computations-via-topol
+  kind: research
+  year: 2026
+  venue: Facultad de Estudios Superiores Acatlán, UNAM, May 22, 2026 (also given
+    in Spanish, same date/venue, as "Complejidad de cómputos profundos").
+  title: 'Complexity of Deep Computations via Topology of Function Spaces.'
 - id: talk-2026-real-valued-computations-a-perspective-v
   kind: research
   year: 2026
@@ -312,6 +318,11 @@ research_talks:
   venue: National Congress of the Mexican Mathematical Society, Morelia, Mexico, November 1994.
   title: Div, Grad and Curl According to Lie.
 outreach_talks:
+- id: talk-2026-opening-the-black-box
+  kind: outreach
+  year: 2026
+  venue: Universidad Panamericana, 21 May 2026.
+  title: 'Opening the "Black Box": From Linear Regression to ChatGPT in 60 Minutes.'
 - id: talk-2018-from-round-robin-tournaments-and-network
   kind: outreach
   year: 2018

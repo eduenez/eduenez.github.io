@@ -47,6 +47,7 @@ publications:
     venue_note: "To appear in Mathematical Structures in Computer Science"
   - bibtex_key: Casazza-Duenez-Iovino:2026
     status: accepted
+    venue_note: "In press; scheduled to appear in print October 2026"
   - bibtex_key: Duenez-Iovino:0000
     status: in_prep
     venue_note: "Book in preparation"

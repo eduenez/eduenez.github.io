@@ -9,5 +9,6 @@ generated: true
 paperurl: https://link.springer.com/book/9783032232328
 permalink: /publication/casazza-duenez-iovino-2026
 title: Nondefinability of the spaces of Tsirelson and Schlumprecht
-venue: Sampling, Frames, and Harmonic Analysis
+venue: Sampling, Frames, and Harmonic Analysis (In press; scheduled to appear in print
+  October 2026)
 ---
