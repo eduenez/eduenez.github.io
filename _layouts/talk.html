@@ -43,6 +43,13 @@ layout: default
       <section class="page__content" itemprop="text">
         {{ content }}
         {% if page.link %}<div><a href="{{ page.link }}" class="btn">{{ site.data.ui-text[site.locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}
+        {% if page.materials %}
+          <div class="talk-materials">
+            {% for m in page.materials %}
+              <a href="{{ m.url }}" class="btn">{{ m.label }}</a>
+            {% endfor %}
+          </div>
+        {% endif %}
       </section>
 
       <footer class="page__meta">

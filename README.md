@@ -71,6 +71,34 @@ Running the full `scripts/generate_collections.py` also rebuilds
 publications/talks, which needs the `math-bibliography` submodule; the
 one-liner above regenerates `_teaching/` only and skips that dependency.
 
+### Adding materials to a talk
+
+Slide PDFs and notebooks for a talk live in the private `talks` repo and get
+copied here by that repo's `make publish` (see its README's "Publishing to
+the Website" section) — this only covers what to do once files have already
+landed under `files/talks/<id>/`.
+
+1. Confirm the files are there: `ls files/talks/<id>/`.
+2. Edit that talk's entry in `_data/talks.yml`, adding whichever of these it
+   has (all optional):
+
+   ```yaml
+   slides: /files/talks/<id>/slides.pdf
+   notebooks:
+     - name: "Display Name"
+       path: /files/talks/<id>/notebooks/foo.ipynb
+       colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/<id>/notebooks/foo.ipynb
+   code: https://github.com/eduenez/eduenez.github.io/tree/main/files/talks/<id>
+   ```
+
+3. Regenerate and publish, same as any other `_data/` edit:
+
+   ```bash
+   python3 scripts/generate_collections.py
+   git add -A && git commit -m "Add materials for <id>"
+   git push
+   ```
+
 ## LaTeX toolchain
 
 Requires a TeX Live install with `latexmk`, `pdflatex`, and the `roboto`,

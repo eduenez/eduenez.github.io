@@ -188,6 +188,21 @@ def generate_talks():
             "date": f"{t['year']}-{month:02d}-01",
             "generated": True,
         }
+
+        # Optional material links (slides/notebooks/code), populated by
+        # copying files from the private `talks` repo — see that repo's
+        # README, "Publishing to the Website", and this repo's README,
+        # "Adding materials to a talk".
+        materials = []
+        if t.get("slides"):
+            materials.append({"label": "Slides (PDF)", "url": t["slides"]})
+        for nb in t.get("notebooks", []):
+            materials.append({"label": nb["name"], "url": nb.get("colab_url", nb["path"])})
+        if t.get("code"):
+            materials.append({"label": "Code", "url": t["code"]})
+        if materials:
+            front_matter["materials"] = materials
+
         text = "---\n" + yaml_str(front_matter) + "\n---\n"
         (out_dir / f"{t['id']}.md").write_text(text, encoding="utf-8")
 

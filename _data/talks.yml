@@ -28,6 +28,14 @@ research_talks:
   venue: Facultad de Estudios Superiores Acatlán, UNAM, May 22, 2026 (also given
     in Spanish, same date/venue, as "Complejidad de cómputos profundos").
   title: 'Complexity of Deep Computations via Topology of Function Spaces.'
+  slides: /files/talks/talk-2026-complexity-of-deep-computations-via-topol/slides.pdf
+  notebooks:
+    - name: "VC Dimension, NIP, and Learnability"
+      path: /files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/vc_nip.ipynb
+      colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/vc_nip.ipynb
+    - name: "Newton Fractals"
+      path: /files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/newton_fractals.ipynb
+      colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/newton_fractals.ipynb
 - id: talk-2026-real-valued-computations-a-perspective-v
   kind: research
   year: 2026

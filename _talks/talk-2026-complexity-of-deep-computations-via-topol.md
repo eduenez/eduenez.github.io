@@ -2,6 +2,13 @@
 collection: talks
 date: '2026-05-01'
 generated: true
+materials:
+- label: Slides (PDF)
+  url: /files/talks/talk-2026-complexity-of-deep-computations-via-topol/slides.pdf
+- label: VC Dimension, NIP, and Learnability
+  url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/vc_nip.ipynb
+- label: Newton Fractals
+  url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/newton_fractals.ipynb
 permalink: /talks/talk-2026-complexity-of-deep-computations-via-topol
 title: Complexity of Deep Computations via Topology of Function Spaces.
 type: Research Talk
