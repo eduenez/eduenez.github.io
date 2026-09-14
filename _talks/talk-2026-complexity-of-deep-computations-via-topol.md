@@ -9,6 +9,10 @@ materials:
   url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/vc_nip.ipynb
 - label: Newton Fractals
   url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/newton_fractals.ipynb
+- label: Baire Class 1 Functions
+  url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/baire_functions.ipynb
+- label: Deep Equilibrium Networks
+  url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/deq_networks.ipynb
 permalink: /talks/talk-2026-complexity-of-deep-computations-via-topol
 title: Complexity of Deep Computations via Topology of Function Spaces.
 type: Research Talk

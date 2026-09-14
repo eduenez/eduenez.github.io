@@ -194,6 +194,8 @@ def generate_talks():
         # README, "Publishing to the Website", and this repo's README,
         # "Adding materials to a talk".
         materials = []
+        if t.get("talk_page"):
+            materials.append({"label": "Open the interactive talk", "url": t["talk_page"]})
         if t.get("slides"):
             materials.append({"label": "Slides (PDF)", "url": t["slides"]})
         for nb in t.get("notebooks", []):

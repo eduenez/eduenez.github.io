@@ -36,6 +36,12 @@ research_talks:
     - name: "Newton Fractals"
       path: /files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/newton_fractals.ipynb
       colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/newton_fractals.ipynb
+    - name: "Baire Class 1 Functions"
+      path: /files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/baire_functions.ipynb
+      colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/baire_functions.ipynb
+    - name: "Deep Equilibrium Networks"
+      path: /files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/deq_networks.ipynb
+      colab_url: https://colab.research.google.com/github/eduenez/eduenez.github.io/blob/main/files/talks/talk-2026-complexity-of-deep-computations-via-topol/notebooks/deq_networks.ipynb
 - id: talk-2026-real-valued-computations-a-perspective-v
   kind: research
   year: 2026
