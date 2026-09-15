@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What we can compute, what we cannot</title>
+<!--
+  What we can compute, what we cannot — and the wisdom to know the difference.
+  Eduardo Dueñez, UTSA Mathematics, 2026-09-18.  Lightning talk, 13 min.
+
+  This single file IS the talk: the surface driven live from the podium, and the
+  takeaway students open from the QR. Those two jobs impose the constraint kept
+  from `erlangen-program/web/`: NO EXTERNAL REQUESTS OF ANY KIND. No CDN, no
+  fonts, no images on disk. It opens by double-clicking the file, from a thumb
+  drive, with the Wi-Fi off. Verify in DevTools -> Network: exactly one request.
+
+  Nine SLIDES (the standard word; reveal.js says slide/fragment, impress.js step,
+  Beamer frame/overlay). Five carry live computation, and each interaction earns
+  its keystroke -- it shows something no static figure can:
+
+    slide 2  NEWTON, WebGL2 + 2-D overlay.  f(z) = z^3 - 2z + 2, one Newton orbit
+             per pixel, colored by inverse-distance blending over the three roots
+             (r/g/b) and the attracting 2-cycle {0,1} (cyan/magenta).  Same
+             polynomial, palette, window and divergence cutoff as
+             `DeepComputationsNIP/tools/render_newton.py`.  The WINDOW is wider
+             than the published figures (x, y in [-1.5, 1.5] about the origin, so
+             the unit circle sits in frame with room around it) and is therefore
+             NOT pixel-comparable to newton_div100/101.png; an earlier build used
+             the paper's window and matched it to a median of 1 grey level.
+             MEASURED at 700x700 on each polynomial's own default window.
+             For z^3 - 1: between n=100 and n=101, 0.000% of the frame changes --
+             not a single pixel -- and the composition is three basins only
+             (32.90 / 32.90 / 34.21%), with no cyan or magenta anywhere.
+             For z^3 - 2z + 2: between n=100 and n=101
+             the three root basins are bit-identical (red 31.98%, green 33.48%,
+             blue 33.48% of frame); the only transitions are cyan->magenta
+             (0.69%) and magenta->cyan (0.37%).  So the honest line here is
+             "almost 99% frozen, 1.1% flipping forever", NOT "the whole picture
+             changes".  These fractions are WINDOW-DEPENDENT -- re-measure if the
+             default view moves again, and note they do not describe a zoomed-in
+             view at all.
+             DRAG z0: the orbit draws itself -- into a root and stops, or into the
+             2-cycle and alternates forever.  That is the deep equilibrium, felt.
+             SCROLL to zoom on the cursor; `0` resets.  Zoom is clamped at a
+             half-height of 1e-4 because the shader is 32-bit float and goes
+             blocky, not deeper, past that.
+
+    slide 3  LIMIT EXCHANGE.  The one piece of mathematics here that must not be
+             fudged.  Grothendieck's criterion is a TWO-INDEX condition: m runs
+             over FUNCTIONS, n over POINTS.  It is NOT two limits in one variable.
+             (The published companion notebook said otherwise and was wrong; it
+             has been corrected.  For a generic irrational x, lim_m cos^2n(m! pi x)
+             does not exist at all, so the "reversed order" of the single-variable
+             double limit is undefined, not 0.)
+
+             What is exhibited here is exact and needs no genericity.  With
+             g_m(x) = 1[m! x in Z], x_inf irrational, and (x_n) ANY rationals
+             with x_n -> x_inf:
+               * fix n: x_n is rational, so m! x_n in Z for all large m  =>  row
+                 limit down a column is 1  =>  lim_n lim_m = 1
+               * fix m: (1/m!)Z is closed, discrete, and misses x_inf, so it keeps
+                 a distance delta_m > 0; once |x_n - x_inf| < delta_m we get
+                 g_m(x_n) = 0  =>  along a row the limit is 0  =>  lim_m lim_n = 0
+             The grid is computed live in exact BigInt arithmetic from
+             k_n = round(x_inf * n!) -- never floating point, so the displayed
+             0/1 pattern is the truth, not a rounding artifact.
+
+    slide 5  COIN.  Separates learning a concept from predicting an instance: the
+             estimate of the bias converges, per-flip accuracy is pinned at
+             max(p, 1-p) forever.  Simulated live, so it is a real sample path.
+
+    slide 6  THE PROGRAMS.  Listings transcribed verbatim from
+             `evorobust-neurips2026.tex` Appendix app:code.  Toggling "as emitted"
+             against "pruned" is honest about the search's waste: the two are
+             machine-verified prediction-identical on 9,216 validation shots.
+
+    slide 7  PARETO.  Every number quoted from the EQTC 2026 abstract, the current
+             source of record.  Cost is a work proxy internal to this panel;
+             R5-E059's and R5-E075's margins over BP+AC are flagged cost-fragile,
+             so the page says "at indistinguishable cost", never "cheaper".
+
+  Console: talk.goto(i) / next() / prev() / setN(101) / flip(true) / timer(true)
+           talk.exchange(m, n) / talk.state
+  Keys: arrows, space, 1-9 jump, f flip, t timer, a appendix, p projects, ? help.
+  The URL fragment tracks the slide, so a crash mid-talk costs nothing.
+-->
+<style>
+  :root {
+    --bg:#0b0d10; --ink:#f2efe9; --dim:#9aa3ad; --accent:#ff7a33; --navy:#7fa8d6;
+    --cyan:#4ad9e4; --magenta:#e86bd0; --green:#7fd69a; --rule:#2a2f37; --panel:#12151a;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased; }
+
+  .slide { position:fixed; inset:0; display:none; flex-direction:column; justify-content:center;
+    padding:clamp(1rem,3.4vmin,3.2rem) clamp(1.1rem,5vmin,5rem); animation:rise 300ms ease-out; }
+  .slide.active { display:flex; }
+  @keyframes rise { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  @media (prefers-reduced-motion:reduce){ .slide{animation:none} }
+
+  .kicker { font-size:clamp(0.66rem,1.35vmin,1rem); letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin-bottom:clamp(0.4rem,1.4vmin,1rem); }
+  h1 { font-size:clamp(1.7rem,5.6vmin,4.4rem); line-height:1.06; margin:0 0 clamp(0.5rem,1.8vmin,1.4rem);
+       font-weight:700; letter-spacing:-0.02em; }
+  h2 { font-size:clamp(1.25rem,3.6vmin,2.7rem); line-height:1.12; margin:0 0 clamp(0.4rem,1.5vmin,1rem);
+       font-weight:650; letter-spacing:-0.01em; }
+  p  { font-size:clamp(0.9rem,1.9vmin,1.45rem); line-height:1.45; margin:0 0 0.7em; max-width:34em; }
+  .lede { font-size:clamp(1rem,2.6vmin,2rem); line-height:1.3; max-width:26em; }
+  .dim { color:var(--dim); } .accent { color:var(--accent); }
+  em.hi { font-style:normal; color:var(--accent); font-weight:650; }
+  a { color:var(--navy); text-underline-offset:3px; } a:hover { color:var(--accent); }
+  .cap { font-size:clamp(0.68rem,1.35vmin,0.98rem); color:var(--dim); margin-top:0.5em; line-height:1.4; }
+  .math { font-family:ui-serif, Georgia, "Times New Roman", serif; font-style:italic; }
+  code, pre, kbd { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .split { display:flex; gap:clamp(0.9rem,3.2vmin,3rem); align-items:center; flex:1; min-height:0; }
+  .split > .text { flex:1 1 38%; min-width:0; }
+  .split > .figure { flex:1 1 62%; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:center; }
+  canvas { display:block; margin:0 auto; border-radius:9px; background:#000; max-width:100%; }
+
+  .controls { display:flex; align-items:center; gap:0.7rem; margin-top:0.6rem; flex-wrap:wrap; }
+  .controls label { font-size:clamp(0.68rem,1.35vmin,0.95rem); color:var(--dim); white-space:nowrap; }
+  input[type=range] { flex:1; min-width:6rem; accent-color:var(--accent); }
+  .nval { font-variant-numeric:tabular-nums; font-weight:700; color:var(--accent);
+          font-size:clamp(0.85rem,1.8vmin,1.3rem); }
+  button { font:inherit; font-size:clamp(0.68rem,1.35vmin,0.95rem); color:var(--ink); background:#171b21;
+    border:1px solid var(--rule); border-radius:7px; padding:0.35em 0.8em; cursor:pointer; }
+  button:hover { border-color:var(--accent); color:var(--accent); }
+  button[aria-pressed="true"] { background:var(--accent); color:#101216; border-color:var(--accent); font-weight:650; }
+
+  .box { border:1px solid var(--rule); border-radius:9px; padding:clamp(0.5rem,1.6vmin,1.1rem); background:var(--panel); }
+  .equation { font-size:clamp(0.95rem,3vmin,2.3rem); font-weight:700; margin:clamp(0.3rem,1.2vmin,0.9rem) 0; line-height:1.25; }
+  .equation .eq { color:var(--accent); margin:0 0.2em; }
+
+  /* slide 1 — the two failure modes */
+  .modes { display:flex; gap:clamp(0.7rem,2.5vmin,2rem); flex-wrap:wrap; margin:clamp(0.4rem,1.6vmin,1.2rem) 0; }
+  .mode { flex:1 1 18rem; border-left:3px solid var(--cyan); }
+  .mode:nth-child(2) { border-left-color:var(--magenta); }
+  .mode h3 { margin:0 0 0.3em; font-size:clamp(1rem,2.4vmin,1.8rem); }
+
+  /* slide 3 — the exchange grid */
+  .exwrap { display:flex; gap:clamp(0.6rem,2vmin,1.6rem); align-items:flex-start; }
+  #exgrid { display:grid; gap:2px; font-variant-numeric:tabular-nums;
+    width:min(100%, 42vh); margin:0 auto; }
+  #exgrid div { aspect-ratio:1; display:grid; place-items:center; border-radius:3px;
+    font-size:clamp(0.42rem,0.95vmin,0.8rem); background:#161a20; color:#3d4650; }
+  #exgrid div.one { background:#1d3a4a; color:var(--cyan); }
+  #exgrid div.rowhit { outline:1.5px solid var(--magenta); outline-offset:-1.5px; }
+  #exgrid div.colhit { outline:1.5px solid var(--cyan); outline-offset:-1.5px; }
+  #exgrid div.both { outline:2px solid var(--accent); outline-offset:-2px; }
+  .axis { font-size:clamp(0.6rem,1.2vmin,0.9rem); color:var(--dim); }
+  .verdict { display:flex; gap:clamp(0.5rem,2vmin,1.5rem); flex-wrap:wrap; margin-top:0.5rem; }
+  .verdict div { flex:1 1 11rem; }
+  .verdict b { font-size:clamp(1rem,2.4vmin,1.7rem); }
+
+  /* slide 4 — the ladder */
+  .ladder { display:flex; flex-direction:column; gap:clamp(0.25rem,0.9vmin,0.6rem); }
+  .rung { display:flex; align-items:baseline; gap:0.8rem; cursor:pointer; border:1px solid var(--rule);
+    border-radius:8px; padding:clamp(0.35rem,1.1vmin,0.7rem) clamp(0.5rem,1.6vmin,1rem); background:var(--panel); }
+  .rung:hover { border-color:var(--accent); }
+  .rung.sel { border-color:var(--accent); background:#1a1410; }
+  .rung .lvl { font-weight:700; color:var(--accent); min-width:5.5em; font-size:clamp(0.8rem,1.8vmin,1.25rem); }
+  .rung .what { font-size:clamp(0.75rem,1.6vmin,1.1rem); }
+  #rungdetail { min-height:5.5em; }
+
+  /* slide 6 — code */
+  .codes { display:flex; gap:clamp(0.5rem,2vmin,1.5rem); flex:1; min-height:0; }
+  .codecol { flex:1 1 50%; min-width:0; display:flex; flex-direction:column; }
+  .codecol h3 { margin:0 0 0.35em; font-size:clamp(0.72rem,1.5vmin,1.05rem); letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--dim); font-weight:700; }
+  /* The code has to be readable from the back of a lecture room, so it is sized
+     against the viewport and the block grows to fill its column. */
+  pre { margin:0; overflow:auto; flex:1; background:var(--panel); border:1px solid var(--rule);
+    border-radius:8px; padding:clamp(0.5rem,1.5vmin,1.1rem);
+    font-size:clamp(0.56rem,1.42vmin,1.15rem); line-height:1.5; color:#cfd6de; white-space:pre; }
+  pre .c { color:#6d7a86; } pre .k { color:var(--magenta); } pre .f { color:var(--cyan); } pre .n { color:var(--accent); }
+
+  /* HUD + overlays */
+  #hud { position:fixed; right:0.6rem; bottom:0.5rem; display:flex; gap:0.6rem; align-items:center;
+    font-size:clamp(0.58rem,1.2vmin,0.85rem); color:var(--dim); font-variant-numeric:tabular-nums;
+    background:rgba(11,13,16,0.72); padding:0.25rem 0.55rem; border-radius:999px; pointer-events:none; }
+  #clock { display:none; font-weight:700; } #clock.on { display:inline; }
+  #clock.over { color:#ff6b6b; } #clock.ahead { color:var(--green); }
+  #dots { display:flex; gap:3px; } #dots i { width:4px; height:4px; border-radius:50%; background:var(--rule); display:block; }
+  #dots i.on { background:var(--accent); }
+  .overlay { position:fixed; inset:0; background:rgba(8,9,12,0.975); z-index:50; overflow-y:auto;
+    padding:clamp(1rem,4vmin,3.5rem); display:none; }
+  .overlay.open { display:block; }
+  .proj { border-bottom:1px solid var(--rule); padding:0.6rem 0; max-width:62em; }
+  .proj .meta { color:var(--dim); font-size:clamp(0.68rem,1.35vmin,0.95rem); }
+  .status { display:inline-block; font-size:0.7em; letter-spacing:0.08em; text-transform:uppercase;
+    border:1px solid var(--rule); border-radius:999px; padding:0.1em 0.6em; margin-left:0.4em; color:var(--dim); }
+  .status.live { color:var(--green); border-color:#2f6b3d; }
+  kbd { background:#171b21; border:1px solid var(--rule); border-bottom-width:2px; border-radius:5px;
+        padding:0.05em 0.4em; font-size:0.9em; }
+  #qrbox { background:#fff; padding:6px; border-radius:7px; flex:none; }
+  #qrbox svg, #qrbox2 svg { display:block; width:100%; height:auto; }
+  .qr-title { width:clamp(72px,11vmin,140px); }
+  .qr-end { width:clamp(84px,14vmin,175px); }
+
+  /* small screens: the page must be READABLE by a student who scanned the QR */
+  p, .cap, .lede, .proj, .rung { overflow-wrap:anywhere; }
+  .split > .text, .split > .figure, .mode, .codecol, .verdict div { min-width:0; }
+  @media (max-width:840px), (max-height:470px) {
+    html, body { overflow:auto; }
+    .slide { position:static; min-height:100vh; justify-content:flex-start;
+      padding-top:clamp(1.2rem,7vw,2.5rem); padding-bottom:3.5rem; }
+    .slide.active { display:flex; }
+    .split, .codes, .exwrap { flex-direction:column; align-items:stretch; }
+    #hud { display:none; }
+    .tap-hint { display:block; }
+  }
+  .tap-hint { display:none; color:var(--dim); font-size:0.85rem; margin-top:1rem; }
+</style>
+</head>
+<body>
+
+<!-- ============ 0 — title ============ -->
+<section class="slide active" data-slide="0">
+  <div class="kicker">UTSA Mathematics · 18 September 2026</div>
+  <h1>What we can compute,<br>what we cannot</h1>
+  <p class="lede" style="color:var(--accent);margin-bottom:1.2em">— and the wisdom to know the difference.</p>
+  <div style="display:flex;gap:clamp(0.8rem,3vmin,2.5rem);align-items:center;flex-wrap:wrap">
+    <div id="qrbox" class="qr-title"><svg viewBox="-2 -2 41 41" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Link to this talk"><rect x="-2" y="-2" width="41" height="41" fill="#fff"/><path fill="#000" d="M0 0h7v1h-7zM8 0h2v1h-2zM14 0h3v1h-3zM25 0h1v1h-1zM28 0h1v1h-1zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM13 1h4v1h-4zM28 1h1v1h-1zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h1v1h-1zM12 2h1v1h-1zM15 2h2v1h-2zM18 2h2v1h-2zM23 2h6v1h-6zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h3v1h-3zM12 3h2v1h-2zM15 3h1v1h-1zM17 3h2v1h-2zM20 3h1v1h-1zM22 3h6v1h-6zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM10 4h2v1h-2zM14 4h3v1h-3zM19 4h1v1h-1zM24 4h5v1h-5zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM13 5h1v1h-1zM17 5h4v1h-4zM22 5h1v1h-1zM26 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM8 7h2v1h-2zM14 7h1v1h-1zM16 7h1v1h-1zM19 7h2v1h-2zM22 7h1v1h-1zM24 7h1v1h-1zM28 7h1v1h-1zM0 8h1v1h-1zM2 8h2v1h-2zM5 8h3v1h-3zM11 8h1v1h-1zM14 8h1v1h-1zM18 8h1v1h-1zM22 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM30 8h1v1h-1zM33 8h1v1h-1zM35 8h2v1h-2zM0 9h1v1h-1zM4 9h1v1h-1zM10 9h2v1h-2zM13 9h1v1h-1zM15 9h1v1h-1zM17 9h2v1h-2zM20 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM28 9h1v1h-1zM31 9h1v1h-1zM34 9h2v1h-2zM0 10h3v1h-3zM6 10h5v1h-5zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h3v1h-3zM22 10h2v1h-2zM28 10h2v1h-2zM31 10h1v1h-1zM33 10h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM5 11h1v1h-1zM7 11h1v1h-1zM9 11h6v1h-6zM16 11h1v1h-1zM18 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM25 11h2v1h-2zM29 11h2v1h-2zM33 11h2v1h-2zM2 12h1v1h-1zM6 12h1v1h-1zM8 12h2v1h-2zM12 12h2v1h-2zM15 12h3v1h-3zM19 12h1v1h-1zM22 12h1v1h-1zM24 12h3v1h-3zM28 12h5v1h-5zM34 12h3v1h-3zM2 13h2v1h-2zM14 13h2v1h-2zM17 13h3v1h-3zM21 13h1v1h-1zM24 13h2v1h-2zM27 13h2v1h-2zM30 13h4v1h-4zM35 13h2v1h-2zM0 14h3v1h-3zM4 14h4v1h-4zM9 14h1v1h-1zM11 14h1v1h-1zM14 14h1v1h-1zM16 14h1v1h-1zM19 14h1v1h-1zM21 14h1v1h-1zM24 14h3v1h-3zM28 14h2v1h-2zM32 14h1v1h-1zM34 14h1v1h-1zM0 15h1v1h-1zM2 15h1v1h-1zM5 15h1v1h-1zM9 15h3v1h-3zM13 15h2v1h-2zM20 15h1v1h-1zM23 15h1v1h-1zM26 15h1v1h-1zM28 15h5v1h-5zM4 16h1v1h-1zM6 16h2v1h-2zM11 16h4v1h-4zM17 16h1v1h-1zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h1v1h-1zM29 16h1v1h-1zM31 16h1v1h-1zM33 16h2v1h-2zM3 17h1v1h-1zM5 17h1v1h-1zM8 17h3v1h-3zM12 17h1v1h-1zM18 17h2v1h-2zM22 17h1v1h-1zM25 17h4v1h-4zM30 17h1v1h-1zM33 17h4v1h-4zM1 18h2v1h-2zM6 18h1v1h-1zM9 18h2v1h-2zM13 18h2v1h-2zM20 18h3v1h-3zM25 18h1v1h-1zM27 18h1v1h-1zM29 18h3v1h-3zM34 18h3v1h-3zM0 19h2v1h-2zM7 19h2v1h-2zM13 19h5v1h-5zM20 19h1v1h-1zM22 19h1v1h-1zM24 19h1v1h-1zM26 19h3v1h-3zM31 19h1v1h-1zM33 19h1v1h-1zM35 19h1v1h-1zM0 20h2v1h-2zM3 20h2v1h-2zM6 20h2v1h-2zM11 20h2v1h-2zM15 20h1v1h-1zM17 20h3v1h-3zM21 20h1v1h-1zM23 20h1v1h-1zM26 20h4v1h-4zM31 20h2v1h-2zM36 20h1v1h-1zM0 21h1v1h-1zM4 21h2v1h-2zM7 21h1v1h-1zM10 21h3v1h-3zM14 21h1v1h-1zM17 21h8v1h-8zM28 21h2v1h-2zM33 21h1v1h-1zM35 21h1v1h-1zM1 22h1v1h-1zM6 22h2v1h-2zM10 22h1v1h-1zM13 22h2v1h-2zM16 22h1v1h-1zM18 22h1v1h-1zM23 22h2v1h-2zM26 22h1v1h-1zM30 22h2v1h-2zM35 22h1v1h-1zM0 23h1v1h-1zM2 23h1v1h-1zM8 23h2v1h-2zM11 23h2v1h-2zM17 23h1v1h-1zM19 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM27 23h3v1h-3zM32 23h3v1h-3zM36 23h1v1h-1zM0 24h2v1h-2zM3 24h5v1h-5zM16 24h1v1h-1zM21 24h1v1h-1zM24 24h4v1h-4zM29 24h2v1h-2zM32 24h1v1h-1zM34 24h1v1h-1zM36 24h1v1h-1zM2 25h1v1h-1zM4 25h2v1h-2zM8 25h1v1h-1zM10 25h1v1h-1zM17 25h1v1h-1zM22 25h1v1h-1zM25 25h1v1h-1zM27 25h4v1h-4zM32 25h1v1h-1zM34 25h3v1h-3zM1 26h1v1h-1zM3 26h1v1h-1zM6 26h5v1h-5zM13 26h2v1h-2zM21 26h2v1h-2zM24 26h1v1h-1zM26 26h1v1h-1zM31 26h1v1h-1zM34 26h2v1h-2zM0 27h1v1h-1zM5 27h1v1h-1zM9 27h1v1h-1zM11 27h2v1h-2zM14 27h2v1h-2zM19 27h4v1h-4zM26 27h2v1h-2zM30 27h2v1h-2zM35 27h2v1h-2zM4 28h1v1h-1zM6 28h1v1h-1zM11 28h2v1h-2zM14 28h1v1h-1zM18 28h4v1h-4zM23 28h4v1h-4zM28 28h5v1h-5zM34 28h2v1h-2zM8 29h1v1h-1zM12 29h1v1h-1zM14 29h3v1h-3zM20 29h6v1h-6zM27 29h2v1h-2zM32 29h1v1h-1zM34 29h3v1h-3zM0 30h7v1h-7zM8 30h5v1h-5zM15 30h2v1h-2zM18 30h1v1h-1zM22 30h1v1h-1zM26 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM34 30h1v1h-1zM36 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM11 31h3v1h-3zM15 31h1v1h-1zM17 31h2v1h-2zM21 31h1v1h-1zM23 31h2v1h-2zM27 31h2v1h-2zM32 31h1v1h-1zM35 31h1v1h-1zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM10 32h4v1h-4zM15 32h2v1h-2zM19 32h2v1h-2zM26 32h1v1h-1zM28 32h6v1h-6zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM8 33h2v1h-2zM11 33h1v1h-1zM14 33h4v1h-4zM23 33h1v1h-1zM25 33h2v1h-2zM29 33h2v1h-2zM32 33h2v1h-2zM36 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM8 34h3v1h-3zM12 34h1v1h-1zM15 34h1v1h-1zM17 34h2v1h-2zM21 34h3v1h-3zM25 34h1v1h-1zM27 34h1v1h-1zM29 34h2v1h-2zM32 34h2v1h-2zM0 35h1v1h-1zM6 35h1v1h-1zM12 35h1v1h-1zM15 35h1v1h-1zM19 35h1v1h-1zM24 35h2v1h-2zM31 35h4v1h-4zM0 36h7v1h-7zM8 36h2v1h-2zM12 36h1v1h-1zM14 36h1v1h-1zM17 36h1v1h-1zM20 36h1v1h-1zM22 36h1v1h-1zM25 36h2v1h-2zM29 36h1v1h-1zM32 36h1v1h-1zM34 36h3v1h-3z"/></svg></div>
+    <div>
+      <p style="margin:0">Eduardo Dueñez · <span class="dim">Mathematics, UTSA</span></p>
+      <p class="cap" style="margin:0.3em 0 0">Slides, notebooks and papers live at this link —
+        it is the same page you are looking at.<br>
+        <span class="accent" id="selfurl">supernumero.us/files/talks/talk-2026-what-we-can-compute/</span></p>
+    </div>
+  </div>
+  <p class="tap-hint">Tap anywhere to move forward.</p>
+</section>
+
+<!-- ============ 1 — two ways to be out of reach ============ -->
+<section class="slide" data-slide="1">
+  <div class="kicker">The question</div>
+  <h2>Two ways for an answer to be out of reach</h2>
+  <div class="modes">
+    <div class="mode box">
+      <h3 style="color:var(--cyan)">Too tangled</h3>
+      <p>The object is so complex that no finite description pins it down. In the
+         combinatorial form: every pattern of answers is realized — the
+         <em class="hi">independence property</em>, infinite VC dimension.</p>
+      <p class="cap">Then no procedure learns it, and none ever will, at any sample size.</p>
+    </div>
+    <div class="mode box">
+      <h3 style="color:var(--magenta)">Irreducibly random</h3>
+      <p>Nothing is tangled at all — the answer simply is not determined. The next
+         coin flip. When <em>this</em> atom decays. Thursday's weather.</p>
+      <p class="cap">Here the concept can be perfectly learnable while each instance stays unpredictable.</p>
+    </div>
+  </div>
+  <p class="lede">My work is about where that line falls — and it turns out the line
+     is not a line. It is a <em class="hi">ladder</em>.</p>
+  <p class="cap">Joint with J. Iovino (UTSA) and collaborators in Toronto; and, on the applied
+     side, with the research team at Gibran.AI in London.</p>
+</section>
+
+<!-- ============ 2 — a deep computation ============ -->
+<section class="slide" data-slide="2">
+  <div class="kicker" style="color:var(--cyan)">Too tangled · the picture</div>
+  <div class="split">
+    <div class="text">
+      <h2>A computation of infinite depth</h2>
+      <p>Newton's method on <b class="math" id="polyname">f(z) = z³ − 1</b>. Colour each
+         starting point by where it stands after <span class="nval" id="nlabel">n = 1</span> steps.</p>
+      <p id="polystory"></p>
+      <p class="dim" id="polycompare"></p>
+      <div class="controls">
+        <span class="axis">polynomial</span>
+        <button class="polybtn" data-poly="z3m1">z³ − 1</button>
+        <button class="polybtn" data-poly="z3m2zp2">z³ − 2z + 2</button>
+        <kbd>g</kbd>
+      </div>
+      <div class="controls">
+        <label for="nslider">n</label>
+        <input id="nslider" type="range" min="1" max="120" value="1" step="1">
+        <button id="flipbtn" aria-pressed="false">Flip 100 ↔ 101 <kbd>f</kbd></button>
+      </div>
+      <p class="cap" id="orbitreadout">Drag the white dot: its orbit is drawn step by step.</p>
+      <p class="cap" style="margin-top:0.2em">Scroll to zoom anywhere in the picture;
+         <kbd>0</kbd> returns to this view.</p>
+    </div>
+    <div class="figure">
+      <div id="newtonstack" style="position:relative;margin:0 auto">
+        <canvas id="newton"></canvas>
+        <canvas id="newtonfx" style="position:absolute;inset:0;background:transparent;touch-action:none;cursor:grab"></canvas>
+      </div>
+      <p class="cap" id="polycap"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 — limit exchange ============ -->
+<section class="slide" data-slide="3">
+  <div class="kicker" style="color:var(--cyan)">Too tangled · the criterion</div>
+  <div class="split">
+    <div class="text">
+      <h2>Tame or wild? Exchange the limits</h2>
+      <p>Let <span class="math">g<sub>m</sub>(x) = 1</span> exactly when <span class="math">m!·x</span>
+         is an integer. Each <span class="math">g<sub>m</sub></span> is a limit of continuous
+         functions. Their limit is Dirichlet's function — nowhere continuous, and
+         <em class="hi">not</em> Baire-1.</p>
+      <p>Fix an irrational <span class="math">x<sub>∞</sub></span> and take <em>any</em> rationals
+         <span class="math">x<sub>n</sub> → x<sub>∞</sub></span>. Grothendieck's criterion asks
+         whether two iterated limits agree — one index over
+         <span style="color:var(--magenta)">functions</span>, one over
+         <span style="color:var(--cyan)">points</span>.</p>
+      <div class="controls">
+        <label for="mslider">m (function)</label>
+        <input id="mslider" type="range" min="1" max="14" value="4" step="1">
+        <span class="nval" id="mval">4</span>
+      </div>
+      <div class="controls">
+        <label for="xslider">n (point)</label>
+        <input id="xslider" type="range" min="1" max="14" value="4" step="1">
+        <span class="nval" id="xval">4</span>
+      </div>
+      <p class="cap">Computed live in exact integer arithmetic — never floating point.</p>
+    </div>
+    <div class="figure">
+      <div class="exwrap">
+        <div style="flex:1 1 auto;min-width:0">
+          <div id="exgrid"></div>
+          <p class="axis" style="text-align:center;margin-top:0.35em">n — the point <span class="math">x<sub>n</sub></span> →</p>
+        </div>
+      </div>
+      <div class="verdict">
+        <div class="box" style="border-left:3px solid var(--magenta)">
+          <span class="dim" style="font-size:0.85em">along the row — fix <i>m</i>, let <i>n</i>→∞</span><br>
+          <b style="color:var(--magenta)" id="rowlim">→ 0</b>
+          <div class="cap" style="margin:0">so lim<sub>m</sub> lim<sub>n</sub> = <b>0</b></div>
+        </div>
+        <div class="box" style="border-left:3px solid var(--cyan)">
+          <span class="dim" style="font-size:0.85em">down the column — fix <i>n</i>, let <i>m</i>→∞</span><br>
+          <b style="color:var(--cyan)" id="collim">→ 1</b>
+          <div class="cap" style="margin:0">so lim<sub>n</sub> lim<sub>m</sub> = <b>1</b></div>
+        </div>
+      </div>
+      <p class="equation" style="text-align:center;margin-bottom:0.15em">0 <span class="eq">≠</span> 1 — the exchange fails</p>
+      <p class="cap" style="text-align:center;max-width:none">When it does <em>not</em> fail, the deep
+         computation is explicitly computable. That is the theorem.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 — the ladder ============ -->
+<section class="slide" data-slide="4">
+  <div class="kicker">The wisdom to know the difference</div>
+  <div class="split">
+    <div class="text">
+      <h2>Tameness comes in degrees</h2>
+      <p class="equation" style="font-size:clamp(0.8rem,2.1vmin,1.5rem)">
+        tame <span class="eq">=</span> Baire-1 <span class="eq">=</span> NIP
+        <span class="eq">=</span> finite VC <span class="eq">=</span> PAC-learnable</p>
+      <p>Topology, model theory and statistical learning drew the same line
+         independently. But above that line there is structure: four levels,
+         distinguished by how the closure sits topologically.</p>
+      <p class="cap">Underneath sits Todorčević's trichotomy for Rosenthal compacta — proved with
+        forcing and infinite Ramsey theory; decades on, still no elementary proof.
+        Argyros–Dodos–Kanellopoulos refine it to seven minimal prototypes.</p>
+      <p class="cap">Defined for countable families already known to be NIP. The levels are, so far,
+        <em>purely topological</em>: whether a combinatorial characterization exists is open.</p>
+    </div>
+    <div class="figure">
+      <div class="ladder" id="ladder"></div>
+      <div class="box" id="rungdetail" style="margin-top:0.6rem"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 — randomness ============ -->
+<section class="slide" data-slide="5">
+  <div class="kicker" style="color:var(--magenta)">Irreducibly random</div>
+  <div class="split">
+    <div class="text">
+      <h2>Learnable, and still unpredictable</h2>
+      <p>A biased coin, <span class="math">p</span> unknown. Two different questions:
+         <em class="hi">what is p</em>, and <em class="hi">what is the next flip</em>.</p>
+      <p>The first is learnable to any precision you like. On the second you will be wrong
+         <span class="math">min(p, 1−p)</span> of the time — and no quantity of data moves that,
+         ever.</p>
+      <p class="dim">So "not computable" and "not predictable" are different failures. The
+         theory extends: if the family is NIP, every deep computation is
+         <em class="hi">universally Monte Carlo computable</em> — measurable against every
+         reasonable measure. Whether the converse holds is open.</p>
+      <div class="controls">
+        <label for="pslider">p</label>
+        <input id="pslider" type="range" min="0.5" max="0.95" value="0.7" step="0.01">
+        <span class="nval" id="pval">0.70</span>
+        <button id="resample">New sample</button>
+      </div>
+      <p class="cap">Quantum computation is, loosely, statistical classical computation —
+        which is where this theory is headed next. <span class="dim">(That framing is mine;
+        it is not yet in the papers.)</span></p>
+    </div>
+    <div class="figure">
+      <canvas id="coin"></canvas>
+      <p class="cap">Both plotted as <b>error</b>. <span style="color:var(--cyan)">Cyan</span>:
+         how far the estimate of <i>p</i> is from the truth — it goes to zero.
+         <span style="color:var(--magenta)">Magenta</span>: how often the next flip is called
+         wrong — it stops at min(<i>p</i>, 1−<i>p</i>) and stays there forever.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 — the programs ============ -->
+<section class="slide" data-slide="6">
+  <div class="kicker" style="color:var(--green)">The applied thread</div>
+  <h2>We wrote the language; the search wrote the algorithm</h2>
+  <p style="max-width:none;margin-bottom:0.6em">Thirteen published decoders for quantum error
+     correction, each hand-designed by an expert over a paper's worth of work. We expressed the
+     primitives they share as <b>38 typed operations</b> — then evolved new programs in that
+     language. <span class="dim">Mutation and crossover. No language model anywhere.</span></p>
+  <div class="codes">
+    <div class="codecol">
+      <h3>Written by the search <button id="rawbtn" aria-pressed="false" style="margin-left:0.5em;text-transform:none;letter-spacing:0">show as emitted</button></h3>
+      <pre id="evolved"></pre>
+    </div>
+    <div class="codecol">
+      <h3>Written by hand — BP + Ambiguity Clustering</h3>
+      <pre id="human"></pre>
+    </div>
+  </div>
+  <p class="cap" id="codecap" style="max-width:none"></p>
+</section>
+
+<!-- ============ 7 — the frontier ============ -->
+<section class="slide" data-slide="7">
+  <div class="kicker" style="color:var(--green)">The applied thread</div>
+  <div class="split">
+    <div class="text">
+      <h2>And it reached the published frontier</h2>
+      <p><b>R5-E058</b> — more accurate than BP+OSD-CS at <em class="hi">1/22</em> of its cost.</p>
+      <p><b>R5-E059</b> — grown from random initialization, no expert seeds: more accurate than
+         the strongest decoder on the panel, at indistinguishable cost, while enumerating
+         <em class="hi">zero</em> candidate corrections.</p>
+      <p class="cap">12 hours of wall-clock on a 185-node cloud CPU cluster — about
+         6×10⁷ decoder evaluations. Twelve of sixteen finalists cleared a pre-registered bar on a
+         200,000-shot hold-out set. Submitted to EQTC 2026; work with Gibran.AI.</p>
+    </div>
+    <div class="figure">
+      <canvas id="pareto"></canvas>
+      <p class="cap">Selected rows from the EQTC 2026 abstract. Cost is a machine-independent work
+         proxy, internal to this panel — the margins over BP+AC are inside its resolution.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 — where you come in ============ -->
+<section class="slide" data-slide="8">
+  <div class="kicker">Where you come in</div>
+  <h2>Two groups, one open problem, and a standing invitation</h2>
+  <div class="modes">
+    <div class="mode box" style="border-left-color:var(--accent)">
+      <h3>Computability &amp; logic</h3>
+      <p>The group J. Iovino and I run has been mathematical home to some of our most talented
+         students. Topology and continuous logic, aimed at what "computable" even means.</p>
+    </div>
+    <div class="mode box" style="border-left-color:var(--green)">
+      <h3>The QEC seminar</h3>
+      <p>Newly organized by UTSA Math faculty, and looking for its regulars. Coding theory,
+         belief propagation, and algorithms that write themselves.</p>
+    </div>
+    <div class="mode box" style="border-left-color:var(--cyan)">
+      <h3>An open thesis problem</h3>
+      <p><b>Kimberly Roe</b> is asking which structural features of an optimization problem let
+         <em>any</em> optimizer beat the others on average — dependence, NIP, the same dividing
+         line as before. Early days. Room for company.</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:clamp(0.8rem,3vmin,2.5rem);align-items:center;flex-wrap:wrap;margin-top:auto">
+    <div id="qrbox2" class="qr-end" style="background:#fff;padding:7px;border-radius:8px;flex:none"><svg viewBox="-2 -2 41 41" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Link to this talk"><rect x="-2" y="-2" width="41" height="41" fill="#fff"/><path fill="#000" d="M0 0h7v1h-7zM8 0h2v1h-2zM14 0h3v1h-3zM25 0h1v1h-1zM28 0h1v1h-1zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM13 1h4v1h-4zM28 1h1v1h-1zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h1v1h-1zM12 2h1v1h-1zM15 2h2v1h-2zM18 2h2v1h-2zM23 2h6v1h-6zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h3v1h-3zM12 3h2v1h-2zM15 3h1v1h-1zM17 3h2v1h-2zM20 3h1v1h-1zM22 3h6v1h-6zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM10 4h2v1h-2zM14 4h3v1h-3zM19 4h1v1h-1zM24 4h5v1h-5zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM13 5h1v1h-1zM17 5h4v1h-4zM22 5h1v1h-1zM26 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM8 7h2v1h-2zM14 7h1v1h-1zM16 7h1v1h-1zM19 7h2v1h-2zM22 7h1v1h-1zM24 7h1v1h-1zM28 7h1v1h-1zM0 8h1v1h-1zM2 8h2v1h-2zM5 8h3v1h-3zM11 8h1v1h-1zM14 8h1v1h-1zM18 8h1v1h-1zM22 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM30 8h1v1h-1zM33 8h1v1h-1zM35 8h2v1h-2zM0 9h1v1h-1zM4 9h1v1h-1zM10 9h2v1h-2zM13 9h1v1h-1zM15 9h1v1h-1zM17 9h2v1h-2zM20 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM28 9h1v1h-1zM31 9h1v1h-1zM34 9h2v1h-2zM0 10h3v1h-3zM6 10h5v1h-5zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h3v1h-3zM22 10h2v1h-2zM28 10h2v1h-2zM31 10h1v1h-1zM33 10h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM5 11h1v1h-1zM7 11h1v1h-1zM9 11h6v1h-6zM16 11h1v1h-1zM18 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM25 11h2v1h-2zM29 11h2v1h-2zM33 11h2v1h-2zM2 12h1v1h-1zM6 12h1v1h-1zM8 12h2v1h-2zM12 12h2v1h-2zM15 12h3v1h-3zM19 12h1v1h-1zM22 12h1v1h-1zM24 12h3v1h-3zM28 12h5v1h-5zM34 12h3v1h-3zM2 13h2v1h-2zM14 13h2v1h-2zM17 13h3v1h-3zM21 13h1v1h-1zM24 13h2v1h-2zM27 13h2v1h-2zM30 13h4v1h-4zM35 13h2v1h-2zM0 14h3v1h-3zM4 14h4v1h-4zM9 14h1v1h-1zM11 14h1v1h-1zM14 14h1v1h-1zM16 14h1v1h-1zM19 14h1v1h-1zM21 14h1v1h-1zM24 14h3v1h-3zM28 14h2v1h-2zM32 14h1v1h-1zM34 14h1v1h-1zM0 15h1v1h-1zM2 15h1v1h-1zM5 15h1v1h-1zM9 15h3v1h-3zM13 15h2v1h-2zM20 15h1v1h-1zM23 15h1v1h-1zM26 15h1v1h-1zM28 15h5v1h-5zM4 16h1v1h-1zM6 16h2v1h-2zM11 16h4v1h-4zM17 16h1v1h-1zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h1v1h-1zM29 16h1v1h-1zM31 16h1v1h-1zM33 16h2v1h-2zM3 17h1v1h-1zM5 17h1v1h-1zM8 17h3v1h-3zM12 17h1v1h-1zM18 17h2v1h-2zM22 17h1v1h-1zM25 17h4v1h-4zM30 17h1v1h-1zM33 17h4v1h-4zM1 18h2v1h-2zM6 18h1v1h-1zM9 18h2v1h-2zM13 18h2v1h-2zM20 18h3v1h-3zM25 18h1v1h-1zM27 18h1v1h-1zM29 18h3v1h-3zM34 18h3v1h-3zM0 19h2v1h-2zM7 19h2v1h-2zM13 19h5v1h-5zM20 19h1v1h-1zM22 19h1v1h-1zM24 19h1v1h-1zM26 19h3v1h-3zM31 19h1v1h-1zM33 19h1v1h-1zM35 19h1v1h-1zM0 20h2v1h-2zM3 20h2v1h-2zM6 20h2v1h-2zM11 20h2v1h-2zM15 20h1v1h-1zM17 20h3v1h-3zM21 20h1v1h-1zM23 20h1v1h-1zM26 20h4v1h-4zM31 20h2v1h-2zM36 20h1v1h-1zM0 21h1v1h-1zM4 21h2v1h-2zM7 21h1v1h-1zM10 21h3v1h-3zM14 21h1v1h-1zM17 21h8v1h-8zM28 21h2v1h-2zM33 21h1v1h-1zM35 21h1v1h-1zM1 22h1v1h-1zM6 22h2v1h-2zM10 22h1v1h-1zM13 22h2v1h-2zM16 22h1v1h-1zM18 22h1v1h-1zM23 22h2v1h-2zM26 22h1v1h-1zM30 22h2v1h-2zM35 22h1v1h-1zM0 23h1v1h-1zM2 23h1v1h-1zM8 23h2v1h-2zM11 23h2v1h-2zM17 23h1v1h-1zM19 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM27 23h3v1h-3zM32 23h3v1h-3zM36 23h1v1h-1zM0 24h2v1h-2zM3 24h5v1h-5zM16 24h1v1h-1zM21 24h1v1h-1zM24 24h4v1h-4zM29 24h2v1h-2zM32 24h1v1h-1zM34 24h1v1h-1zM36 24h1v1h-1zM2 25h1v1h-1zM4 25h2v1h-2zM8 25h1v1h-1zM10 25h1v1h-1zM17 25h1v1h-1zM22 25h1v1h-1zM25 25h1v1h-1zM27 25h4v1h-4zM32 25h1v1h-1zM34 25h3v1h-3zM1 26h1v1h-1zM3 26h1v1h-1zM6 26h5v1h-5zM13 26h2v1h-2zM21 26h2v1h-2zM24 26h1v1h-1zM26 26h1v1h-1zM31 26h1v1h-1zM34 26h2v1h-2zM0 27h1v1h-1zM5 27h1v1h-1zM9 27h1v1h-1zM11 27h2v1h-2zM14 27h2v1h-2zM19 27h4v1h-4zM26 27h2v1h-2zM30 27h2v1h-2zM35 27h2v1h-2zM4 28h1v1h-1zM6 28h1v1h-1zM11 28h2v1h-2zM14 28h1v1h-1zM18 28h4v1h-4zM23 28h4v1h-4zM28 28h5v1h-5zM34 28h2v1h-2zM8 29h1v1h-1zM12 29h1v1h-1zM14 29h3v1h-3zM20 29h6v1h-6zM27 29h2v1h-2zM32 29h1v1h-1zM34 29h3v1h-3zM0 30h7v1h-7zM8 30h5v1h-5zM15 30h2v1h-2zM18 30h1v1h-1zM22 30h1v1h-1zM26 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM34 30h1v1h-1zM36 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM11 31h3v1h-3zM15 31h1v1h-1zM17 31h2v1h-2zM21 31h1v1h-1zM23 31h2v1h-2zM27 31h2v1h-2zM32 31h1v1h-1zM35 31h1v1h-1zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM10 32h4v1h-4zM15 32h2v1h-2zM19 32h2v1h-2zM26 32h1v1h-1zM28 32h6v1h-6zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM8 33h2v1h-2zM11 33h1v1h-1zM14 33h4v1h-4zM23 33h1v1h-1zM25 33h2v1h-2zM29 33h2v1h-2zM32 33h2v1h-2zM36 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM8 34h3v1h-3zM12 34h1v1h-1zM15 34h1v1h-1zM17 34h2v1h-2zM21 34h3v1h-3zM25 34h1v1h-1zM27 34h1v1h-1zM29 34h2v1h-2zM32 34h2v1h-2zM0 35h1v1h-1zM6 35h1v1h-1zM12 35h1v1h-1zM15 35h1v1h-1zM19 35h1v1h-1zM24 35h2v1h-2zM31 35h4v1h-4zM0 36h7v1h-7zM8 36h2v1h-2zM12 36h1v1h-1zM14 36h1v1h-1zM17 36h1v1h-1zM20 36h1v1h-1zM22 36h1v1h-1zM25 36h2v1h-2zM29 36h1v1h-1zM32 36h1v1h-1zM34 36h3v1h-3z"/></svg></div>
+    <div>
+      <p class="lede" style="margin:0 0 0.2em">Everything here is yours.</p>
+      <p class="cap" style="margin:0">Slides, runnable notebooks, papers —
+        <span class="accent">supernumero.us/files/talks/talk-2026-what-we-can-compute/</span><br>
+        eduardo.duenez@utsa.edu · <span class="dim">and the Problem-Solving Club meets weekly, with pizza</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ overlays ============ -->
+<div class="overlay" id="overlay-appendix">
+  <h2>Appendix — for questions</h2>
+  <div class="split" style="align-items:flex-start">
+    <div class="text">
+      <h3>What a straight line cannot do</h3>
+      <p class="cap">Four points, sixteen sign patterns; a line realizes <b id="okcount">—</b>.
+        The ones it misses are what VC dimension measures. Drag the points.</p>
+      <canvas id="shatter" style="max-width:26rem"></canvas>
+    </div>
+    <div class="text">
+      <h3>Thomae vs Dirichlet</h3>
+      <p class="cap">Thomae's function (1/q at p/q in lowest terms, 0 at irrationals) is Baire-1:
+        continuous at every irrational, discontinuous exactly on a countable — hence meager — set.
+        Dirichlet's indicator of ℚ is nowhere continuous, so by Baire's theorem it cannot be
+        Baire-1. That pair is the tame/wild boundary on the real line.</p>
+      <h3 style="margin-top:1.2em">Where the evolved decoder stops</h3>
+      <p class="cap">R5-E059's advantage does not scale indefinitely: past n = 144 its logical error
+        rate per round turns upward, 2.2 → 3.8 × 10⁻⁴, while the Ambiguity-Clustering family keeps
+        descending. Transfer results are labelled preliminary.</p>
+      <h3 style="margin-top:1.2em">Honest status</h3>
+      <p class="cap"><i>Deep Equilibria</i> — accepted, to appear in <i>Math. Structures in
+        Computer Science</i>. <i>Complexity of Deep Computations</i> — arXiv:2601.00528, in
+        preparation. EQTC and the two NeurIPS workshop papers — submitted, non-archival.</p>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:1.5rem">Press <kbd>esc</kbd> to go back.</p>
+</div>
+
+<div class="overlay" id="overlay-projects">
+  <h2>What is actually in flight</h2>
+  <div class="proj"><b>Deep Equilibria: Existence and Computability</b> <span class="status live">accepted</span>
+    <div class="meta">Alva, Dueñez, Iovino, Walton · <i>Mathematical Structures in Computer Science</i> · arXiv:2409.06064</div></div>
+  <div class="proj"><b>Complexity of Deep Computations via Topology of Function Spaces</b> <span class="status">in preparation</span>
+    <div class="meta">Dueñez, Iovino, Matos-Wiederhold, Salvetti, Tall · arXiv:2601.00528</div></div>
+  <div class="proj"><b>The No Free Lunch theorem revisited</b> <span class="status">M.S. thesis, in progress</span>
+    <div class="meta">with Kimberly Roe (UTSA) — which structural features permit a partial free lunch</div></div>
+  <div class="proj"><b>Evolving qLDPC decoders</b> <span class="status">submitted, non-archival</span>
+    <div class="meta">Dueñez, Hernandez Sanchez, Dueñez-Guzmán, Sadedin (Gibran.AI) · EQTC 2026 · two NeurIPS 2026 workshops</div></div>
+  <div class="proj"><b>Nondefinability of the Spaces of Tsirelson and Schlumprecht</b> <span class="status">in press</span>
+    <div class="meta">Casazza, Dueñez, Iovino · October 2026</div></div>
+  <div class="proj"><b>Analysis: The Study of Real-Valued and Random-Valued Structures</b> <span class="status">under contract</span>
+    <div class="meta">with Iovino · CRC Press</div></div>
+  <div class="proj" style="border:0"><b>Teaching that feeds this</b>
+    <div class="meta">MAT 4353/6973 Mathematical Foundations of A.I. —
+      <a href="https://supernumero.us/MathAIspring2026UTSA/">supernumero.us/MathAIspring2026UTSA</a></div></div>
+  <p class="cap" style="margin-top:1.5rem">Press <kbd>esc</kbd> to go back.</p>
+</div>
+
+<div class="overlay" id="overlay-help">
+  <h2>Keys</h2>
+  <p><kbd>→</kbd> <kbd>space</kbd> next · <kbd>←</kbd> back · <kbd>1</kbd>–<kbd>9</kbd> jump to a slide</p>
+  <p><kbd>f</kbd> flip the fractal 100↔101 · <kbd>0</kbd> reset the fractal view ·
+     <kbd>t</kbd> elapsed-time HUD</p>
+  <p class="cap">On slide 2: drag the white dot to move z₀, scroll to zoom on the cursor.</p>
+  <p><kbd>a</kbd> appendix · <kbd>p</kbd> projects · <kbd>?</kbd> this · <kbd>esc</kbd> close</p>
+  <p class="cap">Console: <code>talk.goto(3)</code>, <code>talk.setN(101)</code>,
+    <code>talk.flip(true)</code>, <code>talk.exchange(6,9)</code>, <code>talk.state</code></p>
+</div>
+
+<div id="hud"><span id="clock">0:00</span><span id="dots"></span></div>
+
+<script>
+"use strict";
+(function () {
+
+  /* ---------------- deck ---------------- */
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const N = slides.length;
+  // cumulative end-of-slide targets, seconds (13:10 total; slides 4 and 5 are the cuts)
+  const BUDGET = [45, 120, 255, 390, 495, 585, 690, 735, 790];
+  const state = { slide: 0, n: 1, flipping: false, t0: null, timerOn: false, m: 4, xn: 4, p: 0.7 };
+
+  const dots = document.getElementById("dots");
+  slides.forEach(() => dots.appendChild(document.createElement("i")));
+  const dotEls = Array.from(dots.children);
+
+  function goto(i) {
+    i = Math.max(0, Math.min(N - 1, i | 0));
+    state.slide = i;
+    slides.forEach((s, k) => s.classList.toggle("active", k === i));
+    dotEls.forEach((d, k) => d.classList.toggle("on", k <= i));
+    if (state.t0 === null) state.t0 = performance.now();
+    try { history.replaceState(null, "", "#" + i); } catch (_) {}
+    sizeAll();
+    return i;
+  }
+
+  const clock = document.getElementById("clock");
+  (function tick() {
+    if (state.timerOn && state.t0 !== null) {
+      const s = Math.floor((performance.now() - state.t0) / 1000);
+      clock.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+      const target = BUDGET[state.slide];
+      clock.classList.toggle("over", s > target + 20);
+      clock.classList.toggle("ahead", s < target - 30);
+    }
+    requestAnimationFrame(tick);
+  })();
+
+  const ovA = document.getElementById("overlay-appendix");
+  const ovP = document.getElementById("overlay-projects");
+  const ovH = document.getElementById("overlay-help");
+  function closeOv() { [ovA, ovP, ovH].forEach(o => o.classList.remove("open")); }
+  function toggleOv(o) { const was = o.classList.contains("open"); closeOv(); if (!was) { o.classList.add("open"); sizeAll(); } }
+
+  document.addEventListener("keydown", e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === "Escape") return closeOv();
+    if (k === "ArrowRight" || k === " " || k === "PageDown") { e.preventDefault(); closeOv(); goto(state.slide + 1); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); closeOv(); goto(state.slide - 1); }
+    else if (k >= "1" && k <= "9") { closeOv(); goto(parseInt(k, 10) - 1); }
+    else if (k === "0") resetView();
+    else if (k === "g" || k === "G") setPoly(poly.key === "z3m1" ? "z3m2zp2" : "z3m1");
+    else if (k === "f" || k === "F") setFlip(!state.flipping);
+    else if (k === "t" || k === "T") { state.timerOn = !state.timerOn; clock.classList.toggle("on", state.timerOn); }
+    else if (k === "a" || k === "A") toggleOv(ovA);
+    else if (k === "p" || k === "P") toggleOv(ovP);
+    else if (k === "?" || k === "/") toggleOv(ovH);
+  });
+  document.addEventListener("click", e => {
+    if (e.target.closest("a,button,input,canvas,.overlay,.rung")) return;
+    goto(state.slide + 1);
+  });
+
+  /* ---------------- canvas sizing ---------------- */
+  function fit(canvas, aspect, box) {
+    box = box || canvas.parentElement;
+    if (!box || !box.clientWidth) return false;
+    let used = 0;
+    for (const ch of box.children) { if (ch !== canvas && ch !== canvas.parentElement) used += ch.getBoundingClientRect().height + 8; }
+    const availH = Math.max(80, box.clientHeight - used);
+    const cssW = Math.max(80, Math.min(box.clientWidth, availH * aspect));
+    const cssH = cssW / aspect;
+    canvas.style.width = Math.round(cssW) + "px";
+    canvas.style.height = Math.round(cssH) + "px";
+    const dpr = Math.min(window.devicePixelRatio || 1, cssW < 700 ? 1.5 : 2);
+    const w = Math.max(2, Math.round(cssW * dpr)), h = Math.max(2, Math.round(cssH * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; return true; }
+    return false;
+  }
+
+  function sizeAll() {
+    const a = slides[state.slide];
+    if (a && a.querySelector("#newton")) {
+      const stack = document.getElementById("newtonstack");
+      const fig = stack.parentElement;
+      fit(newtonCanvas, 1.0, fig);
+      stack.style.width = newtonCanvas.style.width;
+      stack.style.height = newtonCanvas.style.height;
+      fxCanvas.style.width = newtonCanvas.style.width;
+      fxCanvas.style.height = newtonCanvas.style.height;
+      fxCanvas.width = newtonCanvas.width; fxCanvas.height = newtonCanvas.height;
+      drawNewton(); drawOrbit();
+    }
+    if (a && a.querySelector("#coin")) { fit(coinCanvas, 1.5); drawCoin(); }
+    if (a && a.querySelector("#pareto")) { fit(paretoCanvas, 1.35); drawPareto(); }
+    if (ovA.classList.contains("open")) { fit(shatterCanvas, 1.0); drawShatter(); }
+    sizeGrid();
+  }
+  window.addEventListener("resize", sizeAll);
+
+  /* ---------------- slide 2 — Newton ---------------- */
+  const newtonCanvas = document.getElementById("newton");
+  const fxCanvas = document.getElementById("newtonfx");
+  const nslider = document.getElementById("nslider");
+  const nlabel = document.getElementById("nlabel");
+  const flipbtn = document.getElementById("flipbtn");
+  const orbitreadout = document.getElementById("orbitreadout");
+
+  /* Two polynomials, shown by the same shader: f(z) = z^3 + c1 z + c0.
+     z^3 - 1 is the textbook case -- every point outside a measure-zero Julia set
+     converges to one of the three roots, so nothing flips between n and n+1.
+     z^3 - 2z + 2 is the same method on a barely different polynomial, and now an
+     open set of positive area never converges at all: it is trapped in the
+     attracting 2-cycle {0, 1}, which is what cyan and magenta mark.
+     Each carries its own default window, sized so all of its roots are in frame. */
+  const POLYS = [
+    { key: "z3m1", label: "z³ − 1", c1: 0, c0: -1, cycle: [],
+      view: { cx: 0.0, cy: 0.0, halfH: 1.6 } },
+    { key: "z3m2zp2", label: "z³ − 2z + 2", c1: -2, c0: 2, cycle: [[0, 0], [1, 0]],
+      view: { cx: -0.5, cy: 0.0, halfH: 2.0 } }
+  ];
+  let poly = POLYS[0];
+  const VIEW = { ...poly.view };
+
+  function cubicRoots(c1, c0) {
+    const f = (a, b) => { const a2 = a*a - b*b, b2 = 2*a*b;
+      return [a2*a - b2*b + c1*a + c0, a2*b + b2*a + c1*b]; };
+    const df = (a, b) => [3*(a*a - b*b) + c1, 6*a*b];
+    const out = [];
+    for (let k = 0; k < 16; k++) {
+      let a = 0.5*Math.cos(2*Math.PI*k/16), b = 0.5*Math.sin(2*Math.PI*k/16);
+      for (let i = 0; i < 200; i++) {
+        const [fa, fb] = f(a, b), [da, db] = df(a, b), d = da*da + db*db;
+        if (d < 1e-24) break;
+        a -= (fa*da + fb*db)/d; b -= (fb*da - fa*db)/d;
+      }
+      const [fa, fb] = f(a, b);
+      if (Math.hypot(fa, fb) < 1e-9 && !out.some(r => Math.hypot(r[0]-a, r[1]-b) < 1e-6)) out.push([a, b]);
+    }
+    out.sort((p, q) => (p[0]-q[0]) || (p[1]-q[1]));
+    return out;
+  }
+  let ROOTS = cubicRoots(poly.c1, poly.c0);
+
+  const VS = `#version 300 es
+void main(){ vec2 p = vec2((gl_VertexID==1)?3.0:-1.0,(gl_VertexID==2)?3.0:-1.0); gl_Position = vec4(p,0.0,1.0); }`;
+  const FS = `#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform vec2 uRes; uniform vec2 uCenter; uniform float uHalfH; uniform int uN;
+uniform vec2 uPts[5]; uniform vec3 uCols[5]; uniform int uNPts;
+uniform float uC1; uniform float uC0;   // f(z) = z^3 + uC1 z + uC0, both real
+vec2 cmul(vec2 a, vec2 b){ return vec2(a.x*b.x-a.y*b.y, a.x*b.y+a.y*b.x); }
+vec2 cdiv(vec2 a, vec2 b){ float d=dot(b,b); return vec2(a.x*b.x+a.y*b.y, a.y*b.x-a.x*b.y)/d; }
+void main(){
+  float aspect = uRes.x/uRes.y;
+  vec2 uv = (gl_FragCoord.xy/uRes)*2.0-1.0;
+  vec2 z = uCenter + vec2(uv.x*uHalfH*aspect, uv.y*uHalfH);
+  bool dead=false;
+  for(int i=0;i<256;i++){
+    if(i>=uN) break;
+    vec2 z2=cmul(z,z);
+    vec2 f = cmul(z2,z) + uC1*z + vec2(uC0,0.0);
+    vec2 df = 3.0*z2 + vec2(uC1,0.0);
+    if(dot(df,df)<1e-24){ dead=true; break; }
+    z = z - cdiv(f,df);
+    if(dot(z,z)>1e12){ dead=true; break; }
+  }
+  if(dead){ outColor=vec4(0.0,0.0,0.0,1.0); return; }
+  float tot=0.0; vec3 rgb=vec3(0.0);
+  for(int k=0;k<5;k++){
+    if(k>=uNPts) break;
+    float w=1.0/max(length(z-uPts[k]),1e-6); tot+=w; rgb+=w*uCols[k];
+  }
+  outColor = vec4(rgb/tot,1.0);
+}`;
+
+  let gl = null, prog = null, uni = {}, glReady = false, glTried = false;
+  function initGL() {
+    glTried = true;
+    gl = newtonCanvas.getContext("webgl2", { antialias: false });
+    if (!gl) return false;
+    const mk = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o);
+      if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(o)); return null; } return o; };
+    const vs = mk(gl.VERTEX_SHADER, VS), fs = mk(gl.FRAGMENT_SHADER, FS);
+    if (!vs || !fs) return false;
+    prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(prog)); return false; }
+    gl.useProgram(prog);
+    ["uRes","uCenter","uHalfH","uN","uNPts","uC1","uC0","uPts","uCols"]
+      .forEach(k => uni[k] = gl.getUniformLocation(prog, k));
+    gl.bindVertexArray(gl.createVertexArray());
+    uploadPoly();
+    return true;
+  }
+
+  // Roots get red/green/blue; the 2-cycle, when the polynomial has one, gets
+  // cyan/magenta. Colours are blended by inverse distance, as in render_newton.py.
+  function uploadPoly() {
+    if (!gl || !prog) return;
+    const pts = [...ROOTS, ...poly.cycle];
+    const cols = [[1,0,0],[0,1,0],[0,0,1],[0,1,1],[1,0,1]].slice(0, pts.length);
+    const padded = pts.concat(Array(5 - pts.length).fill([0,0]));
+    const paddedC = cols.concat(Array(5 - cols.length).fill([0,0,0]));
+    gl.uniform2fv(uni.uPts, new Float32Array(padded.flat()));
+    gl.uniform3fv(uni.uCols, new Float32Array(paddedC.flat()));
+    gl.uniform1i(uni.uNPts, pts.length);
+    gl.uniform1f(uni.uC1, poly.c1);
+    gl.uniform1f(uni.uC0, poly.c0);
+  }
+  function drawNewton() {
+    if (!glTried) glReady = initGL();
+    if (!glReady) { newtonCanvas.style.background = "#12151a"; return; }
+    gl.viewport(0,0,newtonCanvas.width,newtonCanvas.height);
+    gl.uniform2f(uni.uRes, newtonCanvas.width, newtonCanvas.height);
+    gl.uniform2f(uni.uCenter, VIEW.cx, VIEW.cy);
+    gl.uniform1f(uni.uHalfH, VIEW.halfH);
+    gl.uniform1i(uni.uN, state.n);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  const polyname = document.getElementById("polyname");
+  const polystory = document.getElementById("polystory");
+  const polycompare = document.getElementById("polycompare");
+  const polycap = document.getElementById("polycap");
+
+  const COPY = {
+    z3m1: {
+      story: 'Red, green, blue are the three cube roots of 1. Almost every starting point ' +
+             'converges to one of them. The boundary where the basins meet — the ' +
+             '<em class="hi">Julia set</em> — is an infinitely fine fractal, and it has ' +
+             'measure zero.',
+      compare: 'Run it to 100 steps, then 101. <em class="hi">Not one pixel changes.</em> ' +
+               'Every point that was ever going to settle has settled — this is what a ' +
+               'well-behaved computation of infinite depth looks like.',
+      cap: 'The classical Newton fractal. Colours are blended by inverse distance to the roots, ' +
+           'as in the figures of <i>Complexity of Deep Computations via Topology of Function ' +
+           'Spaces</i>. Window chosen so all three roots are in frame.'
+    },
+    z3m2zp2: {
+      story: 'Change the polynomial slightly and the same method breaks. Red, green, blue are ' +
+             'still roots — but <span style="color:var(--cyan)">cyan</span> and ' +
+             '<span style="color:var(--magenta)">magenta</span> are not roots at all: an ' +
+             '<em class="hi">attracting 2-cycle</em> at {0, 1}. Points there never converge. ' +
+             'They alternate, forever.',
+      compare: 'Compare 100 with 101. Almost ninety-nine percent of the picture is frozen. The ' +
+               '<em class="hi">1.1%</em> still trading cyan for magenta is exactly the part ' +
+               'that never settles — and unlike the Julia set, it has positive area.',
+      cap: 'Even and odd iterates converge to two <em>different</em> Baire-1 limits. Same ' +
+           'palette as the figures in <i>Complexity of Deep Computations via Topology of ' +
+           'Function Spaces</i>, on a window chosen so that all three roots are in frame, ' +
+           'including the real one at −1.77.'
+    }
+  };
+
+  function setPoly(key) {
+    const next = POLYS.find(q => q.key === key);
+    if (!next) return;
+    poly = next;
+    ROOTS = cubicRoots(poly.c1, poly.c0);
+    Object.assign(VIEW, poly.view);
+    uploadPoly();
+    polyname.textContent = "f(z) = " + poly.label;
+    polystory.innerHTML = COPY[poly.key].story;
+    polycompare.innerHTML = COPY[poly.key].compare;
+    polycap.innerHTML = COPY[poly.key].cap;
+    document.querySelectorAll(".polybtn").forEach(b =>
+      b.setAttribute("aria-pressed", b.dataset.poly === poly.key ? "true" : "false"));
+    drawNewton(); drawOrbit();
+    return poly.key;
+  }
+  document.querySelectorAll(".polybtn").forEach(b =>
+    b.addEventListener("click", () => setPoly(b.dataset.poly)));
+
+  function setN(n) {
+    state.n = Math.max(1, Math.min(256, n|0));
+    nslider.value = Math.min(120, state.n);
+    nlabel.textContent = "n = " + state.n;
+    drawNewton();
+    return state.n;
+  }
+  nslider.addEventListener("input", () => { setFlip(false); setN(+nslider.value); });
+  let flipTimer = null;
+  function setFlip(on) {
+    state.flipping = !!on;
+    flipbtn.setAttribute("aria-pressed", state.flipping ? "true" : "false");
+    if (flipTimer) { clearInterval(flipTimer); flipTimer = null; }
+    if (state.flipping) { setN(100); flipTimer = setInterval(() => setN(state.n === 100 ? 101 : 100), 900); }
+  }
+  flipbtn.addEventListener("click", () => setFlip(!state.flipping));
+
+  // ---- orbit overlay: drag z0, watch the iterates ----
+  let z0 = [-0.30, 0.42];
+  function toPix(z) {
+    const w = fxCanvas.width, h = fxCanvas.height, aspect = w/h;
+    return [ ((z[0]-VIEW.cx)/(VIEW.halfH*aspect)*0.5 + 0.5) * w,
+             (0.5 - (z[1]-VIEW.cy)/VIEW.halfH*0.5) * h ];
+  }
+  function toZ(px, py) {
+    const w = fxCanvas.width, h = fxCanvas.height, aspect = w/h;
+    return [ VIEW.cx + (px/w - 0.5)*2*VIEW.halfH*aspect, VIEW.cy + (0.5 - py/h)*2*VIEW.halfH ];
+  }
+  function newtonStep(z) {
+    const [a,b] = z, a2 = a*a - b*b, b2 = 2*a*b;
+    const fa = a2*a - b2*b + poly.c1*a + poly.c0, fb = a2*b + b2*a + poly.c1*b;
+    const da = 3*a2 + poly.c1, db = 3*b2;
+    const d = da*da + db*db;
+    if (d < 1e-24) return null;
+    return [a - (fa*da + fb*db)/d, b - (fb*da - fa*db)/d];
+  }
+  function drawOrbit() {
+    const c = fxCanvas.getContext("2d"), w = fxCanvas.width, h = fxCanvas.height;
+    c.clearRect(0,0,w,h);
+    const pts = [z0.slice()];
+    let z = z0.slice();
+    for (let i = 0; i < 60; i++) { z = newtonStep(z); if (!z || !isFinite(z[0]) || !isFinite(z[1])) break; pts.push(z.slice()); }
+    const S = w/520;
+    c.strokeStyle = "rgba(255,255,255,0.85)"; c.lineWidth = Math.max(1, 1.6*S);
+    c.beginPath();
+    pts.forEach((q,i) => { const [px,py] = toPix(q); i ? c.lineTo(px,py) : c.moveTo(px,py); });
+    c.stroke();
+    pts.slice(1).forEach((q,i) => {
+      const [px,py] = toPix(q);
+      c.beginPath(); c.arc(px,py, Math.max(1.2, (i<8?3:1.8)*S), 0, 6.283);
+      c.fillStyle = i < 8 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.35)"; c.fill();
+    });
+    const [hx,hy] = toPix(z0);
+    c.beginPath(); c.arc(hx,hy, Math.max(4, 6*S), 0, 6.283);
+    c.fillStyle = "#fff"; c.fill(); c.strokeStyle = "#0b0d10"; c.lineWidth = Math.max(1,2*S); c.stroke();
+
+    // classify the tail
+    const tail = pts.slice(-8);
+    let verdict = "escaped to infinity";
+    if (tail.length >= 4) {
+      const near = p => ROOTS.findIndex(r => Math.hypot(r[0]-p[0], r[1]-p[1]) < 1e-4);
+      const last = tail[tail.length-1], prev = tail[tail.length-2];
+      const ri = near(last);
+      if (ri >= 0) verdict = "converged to a root — it settles and stays";
+      else if (poly.cycle.length &&
+               Math.hypot(last[0]-prev[0], last[1]-prev[1]) > 0.3 &&
+               Math.hypot(last[0]-tail[tail.length-3][0], last[1]-tail[tail.length-3][1]) < 1e-3)
+        verdict = "caught in the 2-cycle 0 ↔ 1 — it never settles";
+      else if (!poly.cycle.length) verdict = "still wandering — it started on the Julia set";
+    }
+    orbitreadout.textContent = "Orbit of the white dot: " + verdict + ".";
+  }
+  let dragging = false;
+  function pointerZ(ev) {
+    const b = fxCanvas.getBoundingClientRect();
+    return toZ((ev.clientX - b.left)/b.width * fxCanvas.width, (ev.clientY - b.top)/b.height * fxCanvas.height);
+  }
+  fxCanvas.addEventListener("pointerdown", ev => { dragging = true; fxCanvas.setPointerCapture(ev.pointerId); z0 = pointerZ(ev); drawOrbit(); });
+  fxCanvas.addEventListener("pointermove", ev => { if (dragging) { z0 = pointerZ(ev); drawOrbit(); } });
+  fxCanvas.addEventListener("pointerup", () => { dragging = false; });
+
+  // Wheel zoom, anchored on the cursor: the complex number under the pointer
+  // stays under the pointer, which is the only zoom that feels right when you
+  // are chasing a feature of the fractal.
+  //
+  // The lower clamp is a precision limit, not a taste one: the shader runs in
+  // 32-bit floats, so below a half-height of ~1e-4 the per-pixel step falls
+  // under float resolution and the image goes blocky rather than deep.
+  const ZOOM_MIN = 1e-4, ZOOM_MAX = 8;
+  fxCanvas.addEventListener("wheel", ev => {
+    ev.preventDefault();
+    const before = pointerZ(ev);
+    const k = Math.exp(ev.deltaY * 0.0015);
+    const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, VIEW.halfH * k));
+    if (next === VIEW.halfH) return;
+    VIEW.halfH = next;
+    const after = pointerZ(ev);
+    VIEW.cx += before[0] - after[0];
+    VIEW.cy += before[1] - after[1];
+    drawNewton(); drawOrbit();
+  }, { passive: false });
+
+  function resetView() { Object.assign(VIEW, poly.view); drawNewton(); drawOrbit(); return { ...VIEW }; }
+  function setView(cx, cy, halfH) {
+    VIEW.cx = cx; VIEW.cy = cy;
+    VIEW.halfH = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, halfH));
+    drawNewton(); drawOrbit(); return { ...VIEW };
+  }
+
+  /* ---------------- slide 3 — limit exchange, exact BigInt ----------------
+     k_n = round(x_inf * n!) for x_inf = 1/sqrt(2), computed offline at 200
+     digits. g_m(x_n) = 1 iff n! divides m! * k_n. All integer, no floats. */
+  const KN = [1n,1n,4n,17n,85n,509n,3564n,28511n,256595n,2565949n,28225440n,338705280n,4403168634n,61644360880n];
+  const FACT = [1n,2n,6n,24n,120n,720n,5040n,40320n,362880n,3628800n,39916800n,479001600n,6227020800n,87178291200n];
+  const GN = KN.length;
+  function gmn(m, n) { return (FACT[m-1] * KN[n-1]) % FACT[n-1] === 0n ? 1 : 0; }
+
+  const exgrid = document.getElementById("exgrid");
+  const mslider = document.getElementById("mslider"), xslider = document.getElementById("xslider");
+  const mval = document.getElementById("mval"), xval = document.getElementById("xval");
+  const rowlim = document.getElementById("rowlim"), collim = document.getElementById("collim");
+  exgrid.style.gridTemplateColumns = `repeat(${GN}, 1fr)`;
+  const cells = [];
+  for (let m = 1; m <= GN; m++) for (let n = 1; n <= GN; n++) {
+    const d = document.createElement("div");
+    d.textContent = gmn(m, n);
+    if (gmn(m, n)) d.classList.add("one");
+    d.dataset.m = m; d.dataset.n = n;
+    exgrid.appendChild(d); cells.push(d);
+  }
+  function paintGrid() {
+    cells.forEach(d => {
+      const m = +d.dataset.m, n = +d.dataset.n;
+      d.classList.toggle("rowhit", m === state.m);
+      d.classList.toggle("colhit", n === state.xn);
+      d.classList.toggle("both", m === state.m && n === state.xn);
+    });
+    mval.textContent = state.m; xval.textContent = state.xn;
+    // the actual tail behaviour, read off the computed grid
+    const rowTail = gmn(state.m, GN), colTail = gmn(GN, state.xn);
+    rowlim.textContent = "→ " + rowTail;
+    collim.textContent = "→ " + colTail;
+  }
+  function sizeGrid() {
+    const w = exgrid.clientWidth;
+    if (w) exgrid.style.fontSize = Math.max(5, w / GN * 0.42) + "px";
+  }
+  mslider.addEventListener("input", () => { state.m = +mslider.value; paintGrid(); });
+  xslider.addEventListener("input", () => { state.xn = +xslider.value; paintGrid(); });
+
+  /* ---------------- slide 4 — the ladder ---------------- */
+  const RUNGS = [
+    { lvl: "NIP₃", what: "square-root iteration",
+      detail: "Newton's method for p(x) = x² − a. The deep limit is +√a on one side, −√a on the other. " +
+              "Closure: the Alexandroff compactification of a countable discrete set — <b>metrizable</b>, the tamest level. " +
+              "Tame is not the same as stable: the closure still leaves the continuous functions." },
+    { lvl: "NIP₂", what: "finite-precision threshold classifiers on 2<sup>ℕ</sup>",
+      detail: "Compare an infinite bit-string against a threshold, to finite precision. Closure: the <b>split Cantor set</b>, " +
+              "2<sup>ℕ</sup>×{0,1} in lexicographic order — hereditarily separable but <b>not metrizable</b>. " +
+              "The infinite-precision classifiers are Baire-1 with a single discontinuity, and no finite Boolean expression defines them." },
+    { lvl: "NIP₁", what: "lexicographic three-valued interval tests",
+      detail: "Is x below, inside, or above the interval [t0<sup>∞</sup>, t1<sup>∞</sup>]? Closure: D̂(S(2<sup>ℕ</sup>)) — " +
+              "<b>first countable but not hereditarily separable</b>. (Earlier drafts called this a 'bit-shift family'; " +
+              "the shift action is a different construction.)" },
+    { lvl: "NIP only", what: "finite-precision prefix tests",
+      detail: "Do the first n bits match? The limits include every equality test x ↦ [y = x] — a discrete family of size continuum. " +
+              "Closure: the extended Alexandroff space Â(2<sup>ℕ</sup>), which is <b>not even first countable</b>: " +
+              "one point fails to be a G<sub>δ</sub>, and that single failure is what breaks it." }
+  ];
+  const ladder = document.getElementById("ladder");
+  const rungdetail = document.getElementById("rungdetail");
+  let rungSel = 0;
+  RUNGS.forEach((r, i) => {
+    const d = document.createElement("div");
+    d.className = "rung";
+    d.innerHTML = `<span class="lvl">${r.lvl}</span><span class="what">${r.what}</span>`;
+    d.addEventListener("click", () => { rungSel = i; paintLadder(); });
+    ladder.appendChild(d);
+  });
+  function paintLadder() {
+    Array.from(ladder.children).forEach((d, i) => d.classList.toggle("sel", i === rungSel));
+    rungdetail.innerHTML = `<p class="cap" style="margin:0">${RUNGS[rungSel].detail}</p>`;
+  }
+
+  /* ---------------- slide 5 — the coin ---------------- */
+  const coinCanvas = document.getElementById("coin");
+  const pslider = document.getElementById("pslider"), pval = document.getElementById("pval");
+  let sample = [];
+  function resample() {
+    sample = [];
+    for (let i = 0; i < 4000; i++) sample.push(Math.random() < state.p ? 1 : 0);
+    drawCoin();
+  }
+  function drawCoin() {
+    /* Both quantities are plotted as ERRORS, because that is the only way the
+       contrast is visible: estimating the bias and predicting the next flip give
+       numerically identical "accuracy" curves (predicting the majority is right a
+       p-hat fraction of the time), which would hide the whole point. As errors
+       they separate: one goes to zero, the other is pinned at min(p, 1-p). */
+    const c = coinCanvas.getContext("2d"), W = coinCanvas.width, H = coinCanvas.height, S = W/900;
+    c.fillStyle = "#12151a"; c.fillRect(0,0,W,H);
+    const L = 70*S, R = W - 20*S, T = 22*S, B = H - 48*S;
+    const x = i => L + Math.log10(Math.max(1,i)) / Math.log10(sample.length) * (R-L);
+    const y = v => B - v / 0.56 * (B - T);
+    c.strokeStyle = "#2a2f37"; c.lineWidth = Math.max(1,S);
+    c.fillStyle = "#9aa3ad"; c.font = (12*S) + "px -apple-system, system-ui, sans-serif";
+    [0,0.1,0.2,0.3,0.4,0.5].forEach(v => {
+      c.beginPath(); c.moveTo(L,y(v)); c.lineTo(R,y(v)); c.stroke();
+      c.textAlign="right"; c.fillText(v.toFixed(1), L-6*S, y(v)+4*S);
+    });
+    [1,10,100,1000].forEach(t => { c.textAlign="center"; c.fillText(t, x(t), B+18*S); });
+    c.fillText("number of flips (log scale)", (L+R)/2, B+36*S);
+    c.save(); c.translate(16*S,(T+B)/2); c.rotate(-Math.PI/2); c.textAlign="center";
+    c.fillText("error", 0, 0); c.restore();
+
+    const floor = Math.min(state.p, 1-state.p);
+    c.setLineDash([5*S,5*S]); c.strokeStyle = "#8a5568"; c.beginPath();
+    c.moveTo(L,y(floor)); c.lineTo(R,y(floor)); c.stroke(); c.setLineDash([]);
+
+    let heads = 0, wrong = 0;
+    const estErr = [], predErr = [];
+    for (let i = 1; i <= sample.length; i++) {
+      const guess = i === 1 ? 1 : (heads/(i-1) >= 0.5 ? 1 : 0);   // predict the majority so far
+      if (guess !== sample[i-1]) wrong++;
+      heads += sample[i-1];
+      estErr.push([i, Math.abs(heads/i - state.p)]);
+      predErr.push([i, wrong/i]);
+    }
+    const line = (data, color, width) => {
+      c.strokeStyle = color; c.lineWidth = Math.max(1.3, width*S); c.beginPath();
+      data.forEach(([i,v], k) => { const px = x(i), py = y(Math.min(v,0.56)); k ? c.lineTo(px,py) : c.moveTo(px,py); });
+      c.stroke();
+    };
+    line(predErr, "#e86bd0", 2.2);
+    line(estErr, "#4ad9e4", 2.2);
+
+    c.font = "700 " + (13*S) + "px -apple-system, system-ui, sans-serif";
+    c.textAlign = "left";
+    c.fillStyle = "#e86bd0";
+    c.fillText("predicting the next flip — stuck at " + floor.toFixed(2), L+10*S, y(floor)-9*S);
+    c.fillStyle = "#4ad9e4";
+    c.fillText("learning the bias — error → 0", L+10*S, y(0.055));
+  }
+
+  pslider.addEventListener("input", () => { state.p = +pslider.value; pval.textContent = state.p.toFixed(2); resample(); });
+  document.getElementById("resample").addEventListener("click", resample);
+
+  /* ---------------- slide 6 — the programs ----------------
+     Verbatim from evorobust-neurips2026.tex, Appendix app:code. */
+  const CODE_PRUNED =
+`def solve(state):
+    # 1. Guided decimation with messages continued across
+    #    rounds, twice, priors reseeded from posteriors between.
+    decimate_and_continue(state, 45, 31, rule=PRODUCT_SUM, gamma=0.395)
+    reseed_priors_from_posteriors(state, 4)
+    decimate_and_continue(state, 23, 34, rule=PRODUCT_SUM, gamma=0.255)
+
+    # 2. Change frame, build an information set on the
+    #    syndrome, widen it maximally.
+    permute_problem(state, 0)
+    syndrome_guided_reduce(state)
+    enrich_blocks(state, kappa=1.0)
+
+    # 3. One GF(2) back-substitution. Nothing is enumerated.
+    return solve_on_basis(state)`;
+
+  const CODE_RAW =
+`def solve(decodest: 'DecodeState') -> 'DecodeState':
+    rankkey: 'RankKey' = const1_RankKey_PRIOR
+    if clusters_valid(syndrome_guided_reduce(select_best(
+            reseed_priors_from_posteriors(decimate_and_continue(
+                decodest, 45, 31, rule=const1_BpRule_PRODUCT_SUM,
+                gamma=0.3949630770316421), 4)))):
+        if True <= 1:
+            permute_problem(grow_clusters(decimate_and_continue(
+                decodest, 23, 34, rule=const1_BpRule_PRODUCT_SUM,
+                gamma=0.25508986558327035), 10), False)
+            bprule: 'BpRule' = const1_BpRule_PRODUCT_SUM
+        for num in range(bp_converged(syndrome_guided_reduce(decodest))):
+            decodest
+    return solve_on_basis(enrich_blocks(assemble_cluster_solutions(decodest),
+                                        clusters_valid(decodest)))`;
+
+  const CODE_HUMAN =
+`def solve(state):
+    state = run_bp(state, 45, BpRule.PRODUCT_SUM, 0.625, 0.0,
+                   Schedule.PARALLEL, 0.3)
+    if bp_converged(state):
+        return state
+    state = reduce_marked_rows(state)
+    state = enrich_blocks(state, 0.1)
+    state = forced_logical(state)
+    state = enumerate_patterns(state, 2, 20, Scope.PER_CLUSTER)
+    state = assemble_cluster_solutions(state)
+    return state`;
+
+  const KEYWORDS = /\b(def|if|for|in|return|range|True|False)\b/g;
+  function hl(src) {
+    return src
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/(#[^\n]*)/g, '<span class="c">$1</span>')
+      .replace(KEYWORDS, '<span class="k">$&</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span class="n">$&</span>');
+  }
+  const evolvedPre = document.getElementById("evolved");
+  const humanPre = document.getElementById("human");
+  const rawbtn = document.getElementById("rawbtn");
+  const codecap = document.getElementById("codecap");
+  let showRaw = false;
+  function paintCode() {
+    evolvedPre.innerHTML = hl(showRaw ? CODE_RAW : CODE_PRUNED);
+    humanPre.innerHTML = hl(CODE_HUMAN);
+    rawbtn.setAttribute("aria-pressed", showRaw ? "true" : "false");
+    rawbtn.textContent = showRaw ? "show pruned" : "show as emitted";
+    codecap.innerHTML = showRaw
+      ? "This is what the search actually emitted, transcribed with no editing. <b>About half of it never changes a prediction</b> — the guard is always taken, the loop bound is a Boolean, two assignments are never read. The type layer even let <code>if True &lt;= 1</code> through. Pruning it away is machine-verified prediction-identical on 9,216 validation shots."
+      : "Left: the effective algorithm the search found — two decimation passes with the priors reseeded between them, then one GF(2) solve, enumerating nothing. Right: the strongest published decoder, hand-written in the same language. <b>They share exactly one operation.</b>";
+  }
+  rawbtn.addEventListener("click", () => { showRaw = !showRaw; paintCode(); });
+
+  /* ---------------- slide 7 — Pareto ---------------- */
+  const paretoCanvas = document.getElementById("pareto");
+  const DECODERS = [
+    { name:"BP+OSD-0",      cost:1.00, acc:0.9455, kind:"panel" },
+    { name:"BP+OSD-CS",     cost:20.0, acc:0.9550, kind:"panel" },
+    { name:"BP+AC (tuned)", cost:1.35, acc:0.9602, kind:"panel" },
+    { name:"Relay-BP ext.", cost:28.0, acc:0.9695, kind:"panel" },
+    { name:"R5-E058",       cost:0.90, acc:0.9595, kind:"star"  },
+    { name:"R5-E060",       cost:0.95, acc:0.9575, kind:"evo"   },
+    { name:"R5-E059",       cost:1.34, acc:0.9619, kind:"star"  },
+    { name:"R5-E075",       cost:1.33, acc:0.9653, kind:"evo"   },
+    { name:"(most accurate found)", cost:27.0, acc:0.9674, kind:"grey" }
+  ];
+  function drawPareto() {
+    const c = paretoCanvas.getContext("2d"), W = paretoCanvas.width, H = paretoCanvas.height, S = W/900;
+    c.fillStyle = "#12151a"; c.fillRect(0,0,W,H);
+    const L = 92*S, R = W - 24*S, T = 24*S, B = H - 58*S;
+    const x = v => L + (Math.log10(v)-Math.log10(0.8))/(Math.log10(34)-Math.log10(0.8))*(R-L);
+    const y = v => B - (v-0.943)/(0.972-0.943)*(B-T);
+    c.strokeStyle = "#2a2f37"; c.lineWidth = Math.max(1,S);
+    c.fillStyle = "#9aa3ad"; c.font = (12*S)+"px -apple-system, system-ui, sans-serif";
+    [1,2,5,10,20].forEach(t => { c.beginPath(); c.moveTo(x(t),T); c.lineTo(x(t),B); c.stroke();
+      c.textAlign="center"; c.fillText(t+"×", x(t), B+19*S); });
+    [0.945,0.950,0.955,0.960,0.965,0.970].forEach(t => { c.beginPath(); c.moveTo(L,y(t)); c.lineTo(R,y(t)); c.stroke();
+      c.textAlign="right"; c.fillText(t.toFixed(3), L-7*S, y(t)+4*S); });
+    c.textAlign="center"; c.fillText("cost (× BP+OSD-0, log scale)", (L+R)/2, B+41*S);
+    c.save(); c.translate(19*S,(T+B)/2); c.rotate(-Math.PI/2); c.fillText("joint accuracy",0,0); c.restore();
+    const COL = { panel:"#7fa8d6", evo:"#ff7a33", star:"#ff7a33", grey:"#5a6472" };
+    DECODERS.forEach(d => {
+      const px = x(d.cost), py = y(d.acc), r = (d.kind==="star"?8:5.5)*S;
+      c.beginPath();
+      if (d.kind==="panel"||d.kind==="grey") c.rect(px-r,py-r,2*r,2*r); else c.arc(px,py,r,0,6.283);
+      c.fillStyle = COL[d.kind]; c.fill();
+      if (d.kind==="star") { c.strokeStyle="#fff"; c.lineWidth=2*S; c.stroke(); }
+      c.fillStyle = d.kind==="grey" ? "#5a6472" : "#f2efe9";
+      c.font = (d.kind==="star"?700:400)+" "+(12.5*S)+"px -apple-system, system-ui, sans-serif";
+      c.textAlign = d.cost>8 ? "right":"left";
+      c.fillText(d.name, px + (d.cost>8?-1:1)*(r+6*S), py+4*S);
+    });
+    c.strokeStyle="#7fd69a"; c.fillStyle="#7fd69a"; c.lineWidth=2*S;
+    const ax = L+250*S, ay = T+104*S;
+    c.beginPath(); c.moveTo(ax,ay); c.lineTo(ax-52*S, ay-26*S); c.stroke();
+    c.beginPath(); c.moveTo(ax-58*S,ay-29*S); c.lineTo(ax-44*S,ay-30*S); c.lineTo(ax-49*S,ay-18*S); c.fill();
+    c.font=(11.5*S)+"px -apple-system, system-ui, sans-serif"; c.textAlign="left";
+    c.fillText("cheaper and more accurate", ax-46*S, ay+14*S);
+  }
+
+  /* ---------------- appendix — shattering ---------------- */
+  const shatterCanvas = document.getElementById("shatter");
+  const okcount = document.getElementById("okcount");
+  let pts4 = [[0.28,0.28],[0.72,0.28],[0.72,0.72],[0.28,0.72]];
+  function separable(pts, labels) {
+    const pos=[], neg=[];
+    for (let i=0;i<pts.length;i++) (labels & (1<<i) ? pos : neg).push(pts[i]);
+    if (!pos.length || !neg.length) return true;
+    for (let a=0;a<720;a++) {
+      const th=Math.PI*a/720, cx=Math.cos(th), cy=Math.sin(th);
+      let pmin=Infinity,pmax=-Infinity,nmin=Infinity,nmax=-Infinity;
+      for (const p of pos){const v=p[0]*cx+p[1]*cy;pmin=Math.min(pmin,v);pmax=Math.max(pmax,v);}
+      for (const p of neg){const v=p[0]*cx+p[1]*cy;nmin=Math.min(nmin,v);nmax=Math.max(nmax,v);}
+      if (pmin-nmax>1e-9 || nmin-pmax>1e-9) return true;
+    }
+    return false;
+  }
+  function drawShatter() {
+    const c = shatterCanvas.getContext("2d"), W=shatterCanvas.width, H=shatterCanvas.height;
+    c.fillStyle="#12151a"; c.fillRect(0,0,W,H);
+    let ok=0; for (let m=0;m<16;m++) if (separable(pts4,m)) ok++;
+    okcount.textContent = ok + " of 16";
+    const r = Math.max(5, W/45);
+    pts4.forEach((p,i) => {
+      c.beginPath(); c.arc(p[0]*W,(1-p[1])*H,r,0,6.283);
+      c.fillStyle = i%2 ? "#4ad9e4" : "#e86bd0"; c.fill();
+      c.strokeStyle="#0b0d10"; c.lineWidth=Math.max(1,W/300); c.stroke();
+    });
+  }
+  let dragIdx=-1;
+  shatterCanvas.addEventListener("pointerdown", ev => {
+    const b=shatterCanvas.getBoundingClientRect();
+    const x=(ev.clientX-b.left)/b.width, y=1-(ev.clientY-b.top)/b.height;
+    let best=-1,bd=0.09; pts4.forEach((p,i)=>{const d=Math.hypot(p[0]-x,p[1]-y); if(d<bd){bd=d;best=i;}});
+    dragIdx=best; if(best>=0) shatterCanvas.setPointerCapture(ev.pointerId);
+  });
+  shatterCanvas.addEventListener("pointermove", ev => {
+    if (dragIdx<0) return;
+    const b=shatterCanvas.getBoundingClientRect();
+    pts4[dragIdx]=[Math.max(0.06,Math.min(0.94,(ev.clientX-b.left)/b.width)),
+                   Math.max(0.06,Math.min(0.94,1-(ev.clientY-b.top)/b.height))];
+    drawShatter();
+  });
+  shatterCanvas.addEventListener("pointerup", () => { dragIdx=-1; });
+
+  /* ---------------- boot ---------------- */
+  paintGrid(); paintLadder(); paintCode(); setPoly("z3m1");
+  pval.textContent = state.p.toFixed(2);
+  resample();
+  const fromHash = parseInt((location.hash||"").slice(1), 10);
+  goto(Number.isFinite(fromHash) ? fromHash : 0);
+  state.t0 = null;
+  setTimeout(sizeAll, 60);
+
+  window.talk = {
+    goto, next: () => goto(state.slide+1), prev: () => goto(state.slide-1),
+    setN, flip: setFlip,
+    view: setView, resetView, getView: () => ({ ...VIEW }),
+    poly: setPoly, getPoly: () => poly.key,
+    exchange: (m, n) => { state.m = Math.max(1,Math.min(GN,m)); state.xn = Math.max(1,Math.min(GN,n));
+      mslider.value = state.m; xslider.value = state.xn; paintGrid(); return { m: state.m, n: state.xn, g: gmn(state.m,state.xn) }; },
+    gmn,
+    timer: on => { state.timerOn = on === undefined ? !state.timerOn : !!on; clock.classList.toggle("on", state.timerOn); },
+    state
+  };
+})();
+</script>
+</body>
+</html>

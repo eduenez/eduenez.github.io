@@ -332,6 +332,12 @@ research_talks:
   venue: National Congress of the Mexican Mathematical Society, Morelia, Mexico, November 1994.
   title: Div, Grad and Curl According to Lie.
 outreach_talks:
+- id: talk-2026-what-we-can-compute
+  kind: outreach
+  year: 2026
+  venue: The University of Texas at San Antonio, 18 September 2026.
+  title: 'What we can compute, what we cannot — and the wisdom to know the difference.'
+  talk_page: /files/talks/talk-2026-what-we-can-compute/
 - id: talk-2026-opening-the-black-box
   kind: outreach
   year: 2026
