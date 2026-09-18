@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What we can compute, what we cannot</title>
+<!--
+  What we can compute, what we cannot — and the wisdom to know the difference.
+  Eduardo Dueñez, UTSA Mathematics, 2026-09-18.  Lightning talk, 13 min.
+
+  This single file IS the talk: the surface driven live from the podium, and the
+  takeaway students open from the QR. Those two jobs impose the constraint kept
+  from `erlangen-program/web/`: NO EXTERNAL REQUESTS OF ANY KIND. No CDN, no
+  fonts, no images on disk. It opens by double-clicking the file, from a thumb
+  drive, with the Wi-Fi off. Verify in DevTools -> Network: exactly one request.
+
+  Eleven SLIDES (the standard word; reveal.js says slide/fragment, impress.js
+  step, Beamer frame/overlay). Five carry live computation, and each interaction
+  earns its keystroke -- it shows something no static figure can:
+
+    slide 3  NEWTON, WebGL2 + a 2-D overlay.  One Newton orbit per pixel for
+             f(z) = z^3 + c1 z + c0, colored by inverse-distance blending over the
+             roots (r/g/b) and, when the polynomial has one, the attracting
+             2-cycle (cyan/magenta).  Two polynomials, swapped with `g`:
+
+               z^3 - 1        the textbook case.  Everything outside a Julia set
+                              of measure zero converges; MEASURED, 0.000% of the
+                              frame changes between iterates -- not one pixel.
+               z^3 - 2z + 2   the same method, barely different polynomial, and
+                              now an open set of positive area never converges:
+                              it is trapped in the 2-cycle {0,1}.
+
+             Each carries its own default window, sized so all of its roots are in
+             frame -- for z^3 - 2z + 2 that is real [-2.5, 1.5], imaginary [-2, 2],
+             which unlike tighter windows includes the real root at -1.7693.
+             MEASURED there at 700x700: the three root basins are bit-identical
+             between iterates (red 31.98%, green 33.48%, blue 33.48% of frame);
+             the only transitions are cyan->magenta (0.69%) and magenta->cyan
+             (0.37%).  The honest line is "almost 99% frozen, 1.1% flipping
+             forever", NOT "the whole picture changes".  These fractions are
+             WINDOW-DEPENDENT: re-measure if a default view moves, and note they
+             say nothing about a zoomed-in view.
+
+             The flip runs at n = 24 vs 25, not 100 vs 101.  MEASURED: n=24
+             differs from n=100 by 0.022% of frame and n=25 from n=101 by 0.016%
+             -- visually identical -- at a quarter of the shader work, which
+             matters on a phone.  The flip is 1.072% at 24/25 against 1.056% at
+             100/101, so the "1.1%" on the slide holds either way.
+
+             BLACK DOTS mark the roots, and the two cycle points when there are
+             any, so convergence has something visible to converge to.
+             DRAG z0: the orbit draws itself -- into a root and stops, or into the
+             2-cycle and alternates forever.  That is the deep equilibrium, felt.
+             SCROLL to zoom on the cursor; `0` resets.  Zoom is clamped at a
+             half-height of 1e-4 because the shader is 32-bit float and goes
+             blocky, not deeper, past that.
+
+    slide 7  COIN.  Separates learning a concept from predicting an instance: the
+             estimate of the bias converges, per-flip accuracy is pinned at
+             max(p, 1-p) forever.  Simulated live, so it is a real sample path.
+
+    slide 8  THE PROGRAMS.  Listings transcribed verbatim from
+             `evorobust-neurips2026.tex` Appendix app:code.  Toggling "as emitted"
+             against "pruned" is honest about the search's waste: the two are
+             machine-verified prediction-identical on 9,216 validation shots.
+
+    slide 9  PARETO.  Every number quoted from the EQTC 2026 abstract, the current
+             source of record.  Cost is a work proxy internal to this panel;
+             R5-E059's and R5-E075's margins over BP+AC are flagged cost-fragile,
+             so the page says "at indistinguishable cost", never "cheaper".
+
+  THEOREMS.  Two slides state a result formally, in a .thm block: "Tie the
+  weights" (Alva-Duenez-Iovino-Walton, existence of deep equilibria, via the
+  Ellis-Numakura lemma) and "Tameness comes in degrees" (the NIP_i levels and the
+  strictness of NIP_3 => NIP_2 => NIP_1 => NIP).  Both are transcribed and
+  SIMPLIFIED from the sources -- the existence theorem from ISQGD_deepNIP.tex
+  (the theorem environment around line 287), the levels from
+  ComplexityViaTopology.tex (the definition at ~1356 and the four separating
+  examples at ~1483).  The exact hypotheses are in the papers; these are the
+  talk-level forms and are meant to be edited by hand before delivery.
+
+  YES / NO.  The two answer words are green (#7fd69a) and red (#ff8f8f)
+  EVERYWHERE they appear, in HTML and on canvas alike.  Canvas has no rich text,
+  so drawRuns() lays a label down as a list of [text, colour] runs and shrinks the
+  font until the whole run fits the width it is given.  The verdict under each
+  matrix names the column by its ordinal, computed from the data rather than
+  written in, so it stays true if FORBIDDEN or NPTS changes.  VERIFIED by sampling
+  canvas pixels: the outlined column of the interval matrix reads R G G G R (the
+  interval [x2, x4], matching the key above it) and the outlined column of the
+  binary matrix reads G R G R R -- its first three rows are the forbidden green,
+  red, green, and it is the sixth column.
+
+  THE QR.  Encodes https://supernumero.us/files/talks/2026-utsa-what-we-can-compute/
+  at error level M, version 5, 37x37 modules, and appears three times (title
+  slide, references slide, and inside the commented-out "Where you come in").
+  It is generated, not drawn: the `talk-` prefix was dropped from the site id on
+  2026-09-18, so all three had to be regenerated.  If the URL changes again,
+  regenerate all three rather than editing the path -- the generator that made
+  them reproduces the previous QR byte for byte, which is how it was checked.
+
+  LINKS.  Every URL on screen is a real anchor, and every arXiv identifier links
+  to its abstract.  All carry target="_blank", so a click never navigates the deck
+  away mid-talk.  The click-to-advance handler already skips anchors.
+
+  TYPE.  Every font-size is calc(clamp(...) * var(--ts)), and `[` / `]` / `\` drive
+  --ts from the podium (remembered per browser; talk.type(1.1) from the console).
+  Do NOT reach for the browser's own zoom instead: MEASURED at 1920x1080, zoom at
+  125% changes nothing at all (the sizes are vmin-driven, and vmin shrinks in CSS
+  px exactly as fast as zoom magnifies it), 150% lifts captions only 12%, and past
+  ~2.3x the viewport crosses max-width:840px and the deck flips into its phone
+  layout mid-talk.  --ts scales type WITHOUT touching the layout, which is why it
+  is the right knob.  Its ceiling is measured, not guessed: see the note on TS_MAX.
+
+  The ramp was rebalanced 2026-09-17 because the drop from headline to caption was
+  too steep to read from the back of a room.  Physical px at 1920x1080, before ->
+  after:  h1 60.5 -> 54.0 | h2 38.9 -> 36.7 | p 20.5 -> 24.8 | caption 14.6 ->
+  21.1.  Headline-to-caption went from 4.1x to 2.6x.  On a phone this costs a
+  short scroll on three slides (Newton 73px, NIP/IP 69px, the programs 112px);
+  there the deck is a scrolling document by design, and legibility wins.
+
+    slide 11 REFERENCES.  The closing slide.  It replaces "Where you come in",
+             which is commented out just above it in the markup rather than
+             deleted -- restore that block if the invitation is wanted back.
+             THREE entries: the model-theory/metric-convergence group was cut on
+             request.  Each remaining one is transcribed from eduenez.github.io's
+             `_data/publications_manifest.yml` resolved against the
+             `math-bibliography` submodule, EXCEPT "Evolving qLDPC decoders",
+             which is not in the manifest and is described, not cited, because no
+             title of record exists locally.  Author spellings and status words
+             deliberately match the `p` projects overlay, which is the other place
+             this work is listed.  This is the only slide that scrolls on a phone
+             (58px at 390x844); every other one fits exactly.  The QR repeats
+             here, as on the title.
+
+  Console: talk.goto(i) / next() / prev() / setN(101) / flip(true) / timer(true)
+           talk.state
+  Keys: arrows, space, 1-9 jump, f flip, t timer, a appendix, p projects, ? help.
+  The URL fragment tracks the slide, so a crash mid-talk costs nothing.
+-->
+<style>
+  :root {
+    --ts:1;               /* podium type scale — `[` / `]`, or talk.type(1.15) */
+    --bg:#0b0d10; --ink:#f2efe9; --dim:#9aa3ad; --accent:#ff7a33; --navy:#7fa8d6;
+    --cyan:#4ad9e4; --magenta:#e86bd0; --green:#7fd69a; --rule:#2a2f37; --panel:#12151a;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased; }
+
+  .slide { position:fixed; inset:0; display:none; flex-direction:column; justify-content:center;
+    padding:clamp(1rem,3.4vmin,3.2rem) clamp(1.1rem,5vmin,5rem); animation:rise 300ms ease-out; }
+  .slide.active { display:flex; }
+  @keyframes rise { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  @media (prefers-reduced-motion:reduce){ .slide{animation:none} }
+
+  .kicker { font-size:calc(clamp(0.8rem,1.6vmin,1.2rem) * var(--ts)); letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin-bottom:clamp(0.4rem,1.4vmin,1rem); }
+  h1 { font-size:calc(clamp(1.6rem,5.0vmin,4rem) * var(--ts)); line-height:1.06; margin:0 0 clamp(0.5rem,1.8vmin,1.4rem);
+       font-weight:700; letter-spacing:-0.02em; }
+  h2 { font-size:calc(clamp(1.2rem,3.4vmin,2.6rem) * var(--ts)); line-height:1.12; margin:0 0 clamp(0.4rem,1.5vmin,1rem);
+       font-weight:650; letter-spacing:-0.01em; }
+  p  { font-size:calc(clamp(1rem,2.3vmin,1.85rem) * var(--ts)); line-height:1.45; margin:0 0 0.7em; max-width:34em; }
+  .lede { font-size:calc(clamp(1.05rem,2.7vmin,2.1rem) * var(--ts)); line-height:1.3; max-width:26em; }
+  .dim { color:var(--dim); } .accent { color:var(--accent); }
+  em.hi { font-style:normal; color:var(--accent); font-weight:650; }
+  a { color:var(--navy); text-underline-offset:3px; } a:hover { color:var(--accent); }
+  /* every URL on screen is a real link; _blank so a click never navigates the
+     deck away mid-talk, and the deck keeps running behind the new tab. */
+  a.url { color:var(--accent); text-decoration:underline; text-decoration-thickness:1px;
+    text-underline-offset:3px; }
+  a.url:hover { color:#ffa464; }
+  a.cite { color:inherit; text-decoration:underline; text-decoration-thickness:1px;
+    text-decoration-color:var(--navy); text-underline-offset:2px; }
+  a.cite:hover { color:var(--navy); }
+  .cap { font-size:calc(clamp(0.85rem,1.95vmin,1.5rem) * var(--ts)); color:var(--dim); margin-top:0.5em; line-height:1.4; }
+  .math { font-family:ui-serif, Georgia, "Times New Roman", serif; font-style:italic; }
+  code, pre, kbd { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .split { display:flex; gap:clamp(0.9rem,3.2vmin,3rem); align-items:center; flex:1; min-height:0; }
+  .split > .text { flex:1 1 38%; min-width:0; }
+  .split > .figure { flex:1 1 62%; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:center; }
+  canvas { display:block; margin:0 auto; border-radius:9px; background:#000; max-width:100%; }
+
+  .controls { display:flex; align-items:center; gap:0.7rem; margin-top:0.6rem; flex-wrap:wrap; }
+  .controls label { font-size:calc(clamp(0.82rem,1.7vmin,1.3rem) * var(--ts)); color:var(--dim); white-space:nowrap; }
+  input[type=range] { flex:1; min-width:6rem; accent-color:var(--accent); }
+  .nval { font-variant-numeric:tabular-nums; font-weight:700; color:var(--accent);
+          font-size:calc(clamp(0.95rem,2.1vmin,1.6rem) * var(--ts)); }
+  button { font:inherit; font-size:calc(clamp(0.82rem,1.7vmin,1.3rem) * var(--ts)); color:var(--ink); background:#171b21;
+    border:1px solid var(--rule); border-radius:7px; padding:0.35em 0.8em; cursor:pointer; }
+  button:hover { border-color:var(--accent); color:var(--accent); }
+  button[aria-pressed="true"] { background:var(--accent); color:#101216; border-color:var(--accent); font-weight:650; }
+
+  /* Formally stated results.  A talk that shows a theorem's consequences and
+     never states the theorem is not acceptable mathematics, however friendly the
+     register.  Statements here are SIMPLIFIED for a lightning talk; the exact
+     hypotheses live in the cited papers. */
+  .thm { border:1px solid var(--accent); border-left:4px solid var(--accent);
+    border-radius:8px; background:rgba(255,122,51,0.08);
+    padding:clamp(0.4rem,1.2vmin,0.85rem) clamp(0.55rem,1.6vmin,1.1rem);
+    margin:clamp(0.35rem,1.1vmin,0.9rem) 0; }
+  .thm .thmhead { color:var(--accent); font-weight:700; letter-spacing:0.09em;
+    text-transform:uppercase; font-size:calc(clamp(0.74rem,1.55vmin,1.15rem) * var(--ts));
+    margin:0 0 0.35em; }
+  .thm .thmhead .who { text-transform:none; letter-spacing:0; font-weight:600; color:var(--ink); }
+  .thm p { font-family:ui-serif, Georgia, "Times New Roman", serif;
+    font-size:calc(clamp(0.9rem,2.05vmin,1.6rem) * var(--ts)); line-height:1.28;
+    margin:0; max-width:none; }
+  .thm p + p { margin-top:0.4em; }
+  .thm .vbl { font-style:italic; }
+  .thm .thmnote { font-family:inherit; color:var(--dim);
+    font-size:calc(clamp(0.72rem,1.55vmin,1.2rem) * var(--ts)); margin-top:0.45em; }
+  .box { border:1px solid var(--rule); border-radius:9px; padding:clamp(0.5rem,1.6vmin,1.1rem); background:var(--panel); }
+  .equation { font-size:calc(clamp(0.95rem,3vmin,2.3rem) * var(--ts)); font-weight:700; margin:clamp(0.3rem,1.2vmin,0.9rem) 0; line-height:1.25; }
+  .equation .eq { color:var(--accent); margin:0 0.2em; }
+
+  /* slide 1 — the two failure modes */
+  .modes { display:flex; gap:clamp(0.7rem,2.5vmin,2rem); flex-wrap:wrap; margin:clamp(0.4rem,1.6vmin,1.2rem) 0; }
+  .mode { flex:1 1 18rem; border-left:3px solid var(--cyan); }
+  .mode:nth-child(2) { border-left-color:var(--magenta); }
+  .mode h3 { margin:0 0 0.3em; font-size:calc(clamp(1rem,2.4vmin,1.8rem) * var(--ts)); }
+
+  /* slide 3 — the exchange grid */
+  .exwrap { display:flex; gap:clamp(0.6rem,2vmin,1.6rem); align-items:flex-start; }
+  /* the forbidden pattern, named in the colours it actually is */
+  .sw { display:inline-flex; gap:2px; vertical-align:-0.12em; }
+  .sw i { width:0.95em; height:0.72em; border:1px solid; border-radius:2px; display:block; }
+  .axis { font-size:calc(clamp(0.75rem,1.55vmin,1.2rem) * var(--ts)); color:var(--dim); }
+  /* the hierarchy of tameness — the ISQGD talk's tree, made clickable */
+  #tree { display:flex; flex-direction:column; gap:clamp(0.3rem,1.1vmin,0.75rem); }
+  .treerow { display:flex; gap:clamp(0.3rem,1.1vmin,0.75rem); justify-content:center; }
+  .tnode { flex:1 1 0; min-width:0; cursor:pointer; text-align:center;
+    border:1px solid var(--rule); border-radius:8px; background:var(--panel);
+    padding:clamp(0.3rem,1vmin,0.65rem) clamp(0.3rem,1vmin,0.7rem);
+    font-size:calc(clamp(0.8rem,1.75vmin,1.3rem) * var(--ts)); line-height:1.25; position:relative; }
+  .tnode:hover { border-color:var(--accent); }
+  .tnode.sel { border-color:var(--accent); background:#1a1410; }
+  .tnode.troot { flex:0 1 60%; margin:0 auto; border-color:var(--navy); }
+  .tspacer { flex:1 1 0; min-width:0; }
+  .tkids { flex:1 1 0; min-width:0; display:flex; gap:clamp(0.25rem,0.9vmin,0.6rem); }
+  .treerow:not(:first-child) .tspacer::before { content:none; }
+  .tnode b { color:var(--accent); }
+  /* the connector: a short stem above every node below the root */
+  .treerow:not(:first-child) .tnode::before { content:""; position:absolute; left:50%; top:calc(-1 * clamp(0.3rem,1.1vmin,0.75rem));
+    width:1px; height:clamp(0.3rem,1.1vmin,0.75rem); background:var(--rule); }
+  #rungdetail { min-height:6em; }
+
+  /* slide 6 — code */
+  .codes { display:flex; gap:clamp(0.5rem,2vmin,1.5rem); flex:1; min-height:0; }
+  .codecol { flex:1 1 50%; min-width:0; display:flex; flex-direction:column; }
+  .codecol h3 { margin:0 0 0.35em; font-size:calc(clamp(0.82rem,1.75vmin,1.3rem) * var(--ts)); letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--dim); font-weight:700; }
+  /* The code has to be readable from the back of a lecture room, so it is sized
+     against the viewport and the block grows to fill its column. */
+  pre { margin:0; overflow:auto; flex:1; background:var(--panel); border:1px solid var(--rule);
+    border-radius:8px; padding:clamp(0.5rem,1.5vmin,1.1rem);
+    font-size:calc(clamp(0.62rem,1.55vmin,1.25rem) * var(--ts)); line-height:1.5; color:#cfd6de; white-space:pre; }
+  pre .c { color:#6d7a86; } pre .k { color:var(--magenta); } pre .f { color:var(--cyan); } pre .n { color:var(--accent); }
+
+  /* HUD + overlays */
+  #hud { position:fixed; right:0.6rem; bottom:0.5rem; display:flex; gap:0.6rem; align-items:center;
+    font-size:calc(clamp(0.7rem,1.45vmin,1.1rem) * var(--ts)); color:var(--dim); font-variant-numeric:tabular-nums;
+    background:rgba(11,13,16,0.72); padding:0.25rem 0.55rem; border-radius:999px; pointer-events:none; }
+  #clock { display:none; font-weight:700; } #clock.on { display:inline; }
+  #clock.over { color:#ff6b6b; } #clock.ahead { color:var(--green); }
+  #dots { display:flex; gap:3px; } #dots i { width:4px; height:4px; border-radius:50%; background:var(--rule); display:block; }
+  #dots i.on { background:var(--accent); }
+  .overlay { position:fixed; inset:0; background:rgba(8,9,12,0.975); z-index:50; overflow-y:auto;
+    padding:clamp(1rem,4vmin,3.5rem); display:none; }
+  .overlay.open { display:block; }
+  .proj { border-bottom:1px solid var(--rule); padding:0.6rem 0; max-width:62em; }
+  .proj .meta { color:var(--dim); font-size:calc(clamp(0.82rem,1.7vmin,1.3rem) * var(--ts)); }
+  .status { display:inline-block; font-size:0.7em; letter-spacing:0.08em; text-transform:uppercase;
+    border:1px solid var(--rule); border-radius:999px; padding:0.1em 0.6em; margin-left:0.4em; color:var(--dim); }
+  .status.live { color:var(--green); border-color:#2f6b3d; }
+  kbd { background:#171b21; border:1px solid var(--rule); border-bottom-width:2px; border-radius:5px;
+        padding:0.05em 0.4em; font-size:0.9em; }
+  #qrbox { background:#fff; padding:6px; border-radius:7px; flex:none; }
+  #qrbox svg, #qrbox2 svg { display:block; width:100%; height:auto; }
+  .qr-title { width:clamp(72px,11vmin,140px); }
+  .qr-end { width:clamp(96px,17vmin,210px); }
+
+  /* slide 9 — references */
+  .reflist { display:flex; gap:clamp(0.9rem,3.2vmin,3rem); align-items:flex-start; flex-wrap:wrap;
+    margin:clamp(0.3rem,1.2vmin,0.9rem) 0; }
+  .refcol { flex:1 1 24rem; min-width:0; }
+  .reflist:has(> .refcol:only-child) .refcol { flex:1 1 100%; }
+  .refcol h3 { margin:0 0 0.25em; font-size:calc(clamp(0.95rem,2.05vmin,1.55rem) * var(--ts)); color:var(--accent);
+    letter-spacing:0.04em; text-transform:uppercase; }
+  .refcol .proj { padding:0.45rem 0; max-width:none; }
+  .refcol .proj b { font-weight:600; font-size:calc(clamp(1rem,2.3vmin,1.85rem) * var(--ts)); line-height:1.25;
+    display:block; }
+  .refcol .proj .meta { font-size:calc(clamp(0.85rem,1.95vmin,1.5rem) * var(--ts)); }
+  .endbar { display:flex; gap:clamp(0.8rem,3vmin,2.5rem); align-items:center; flex-wrap:wrap;
+    margin-top:clamp(0.6rem,2.6vmin,2rem); }
+  .endbar p { max-width:46em; }
+  .refcol h3 + .proj { border-top:0; }
+  .refcol h3:not(:first-child) { margin-top:clamp(0.5rem,1.8vmin,1.3rem); }
+  #qrbox2 { background:#fff; padding:7px; border-radius:8px; flex:none; }
+
+  /* small screens: the page must be READABLE by a student who scanned the QR */
+  p, .cap, .lede, .proj, .rung, .tnode { overflow-wrap:anywhere; }
+  .split > .text, .split > .figure, .mode, .codecol, .verdict div { min-width:0; }
+  @media (max-width:840px), (max-height:470px) {
+    html, body { overflow:auto; }
+    .slide { position:static; min-height:100vh; justify-content:flex-start;
+      padding-top:clamp(1.2rem,7vw,2.5rem); padding-bottom:3.5rem; }
+    .slide.active { display:flex; }
+    .split, .codes, .exwrap { flex-direction:column; align-items:stretch; }
+    #hud { display:none; }
+    .tap-hint { display:block; }
+    /* the references slide is the one dense enough to need a nudge to fit a phone */
+    .refcol .proj { padding:0.22rem 0; }
+    .refcol h3:not(:first-child) { margin-top:0.7rem; }
+    .endbar { margin-top:0.8rem; gap:0.8rem; }
+  }
+  #tsbadge { position:fixed; left:50%; bottom:1.2rem; transform:translateX(-50%);
+    background:rgba(18,21,26,0.94); border:1px solid var(--rule); border-radius:999px;
+    padding:0.3em 0.9em; font-size:0.85rem; color:var(--dim); letter-spacing:0.06em;
+    opacity:0; transition:opacity 180ms; pointer-events:none; z-index:60; }
+  #tsbadge.on { opacity:1; }
+  .tap-hint { display:none; color:var(--dim); font-size:0.85rem; margin-top:1rem; }
+</style>
+</head>
+<body>
+
+<!-- ============ 0 — title ============ -->
+<section class="slide active" data-slide="0">
+  <div class="kicker">UTSA Mathematics · 18 September 2026</div>
+  <h1>What we can compute,<br>what we cannot</h1>
+  <p class="lede" style="color:var(--accent);margin-bottom:1.2em">— and the wisdom to know the difference.</p>
+  <div style="display:flex;gap:clamp(0.8rem,3vmin,2.5rem);align-items:center;flex-wrap:wrap">
+    <div id="qrbox" class="qr-title"><svg viewBox="-2 -2 41 41" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Link to this talk"><rect x="-2" y="-2" width="41" height="41" fill="#fff"/><path fill="#000" d="M0 0h7v1h-7zM9 0h2v1h-2zM12 0h5v1h-5zM20 0h3v1h-3zM25 0h3v1h-3zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h2v1h-2zM11 1h3v1h-3zM16 1h1v1h-1zM19 1h3v1h-3zM25 1h4v1h-4zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h1v1h-1zM15 2h1v1h-1zM20 2h1v1h-1zM23 2h1v1h-1zM27 2h2v1h-2zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM10 3h2v1h-2zM16 3h1v1h-1zM19 3h2v1h-2zM22 3h1v1h-1zM26 3h2v1h-2zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM11 4h2v1h-2zM15 4h1v1h-1zM17 4h3v1h-3zM22 4h2v1h-2zM25 4h3v1h-3zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM13 5h1v1h-1zM15 5h2v1h-2zM18 5h4v1h-4zM23 5h1v1h-1zM26 5h3v1h-3zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM16 7h1v1h-1zM21 7h2v1h-2zM24 7h5v1h-5zM0 8h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h2v1h-2zM28 8h1v1h-1zM32 8h1v1h-1zM35 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h3v1h-3zM13 9h3v1h-3zM19 9h2v1h-2zM22 9h2v1h-2zM25 9h1v1h-1zM28 9h3v1h-3zM34 9h1v1h-1zM36 9h1v1h-1zM0 10h1v1h-1zM2 10h2v1h-2zM5 10h2v1h-2zM8 10h2v1h-2zM12 10h3v1h-3zM17 10h1v1h-1zM19 10h2v1h-2zM24 10h1v1h-1zM30 10h2v1h-2zM33 10h4v1h-4zM1 11h1v1h-1zM3 11h2v1h-2zM9 11h2v1h-2zM13 11h1v1h-1zM15 11h1v1h-1zM17 11h2v1h-2zM20 11h2v1h-2zM23 11h1v1h-1zM25 11h4v1h-4zM30 11h1v1h-1zM35 11h1v1h-1zM2 12h1v1h-1zM5 12h3v1h-3zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h5v1h-5zM24 12h2v1h-2zM27 12h1v1h-1zM29 12h3v1h-3zM33 12h1v1h-1zM35 12h2v1h-2zM2 13h1v1h-1zM5 13h1v1h-1zM8 13h1v1h-1zM16 13h3v1h-3zM20 13h1v1h-1zM24 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h1v1h-1zM35 13h2v1h-2zM1 14h1v1h-1zM3 14h1v1h-1zM6 14h3v1h-3zM10 14h3v1h-3zM14 14h1v1h-1zM18 14h1v1h-1zM20 14h2v1h-2zM28 14h4v1h-4zM34 14h1v1h-1zM36 14h1v1h-1zM0 15h1v1h-1zM3 15h1v1h-1zM7 15h4v1h-4zM12 15h1v1h-1zM14 15h7v1h-7zM24 15h3v1h-3zM28 15h1v1h-1zM32 15h1v1h-1zM0 16h2v1h-2zM3 16h6v1h-6zM10 16h1v1h-1zM12 16h1v1h-1zM16 16h1v1h-1zM18 16h2v1h-2zM23 16h3v1h-3zM27 16h2v1h-2zM30 16h2v1h-2zM33 16h1v1h-1zM36 16h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM9 17h2v1h-2zM12 17h8v1h-8zM21 17h1v1h-1zM23 17h1v1h-1zM25 17h2v1h-2zM29 17h2v1h-2zM36 17h1v1h-1zM1 18h2v1h-2zM6 18h1v1h-1zM8 18h4v1h-4zM13 18h6v1h-6zM25 18h2v1h-2zM28 18h6v1h-6zM35 18h2v1h-2zM0 19h1v1h-1zM3 19h2v1h-2zM9 19h1v1h-1zM11 19h1v1h-1zM14 19h1v1h-1zM16 19h2v1h-2zM19 19h1v1h-1zM21 19h2v1h-2zM24 19h2v1h-2zM28 19h1v1h-1zM32 19h1v1h-1zM35 19h1v1h-1zM0 20h5v1h-5zM6 20h1v1h-1zM9 20h1v1h-1zM11 20h2v1h-2zM14 20h2v1h-2zM17 20h2v1h-2zM20 20h2v1h-2zM23 20h3v1h-3zM27 20h4v1h-4zM0 21h1v1h-1zM3 21h3v1h-3zM8 21h1v1h-1zM11 21h2v1h-2zM16 21h1v1h-1zM18 21h1v1h-1zM20 21h3v1h-3zM25 21h1v1h-1zM28 21h1v1h-1zM30 21h2v1h-2zM33 21h1v1h-1zM35 21h2v1h-2zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM9 22h2v1h-2zM17 22h1v1h-1zM22 22h1v1h-1zM26 22h1v1h-1zM28 22h2v1h-2zM31 22h1v1h-1zM34 22h3v1h-3zM0 23h2v1h-2zM3 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h2v1h-2zM12 23h1v1h-1zM14 23h3v1h-3zM19 23h1v1h-1zM21 23h2v1h-2zM25 23h1v1h-1zM32 23h1v1h-1zM36 23h1v1h-1zM1 24h2v1h-2zM4 24h1v1h-1zM6 24h5v1h-5zM13 24h3v1h-3zM20 24h1v1h-1zM22 24h1v1h-1zM24 24h2v1h-2zM28 24h3v1h-3zM33 24h1v1h-1zM36 24h1v1h-1zM1 25h2v1h-2zM4 25h2v1h-2zM8 25h2v1h-2zM11 25h2v1h-2zM14 25h2v1h-2zM17 25h1v1h-1zM19 25h4v1h-4zM26 25h1v1h-1zM28 25h4v1h-4zM33 25h4v1h-4zM0 26h1v1h-1zM2 26h5v1h-5zM8 26h1v1h-1zM10 26h1v1h-1zM12 26h2v1h-2zM18 26h5v1h-5zM25 26h1v1h-1zM30 26h1v1h-1zM32 26h1v1h-1zM34 26h3v1h-3zM1 27h3v1h-3zM5 27h1v1h-1zM7 27h1v1h-1zM9 27h2v1h-2zM12 27h2v1h-2zM15 27h1v1h-1zM17 27h1v1h-1zM20 27h8v1h-8zM29 27h1v1h-1zM0 28h1v1h-1zM2 28h2v1h-2zM6 28h7v1h-7zM16 28h7v1h-7zM25 28h2v1h-2zM28 28h5v1h-5zM36 28h1v1h-1zM8 29h3v1h-3zM12 29h1v1h-1zM14 29h1v1h-1zM17 29h2v1h-2zM20 29h1v1h-1zM24 29h2v1h-2zM28 29h1v1h-1zM32 29h2v1h-2zM36 29h1v1h-1zM0 30h7v1h-7zM11 30h4v1h-4zM16 30h1v1h-1zM18 30h1v1h-1zM20 30h2v1h-2zM27 30h2v1h-2zM30 30h1v1h-1zM32 30h2v1h-2zM35 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h3v1h-3zM16 31h5v1h-5zM23 31h4v1h-4zM28 31h1v1h-1zM32 31h2v1h-2zM35 31h1v1h-1zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM8 32h2v1h-2zM13 32h1v1h-1zM16 32h1v1h-1zM18 32h1v1h-1zM24 32h2v1h-2zM28 32h6v1h-6zM35 32h2v1h-2zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM10 33h2v1h-2zM14 33h6v1h-6zM24 33h1v1h-1zM26 33h1v1h-1zM31 33h3v1h-3zM35 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM8 34h2v1h-2zM11 34h1v1h-1zM13 34h1v1h-1zM15 34h4v1h-4zM21 34h1v1h-1zM24 34h2v1h-2zM27 34h2v1h-2zM32 34h5v1h-5zM0 35h1v1h-1zM6 35h1v1h-1zM9 35h1v1h-1zM12 35h1v1h-1zM14 35h1v1h-1zM16 35h2v1h-2zM19 35h1v1h-1zM21 35h5v1h-5zM27 35h3v1h-3zM31 35h2v1h-2zM35 35h1v1h-1zM0 36h7v1h-7zM8 36h5v1h-5zM14 36h2v1h-2zM17 36h2v1h-2zM21 36h1v1h-1zM25 36h1v1h-1zM27 36h3v1h-3zM33 36h1v1h-1zM35 36h2v1h-2z"/></svg></div>
+    <div>
+      <p style="margin:0">Eduardo Dueñez · <span class="dim">Mathematics, UTSA</span></p>
+      <p class="cap" style="margin:0.3em 0 0">Slides, notebooks and papers live at this link —
+        it is the same page you are looking at.<br>
+        <a class="url" id="selfurl" href="https://supernumero.us/files/talks/2026-utsa-what-we-can-compute/" target="_blank" rel="noopener">supernumero.us/files/talks/2026-utsa-what-we-can-compute/</a></p>
+    </div>
+  </div>
+  <p class="tap-hint">Tap anywhere to move forward.</p>
+</section>
+
+<!-- ============ 1 — two ways to be out of reach ============ -->
+<section class="slide" data-slide="1">
+  <div class="kicker">The question</div>
+  <h2>Two ways for an answer to be out of reach</h2>
+  <div class="modes">
+    <div class="mode box">
+      <h3 style="color:var(--cyan)">Too tangled</h3>
+      <p>The object is so complex that no finite description pins it down. In the
+         combinatorial form: every pattern of answers is realized — the
+         <em class="hi">independence property</em>, infinite VC dimension.</p>
+      <p class="cap">Then no procedure learns it, and none ever will, at any sample size.</p>
+    </div>
+    <div class="mode box">
+      <h3 style="color:var(--magenta)">Irreducibly random</h3>
+      <p>Nothing is tangled at all — the answer simply is not determined. The next
+         coin flip. When <em>this</em> atom decays. Thursday's weather.</p>
+      <p class="cap">Here the concept can be perfectly learnable while each instance stays unpredictable.</p>
+    </div>
+  </div>
+  <p class="lede">My work is about where that line falls — and it turns out the line
+     is not a line. It is a <em class="hi">ladder</em>.</p>
+  <p class="cap">Joint with J. Iovino (UTSA) and collaborators in Toronto; and, on the applied
+     side, with the research team at Gibran.AI in London.</p>
+</section>
+
+<!-- ============ deep network ============ -->
+<section class="slide" data-slide="deepnet">
+  <div class="kicker" style="color:var(--cyan)">Too tangled · what is being computed</div>
+  <div class="split">
+    <div class="text">
+      <h2>Tie the weights, and let the depth run</h2>
+      <p>A deep network is a finite stack of layers. Make every layer <em class="hi">the same
+         map</em> — tie the weights — and you can ask what happens as the stack grows without
+         end.</p>
+      <p>The limit, when it exists, is a <em class="hi">deep equilibrium</em>: a function of the
+         input alone, with no layer count left in it. That phantom layer on the right is not
+         computed by any finite network. It is the asymptotic output state.</p>
+      <div class="thm">
+        <p class="thmhead">Theorem <span class="who">(Alva, Dueñez, Iovino, Walton.<br>
+          <a class="cite" href="https://arxiv.org/abs/2409.06064" target="_blank" rel="noopener"><i>Deep equilibria: existence and computability.</i></a>)</span></p>
+        <p>If the layer states space <span class="vbl">L</span> of a neural network
+           and a weight-tied layer map <span class="vbl">T : L → L</span>
+	  both satisfy suitable compactness hypotheses
+           (<span class="vbl">L</span> is <b>realcompact</b> and  <span class="vbl">T</span> 
+	   is <b>confined</b>),
+	   then the successively iterated deep computations
+          <span class="vbl">(T, T², T³, …, Tⁿ, …)</span> admit an <b>idempotent deep equilibrium (DEq)</b>
+	  <span class="vbl">T̃ : L → L</span>.</p>
+        <p class="thmnote">Proof: Via the Ellis–Numakura lemma.</p>
+      </div>
+      <p>The ability to explicitly <em>compute</em> the DEq is the focus of the paper.</p>
+
+      <div class="controls">
+        <label for="depthslider">layers</label>
+        <input id="depthslider" type="range" min="1" max="8" value="2" step="1">
+        <span class="nval" id="depthval">2</span>
+      </div>
+      <p class="cap">Push it right and watch the stack run off the edge toward the limit.</p>
+    </div>
+    <div class="figure">
+      <canvas id="deepnet"></canvas>
+      <p class="cap">Visualizing an “infinitely deep” neural network.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 — a deep computation ============ -->
+<section class="slide" data-slide="2">
+  <div class="kicker" style="color:var(--cyan)">Too tangled · the picture</div>
+  <div class="split">
+    <div class="text">
+      <h2>A computation of infinite depth</h2>
+      <p>Newton's method on <b class="math" id="polyname">f(z) = z³ − 1</b>. Colour each
+         starting point by where it stands after <span class="nval" id="nlabel">n = 1</span> steps.</p>
+      <p id="polystory"></p>
+      <p class="dim" id="polycompare"></p>
+      <div class="controls">
+        <span class="axis">polynomial</span>
+        <button class="polybtn" data-poly="z3m1">z³ − 1</button>
+        <button class="polybtn" data-poly="z3m2zp2">z³ − 2z + 2</button>
+        <kbd>g</kbd>
+      </div>
+      <div class="controls">
+        <label for="nslider">n</label>
+        <input id="nslider" type="range" min="1" max="25" value="1" step="1">
+        <button id="flipbtn" aria-pressed="false">Flip 24 ↔ 25 <kbd>f</kbd></button>
+      </div>
+      <p class="cap" id="orbitreadout">Drag the white dot: its orbit is drawn step by step.</p>
+      <p class="cap" style="margin-top:0.2em">Scroll to zoom anywhere in the picture;
+         <kbd>0</kbd> returns to this view.</p>
+    </div>
+    <div class="figure">
+      <div id="newtonstack" style="position:relative;margin:0 auto">
+        <canvas id="newton"></canvas>
+        <canvas id="newtonfx" style="position:absolute;inset:0;background:transparent;touch-action:none;cursor:grab"></canvas>
+      </div>
+      <p class="cap" id="polycap"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ building a wild function ============ -->
+<section class="slide" data-slide="dirichlet">
+  <div class="kicker" style="color:var(--cyan)">Too tangled · on the real line</div>
+  <div class="split">
+    <div class="text">
+      <h2>Building a function too wild to be a limit</h2>
+      <p>Take <span class="math">f<sub>k,m</sub>(x) = cos<sup>2k</sup>(m!&thinsp;πx)</span>.
+         Every one of these is <em class="hi">continuous</em>.</p>
+      <p>Raise the power <span class="math">k</span>: the curve collapses onto spikes. What
+         survives is <span class="math">g<sub>m</sub></span>, equal to 1 exactly where
+         <span class="math">m!x</span> is an integer. Each <span class="math">g<sub>m</sub></span>
+         is a pointwise limit of continuous functions — <em class="hi">Baire class 1</em>.</p>
+      <p>Now raise <span class="math">m</span>. Since <span class="math">m!</span> eventually
+         clears any denominator, the spikes fill in every rational, and the limit is Dirichlet's
+         function — 1 on the rationals, 0 elsewhere. <em class="hi">Nowhere continuous</em>, so
+         by Baire's theorem it is <b>not</b> Baire-1.</p>
+      <div class="controls">
+        <label for="kslider">power k</label>
+        <input id="kslider" type="range" min="1" max="200" value="6" step="1">
+        <span class="nval" id="kval">6</span>
+      </div>
+      <div class="controls">
+        <label for="mfslider">index m</label>
+        <input id="mfslider" type="range" min="1" max="6" value="2" step="1">
+        <span class="nval" id="mfval">2</span>
+      </div>
+    </div>
+    <div class="figure">
+      <canvas id="dirichlet"></canvas>
+      <p class="cap" id="dircap"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NIP vs IP ============ -->
+<section class="slide" data-slide="nipip">
+  <div class="kicker">The wisdom to know the difference</div>
+  <h2>Tameness as a visual patten: the NIP property and finiteness of VC-dimension</h2>
+  <p style="max-width:none;margin-bottom:0.3em">Fix five test points
+     <span class="math">x₁ &lt; x₂ &lt; … &lt; x₅</span> on a line. A <em class="hi">class</em> of
+    <b style="color:#7fd69a">yes</b> / <b style="color:#ff8f8f">no</b> questions about a point gives,
+       for each question, a column of five answers —<b style="color:#7fd69a">yes</b> (green),
+    <b style="color:#ff8f8f">no</b> (red). The
+     whole of tameness is about which  <em class="hi">bit-patterns</em> the class can produce.</p>
+  <div class="split" style="gap:clamp(0.8rem,3vmin,2.5rem)">
+    <div class="figure" style="flex:1 1 50%">
+      <canvas id="nipmat"></canvas>
+      <p class="cap">The class of <b>intervals</b>: each question is
+         <span class="math">&ldquo;is x inside [a, b]?&rdquo;</span> —one interval, one column.
+         Since an interval that holds <span class="math">x₁</span> and <span class="math">x₃</span>
+         must also hold everything between them, <span class="sw"><i style="background:#2f7a46;border-color:#7fd69a"></i><i style="background:#7a2b2b;border-color:#ff8f8f"></i><i style="background:#2f7a46;border-color:#7fd69a"></i></span> is
+         impossible. Every column is one solid block. <b>VC dimension 2.</b></p>
+    </div>
+    <div class="figure" style="flex:1 1 50%">
+      <canvas id="ipmat"></canvas>
+      <p class="cap">The class of <b>all possible</b> patterns of <strong>five</strong>
+	<b style="color:#7fd69a">yes</b> / <b style="color:#ff8f8f">no</b> answers
+         —every one of the
+         <span class="math">2⁵</span> columns, so nothing is forbidden, including
+         <span class="sw"><i style="background:#2f7a46;border-color:#7fd69a"></i><i style="background:#7a2b2b;border-color:#ff8f8f"></i><i style="background:#2f7a46;border-color:#7fd69a"></i></span>. Any finite set of points is shattered:
+         <b>VC dimension infinite</b>, and nothing here is learnable at any sample size.</p>
+    </div>
+  </div>
+  <p class="lede" style="margin-top:0.3em">One class is missing a column; the other is missing
+     nothing. That is the entire difference between what you can learn and what you cannot.</p>
+</section>
+
+<!-- ============ 4 — the ladder ============ -->
+<section class="slide" data-slide="4">
+  <div class="kicker">The wisdom to know the difference</div>
+  <div class="split">
+    <div class="text">
+      <h2>Tameness comes in degrees</h2>
+      <p class="equation" style="font-size:calc(clamp(0.8rem,2.1vmin,1.5rem) * var(--ts))">
+        tame <span class="eq">=</span> Baire-1 <span class="eq">=</span> NIP
+        <span class="eq">=</span> finite VC <span class="eq">=</span> PAC-learnable</p>
+      <p>Topology, model theory and statistical learning drew the same line
+         independently. But above that line there is structure.</p>
+      <div class="thm">
+        <p class="thmhead">Definition &amp; Theorem<br>2
+	  <span class="who">(Dueñez, Iovino, Matos-Wiederhold, Salvetti, Tall)<br>
+          <a class="cite" href="https://arxiv.org/abs/2601.00528" target="_blank" rel="noopener"><i>Complexity of Deep Computations via Topology of Function Spaces.</i></a>)</span></p>
+        <p>For a countable family <span class="vbl">Δ</span> of deep computations satisfying NIP, say
+           <span class="vbl">Δ</span> is <b>NIP<sub>1</sub></b>, <b>NIP<sub>2</sub></b> or
+           <b>NIP<sub>3</sub></b> according as the closure of <span class="vbl">Δ̃</span> is
+           <em>first countable</em>, <em>hereditarily separable</em>, or <em>metrizable</em>. Then</p>
+        <p style="text-align:center">NIP<sub>3</sub> ⟹ NIP<sub>2</sub> ⟹ NIP<sub>1</sub> ⟹ NIP,</p>
+        <p>and <b>every implication is strict</b> — each level is separated by an explicit
+           finite-precision computation.</p>
+        <p class="thmnote">The levels are so far <em>purely topological</em>; whether a
+           combinatorial characterization exists is open. Underneath sits Todorčević's trichotomy
+           for Rosenthal compacta — forcing and infinite Ramsey theory, still no elementary proof;
+           Argyros–Dodos–Kanellopoulos refine it to seven minimal prototypes.
+           <i>Complexity of deep computations via topology of function spaces</i>,
+           <a class="cite" href="https://arxiv.org/abs/2601.00528" target="_blank" rel="noopener">arXiv:2601.00528</a>.</p>
+      </div>
+    </div>
+    <div class="figure">
+      <div id="tree"></div>
+      <div class="box" id="rungdetail" style="margin-top:0.6rem"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 — randomness ============ -->
+<section class="slide" data-slide="5">
+  <div class="kicker" style="color:var(--magenta)">Irreducibly random</div>
+  <div class="split">
+    <div class="text">
+      <h2>Learnable, and still unpredictable</h2>
+      <p>A biased coin, <span class="math">p</span> unknown. Two different questions:
+         <em class="hi">what is p</em>, and <em class="hi">what is the next flip</em>.</p>
+      <p>The first is learnable to any precision you like. On the second you will be wrong
+         <span class="math">min(p, 1−p)</span> of the time — and no quantity of data moves that,
+         ever.</p>
+      <p class="dim">So "not computable" and "not predictable" are different failures. The
+         theory extends: if the family is NIP, every deep computation is
+         <em class="hi">universally Monte Carlo computable</em> — measurable against every
+         reasonable measure. Whether the converse holds is open.</p>
+      <div class="controls">
+        <label for="pslider">p</label>
+        <input id="pslider" type="range" min="0.5" max="0.95" value="0.7" step="0.01">
+        <span class="nval" id="pval">0.70</span>
+        <button id="resample">New sample</button>
+      </div>
+      <p class="cap">Quantum computation is, loosely, statistical classical computation —
+        which is where this theory is headed next. <span class="dim">(That framing is mine;
+        it is not yet in the papers.)</span></p>
+    </div>
+    <div class="figure">
+      <canvas id="coin"></canvas>
+      <p class="cap">Both plotted as <b>error</b>. <span style="color:var(--cyan)">Cyan</span>:
+         how far the estimate of <i>p</i> is from the truth — it goes to zero.
+         <span style="color:var(--magenta)">Magenta</span>: how often the next flip is called
+         wrong — it stops at min(<i>p</i>, 1−<i>p</i>) and stays there forever.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 — the programs ============ -->
+<section class="slide" data-slide="6">
+  <div class="kicker" style="color:var(--green)">The applied thread</div>
+  <h2>We wrote the language; the search wrote the algorithm</h2>
+  <p style="max-width:none;margin-bottom:0.6em">Thirteen published decoders for quantum error
+     correction, each hand-designed by an expert over a paper's worth of work. We expressed the
+     primitives they share as <b>38 typed operations</b> — then evolved new programs in that
+     language. <span class="dim">Mutation and crossover. No language model anywhere.</span></p>
+  <div class="codes">
+    <div class="codecol">
+      <h3>Written by the search <button id="rawbtn" aria-pressed="false" style="margin-left:0.5em;text-transform:none;letter-spacing:0">show as emitted</button></h3>
+      <pre id="evolved"></pre>
+    </div>
+    <div class="codecol">
+      <h3>Written by hand — BP + Ambiguity Clustering</h3>
+      <pre id="human"></pre>
+    </div>
+  </div>
+  <p class="cap" id="codecap" style="max-width:none"></p>
+</section>
+
+<!-- ============ 7 — the frontier ============ -->
+<section class="slide" data-slide="7">
+  <div class="kicker" style="color:var(--green)">The applied thread</div>
+  <div class="split">
+    <div class="text">
+      <h2>And it reached the published frontier</h2>
+      <p><b>R5-E058</b> — more accurate than BP+OSD-CS at <em class="hi">1/22</em> of its cost.</p>
+      <p><b>R5-E059</b> — grown from random initialization, no expert seeds: more accurate than
+         the strongest decoder on the panel, at indistinguishable cost, while enumerating
+         <em class="hi">zero</em> candidate corrections.</p>
+      <p class="cap">12 hours of wall-clock on a 185-node cloud CPU cluster — about
+         6×10⁷ decoder evaluations. Twelve of sixteen finalists cleared a pre-registered bar on a
+         200,000-shot hold-out set. Submitted to EQTC 2026; work with Gibran.AI.</p>
+    </div>
+    <div class="figure">
+      <canvas id="pareto"></canvas>
+      <p class="cap">Selected rows from the EQTC 2026 abstract. Cost is a machine-independent work
+         proxy, internal to this panel — the margins over BP+AC are inside its resolution.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 — where you come in (removed; kept for reference) ============ -->
+<!-- REMOVED 2026-09-17: superseded by the references slide below.
+<section class="slide" data-slide="8">
+  <div class="kicker">Where you come in</div>
+  <h2>Two groups, one open problem, and a standing invitation</h2>
+  <div class="modes">
+    <div class="mode box" style="border-left-color:var(--accent)">
+      <h3>Model Theory and Computability Research Group</h3>
+      <p>Lead by J. Iovino and me, it has been mathematical home to some of our most talented
+         students.
+         <strong>Foundational Question:</strong> what does "computable" even mean?</p>
+    </div>
+    <div class="mode box" style="border-left-color:var(--green)">
+      <h3>The Quantum Mathematics Research Group</h3>
+      <p>A younger research group encompassing quantum computing,
+         quantum logic and information, open quantum systems,
+         post-quantum cryptography, and quantum error correction.
+     </p>
+    </div>
+    <div class="mode box" style="border-left-color:var(--cyan)">
+      <h3>An open thesis problem</h3>
+      <p><b>Kimberly Roe</b> is asking which structural features of an optimization problem let
+         <em>any</em> optimizer beat the others on average — dependence, NIP, the same dividing
+         line as before. Early days. Room for company.</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:clamp(0.8rem,3vmin,2.5rem);align-items:center;flex-wrap:wrap;margin-top:auto">
+    <div id="qrbox2" class="qr-end" style="background:#fff;padding:7px;border-radius:8px;flex:none"><svg viewBox="-2 -2 41 41" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Link to this talk"><rect x="-2" y="-2" width="41" height="41" fill="#fff"/><path fill="#000" d="M0 0h7v1h-7zM9 0h2v1h-2zM12 0h5v1h-5zM20 0h3v1h-3zM25 0h3v1h-3zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h2v1h-2zM11 1h3v1h-3zM16 1h1v1h-1zM19 1h3v1h-3zM25 1h4v1h-4zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h1v1h-1zM15 2h1v1h-1zM20 2h1v1h-1zM23 2h1v1h-1zM27 2h2v1h-2zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM10 3h2v1h-2zM16 3h1v1h-1zM19 3h2v1h-2zM22 3h1v1h-1zM26 3h2v1h-2zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM11 4h2v1h-2zM15 4h1v1h-1zM17 4h3v1h-3zM22 4h2v1h-2zM25 4h3v1h-3zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM13 5h1v1h-1zM15 5h2v1h-2zM18 5h4v1h-4zM23 5h1v1h-1zM26 5h3v1h-3zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM16 7h1v1h-1zM21 7h2v1h-2zM24 7h5v1h-5zM0 8h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h2v1h-2zM28 8h1v1h-1zM32 8h1v1h-1zM35 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h3v1h-3zM13 9h3v1h-3zM19 9h2v1h-2zM22 9h2v1h-2zM25 9h1v1h-1zM28 9h3v1h-3zM34 9h1v1h-1zM36 9h1v1h-1zM0 10h1v1h-1zM2 10h2v1h-2zM5 10h2v1h-2zM8 10h2v1h-2zM12 10h3v1h-3zM17 10h1v1h-1zM19 10h2v1h-2zM24 10h1v1h-1zM30 10h2v1h-2zM33 10h4v1h-4zM1 11h1v1h-1zM3 11h2v1h-2zM9 11h2v1h-2zM13 11h1v1h-1zM15 11h1v1h-1zM17 11h2v1h-2zM20 11h2v1h-2zM23 11h1v1h-1zM25 11h4v1h-4zM30 11h1v1h-1zM35 11h1v1h-1zM2 12h1v1h-1zM5 12h3v1h-3zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h5v1h-5zM24 12h2v1h-2zM27 12h1v1h-1zM29 12h3v1h-3zM33 12h1v1h-1zM35 12h2v1h-2zM2 13h1v1h-1zM5 13h1v1h-1zM8 13h1v1h-1zM16 13h3v1h-3zM20 13h1v1h-1zM24 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h1v1h-1zM35 13h2v1h-2zM1 14h1v1h-1zM3 14h1v1h-1zM6 14h3v1h-3zM10 14h3v1h-3zM14 14h1v1h-1zM18 14h1v1h-1zM20 14h2v1h-2zM28 14h4v1h-4zM34 14h1v1h-1zM36 14h1v1h-1zM0 15h1v1h-1zM3 15h1v1h-1zM7 15h4v1h-4zM12 15h1v1h-1zM14 15h7v1h-7zM24 15h3v1h-3zM28 15h1v1h-1zM32 15h1v1h-1zM0 16h2v1h-2zM3 16h6v1h-6zM10 16h1v1h-1zM12 16h1v1h-1zM16 16h1v1h-1zM18 16h2v1h-2zM23 16h3v1h-3zM27 16h2v1h-2zM30 16h2v1h-2zM33 16h1v1h-1zM36 16h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM9 17h2v1h-2zM12 17h8v1h-8zM21 17h1v1h-1zM23 17h1v1h-1zM25 17h2v1h-2zM29 17h2v1h-2zM36 17h1v1h-1zM1 18h2v1h-2zM6 18h1v1h-1zM8 18h4v1h-4zM13 18h6v1h-6zM25 18h2v1h-2zM28 18h6v1h-6zM35 18h2v1h-2zM0 19h1v1h-1zM3 19h2v1h-2zM9 19h1v1h-1zM11 19h1v1h-1zM14 19h1v1h-1zM16 19h2v1h-2zM19 19h1v1h-1zM21 19h2v1h-2zM24 19h2v1h-2zM28 19h1v1h-1zM32 19h1v1h-1zM35 19h1v1h-1zM0 20h5v1h-5zM6 20h1v1h-1zM9 20h1v1h-1zM11 20h2v1h-2zM14 20h2v1h-2zM17 20h2v1h-2zM20 20h2v1h-2zM23 20h3v1h-3zM27 20h4v1h-4zM0 21h1v1h-1zM3 21h3v1h-3zM8 21h1v1h-1zM11 21h2v1h-2zM16 21h1v1h-1zM18 21h1v1h-1zM20 21h3v1h-3zM25 21h1v1h-1zM28 21h1v1h-1zM30 21h2v1h-2zM33 21h1v1h-1zM35 21h2v1h-2zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM9 22h2v1h-2zM17 22h1v1h-1zM22 22h1v1h-1zM26 22h1v1h-1zM28 22h2v1h-2zM31 22h1v1h-1zM34 22h3v1h-3zM0 23h2v1h-2zM3 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h2v1h-2zM12 23h1v1h-1zM14 23h3v1h-3zM19 23h1v1h-1zM21 23h2v1h-2zM25 23h1v1h-1zM32 23h1v1h-1zM36 23h1v1h-1zM1 24h2v1h-2zM4 24h1v1h-1zM6 24h5v1h-5zM13 24h3v1h-3zM20 24h1v1h-1zM22 24h1v1h-1zM24 24h2v1h-2zM28 24h3v1h-3zM33 24h1v1h-1zM36 24h1v1h-1zM1 25h2v1h-2zM4 25h2v1h-2zM8 25h2v1h-2zM11 25h2v1h-2zM14 25h2v1h-2zM17 25h1v1h-1zM19 25h4v1h-4zM26 25h1v1h-1zM28 25h4v1h-4zM33 25h4v1h-4zM0 26h1v1h-1zM2 26h5v1h-5zM8 26h1v1h-1zM10 26h1v1h-1zM12 26h2v1h-2zM18 26h5v1h-5zM25 26h1v1h-1zM30 26h1v1h-1zM32 26h1v1h-1zM34 26h3v1h-3zM1 27h3v1h-3zM5 27h1v1h-1zM7 27h1v1h-1zM9 27h2v1h-2zM12 27h2v1h-2zM15 27h1v1h-1zM17 27h1v1h-1zM20 27h8v1h-8zM29 27h1v1h-1zM0 28h1v1h-1zM2 28h2v1h-2zM6 28h7v1h-7zM16 28h7v1h-7zM25 28h2v1h-2zM28 28h5v1h-5zM36 28h1v1h-1zM8 29h3v1h-3zM12 29h1v1h-1zM14 29h1v1h-1zM17 29h2v1h-2zM20 29h1v1h-1zM24 29h2v1h-2zM28 29h1v1h-1zM32 29h2v1h-2zM36 29h1v1h-1zM0 30h7v1h-7zM11 30h4v1h-4zM16 30h1v1h-1zM18 30h1v1h-1zM20 30h2v1h-2zM27 30h2v1h-2zM30 30h1v1h-1zM32 30h2v1h-2zM35 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h3v1h-3zM16 31h5v1h-5zM23 31h4v1h-4zM28 31h1v1h-1zM32 31h2v1h-2zM35 31h1v1h-1zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM8 32h2v1h-2zM13 32h1v1h-1zM16 32h1v1h-1zM18 32h1v1h-1zM24 32h2v1h-2zM28 32h6v1h-6zM35 32h2v1h-2zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM10 33h2v1h-2zM14 33h6v1h-6zM24 33h1v1h-1zM26 33h1v1h-1zM31 33h3v1h-3zM35 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM8 34h2v1h-2zM11 34h1v1h-1zM13 34h1v1h-1zM15 34h4v1h-4zM21 34h1v1h-1zM24 34h2v1h-2zM27 34h2v1h-2zM32 34h5v1h-5zM0 35h1v1h-1zM6 35h1v1h-1zM9 35h1v1h-1zM12 35h1v1h-1zM14 35h1v1h-1zM16 35h2v1h-2zM19 35h1v1h-1zM21 35h5v1h-5zM27 35h3v1h-3zM31 35h2v1h-2zM35 35h1v1h-1zM0 36h7v1h-7zM8 36h5v1h-5zM14 36h2v1h-2zM17 36h2v1h-2zM21 36h1v1h-1zM25 36h1v1h-1zM27 36h3v1h-3zM33 36h1v1h-1zM35 36h2v1h-2z"/></svg></div>
+    <div>
+      <p class="lede" style="margin:0 0 0.2em">Everything here is yours.</p>
+      <p class="cap" style="margin:0">Slides, runnable notebooks, papers —
+        <a class="url" href="https://supernumero.us/files/talks/2026-utsa-what-we-can-compute/" target="_blank" rel="noopener">supernumero.us/files/talks/2026-utsa-what-we-can-compute/</a><br>
+        <a class="url" href="mailto:eduardo.duenez@utsa.edu" target="_blank" rel="noopener">eduardo.duenez@utsa.edu</a> · <span class="dim">and the Problem-Solving Club meets weekly, with pizza</span></p>
+    </div>
+  </div>
+</section>
+-->
+
+<!-- ============ 9 — references ============ -->
+<section class="slide" data-slide="refs">
+  <div class="kicker">References</div>
+  <h2>The papers behind the pictures</h2>
+  <div class="reflist">
+    <div class="refcol">
+      <h3>Theoretical results</h3>
+      <div class="proj"><b>Deep equilibria: existence and computability</b>
+        <div class="meta">Alva, Due&#241;ez, Iovino, Walton &#183; <a class="cite" href="https://arxiv.org/abs/2409.06064" target="_blank" rel="noopener">arXiv:2409.06064</a>
+       &#183; to appear in <i>Mathematical Structures in Computer Science</i></div>
+	<div class="proj" style="border:0"><b>Complexity of deep computations via topology of function spaces</b>
+	  </div>
+        <div class="meta">Due&#241;ez, Iovino, Matos-Wiederhold, Salvetti, Tall &#183; <a class="cite" href="https://arxiv.org/abs/2601.00528" target="_blank" rel="noopener">arXiv:2601.00528</a> &#183; preprint</div></div>
+      <h3>Applied results</h3>
+      <div class="proj" style="border:0"><b>Evolving qLDPC decoders</b>
+        <div class="meta">Due&#241;ez, Hernandez Sanchez, Due&#241;ez-Guzm&#225;n, Sadedin (Gibran.AI) &#183;
+          Conference papers (EQTC 2026 & NeurIPS 2026 workshops &#183; submitted.)</div></div>
+    </div>
+  </div>
+  <div class="endbar">
+    <div id="qrbox2" class="qr-end"><svg viewBox="-2 -2 41 41" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Link to this talk"><rect x="-2" y="-2" width="41" height="41" fill="#fff"/><path fill="#000" d="M0 0h7v1h-7zM9 0h2v1h-2zM12 0h5v1h-5zM20 0h3v1h-3zM25 0h3v1h-3zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h2v1h-2zM11 1h3v1h-3zM16 1h1v1h-1zM19 1h3v1h-3zM25 1h4v1h-4zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h1v1h-1zM15 2h1v1h-1zM20 2h1v1h-1zM23 2h1v1h-1zM27 2h2v1h-2zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM10 3h2v1h-2zM16 3h1v1h-1zM19 3h2v1h-2zM22 3h1v1h-1zM26 3h2v1h-2zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM11 4h2v1h-2zM15 4h1v1h-1zM17 4h3v1h-3zM22 4h2v1h-2zM25 4h3v1h-3zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM13 5h1v1h-1zM15 5h2v1h-2zM18 5h4v1h-4zM23 5h1v1h-1zM26 5h3v1h-3zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM16 7h1v1h-1zM21 7h2v1h-2zM24 7h5v1h-5zM0 8h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h2v1h-2zM28 8h1v1h-1zM32 8h1v1h-1zM35 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h3v1h-3zM13 9h3v1h-3zM19 9h2v1h-2zM22 9h2v1h-2zM25 9h1v1h-1zM28 9h3v1h-3zM34 9h1v1h-1zM36 9h1v1h-1zM0 10h1v1h-1zM2 10h2v1h-2zM5 10h2v1h-2zM8 10h2v1h-2zM12 10h3v1h-3zM17 10h1v1h-1zM19 10h2v1h-2zM24 10h1v1h-1zM30 10h2v1h-2zM33 10h4v1h-4zM1 11h1v1h-1zM3 11h2v1h-2zM9 11h2v1h-2zM13 11h1v1h-1zM15 11h1v1h-1zM17 11h2v1h-2zM20 11h2v1h-2zM23 11h1v1h-1zM25 11h4v1h-4zM30 11h1v1h-1zM35 11h1v1h-1zM2 12h1v1h-1zM5 12h3v1h-3zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h5v1h-5zM24 12h2v1h-2zM27 12h1v1h-1zM29 12h3v1h-3zM33 12h1v1h-1zM35 12h2v1h-2zM2 13h1v1h-1zM5 13h1v1h-1zM8 13h1v1h-1zM16 13h3v1h-3zM20 13h1v1h-1zM24 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h1v1h-1zM35 13h2v1h-2zM1 14h1v1h-1zM3 14h1v1h-1zM6 14h3v1h-3zM10 14h3v1h-3zM14 14h1v1h-1zM18 14h1v1h-1zM20 14h2v1h-2zM28 14h4v1h-4zM34 14h1v1h-1zM36 14h1v1h-1zM0 15h1v1h-1zM3 15h1v1h-1zM7 15h4v1h-4zM12 15h1v1h-1zM14 15h7v1h-7zM24 15h3v1h-3zM28 15h1v1h-1zM32 15h1v1h-1zM0 16h2v1h-2zM3 16h6v1h-6zM10 16h1v1h-1zM12 16h1v1h-1zM16 16h1v1h-1zM18 16h2v1h-2zM23 16h3v1h-3zM27 16h2v1h-2zM30 16h2v1h-2zM33 16h1v1h-1zM36 16h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM9 17h2v1h-2zM12 17h8v1h-8zM21 17h1v1h-1zM23 17h1v1h-1zM25 17h2v1h-2zM29 17h2v1h-2zM36 17h1v1h-1zM1 18h2v1h-2zM6 18h1v1h-1zM8 18h4v1h-4zM13 18h6v1h-6zM25 18h2v1h-2zM28 18h6v1h-6zM35 18h2v1h-2zM0 19h1v1h-1zM3 19h2v1h-2zM9 19h1v1h-1zM11 19h1v1h-1zM14 19h1v1h-1zM16 19h2v1h-2zM19 19h1v1h-1zM21 19h2v1h-2zM24 19h2v1h-2zM28 19h1v1h-1zM32 19h1v1h-1zM35 19h1v1h-1zM0 20h5v1h-5zM6 20h1v1h-1zM9 20h1v1h-1zM11 20h2v1h-2zM14 20h2v1h-2zM17 20h2v1h-2zM20 20h2v1h-2zM23 20h3v1h-3zM27 20h4v1h-4zM0 21h1v1h-1zM3 21h3v1h-3zM8 21h1v1h-1zM11 21h2v1h-2zM16 21h1v1h-1zM18 21h1v1h-1zM20 21h3v1h-3zM25 21h1v1h-1zM28 21h1v1h-1zM30 21h2v1h-2zM33 21h1v1h-1zM35 21h2v1h-2zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM9 22h2v1h-2zM17 22h1v1h-1zM22 22h1v1h-1zM26 22h1v1h-1zM28 22h2v1h-2zM31 22h1v1h-1zM34 22h3v1h-3zM0 23h2v1h-2zM3 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h2v1h-2zM12 23h1v1h-1zM14 23h3v1h-3zM19 23h1v1h-1zM21 23h2v1h-2zM25 23h1v1h-1zM32 23h1v1h-1zM36 23h1v1h-1zM1 24h2v1h-2zM4 24h1v1h-1zM6 24h5v1h-5zM13 24h3v1h-3zM20 24h1v1h-1zM22 24h1v1h-1zM24 24h2v1h-2zM28 24h3v1h-3zM33 24h1v1h-1zM36 24h1v1h-1zM1 25h2v1h-2zM4 25h2v1h-2zM8 25h2v1h-2zM11 25h2v1h-2zM14 25h2v1h-2zM17 25h1v1h-1zM19 25h4v1h-4zM26 25h1v1h-1zM28 25h4v1h-4zM33 25h4v1h-4zM0 26h1v1h-1zM2 26h5v1h-5zM8 26h1v1h-1zM10 26h1v1h-1zM12 26h2v1h-2zM18 26h5v1h-5zM25 26h1v1h-1zM30 26h1v1h-1zM32 26h1v1h-1zM34 26h3v1h-3zM1 27h3v1h-3zM5 27h1v1h-1zM7 27h1v1h-1zM9 27h2v1h-2zM12 27h2v1h-2zM15 27h1v1h-1zM17 27h1v1h-1zM20 27h8v1h-8zM29 27h1v1h-1zM0 28h1v1h-1zM2 28h2v1h-2zM6 28h7v1h-7zM16 28h7v1h-7zM25 28h2v1h-2zM28 28h5v1h-5zM36 28h1v1h-1zM8 29h3v1h-3zM12 29h1v1h-1zM14 29h1v1h-1zM17 29h2v1h-2zM20 29h1v1h-1zM24 29h2v1h-2zM28 29h1v1h-1zM32 29h2v1h-2zM36 29h1v1h-1zM0 30h7v1h-7zM11 30h4v1h-4zM16 30h1v1h-1zM18 30h1v1h-1zM20 30h2v1h-2zM27 30h2v1h-2zM30 30h1v1h-1zM32 30h2v1h-2zM35 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h3v1h-3zM16 31h5v1h-5zM23 31h4v1h-4zM28 31h1v1h-1zM32 31h2v1h-2zM35 31h1v1h-1zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM8 32h2v1h-2zM13 32h1v1h-1zM16 32h1v1h-1zM18 32h1v1h-1zM24 32h2v1h-2zM28 32h6v1h-6zM35 32h2v1h-2zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM10 33h2v1h-2zM14 33h6v1h-6zM24 33h1v1h-1zM26 33h1v1h-1zM31 33h3v1h-3zM35 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM8 34h2v1h-2zM11 34h1v1h-1zM13 34h1v1h-1zM15 34h4v1h-4zM21 34h1v1h-1zM24 34h2v1h-2zM27 34h2v1h-2zM32 34h5v1h-5zM0 35h1v1h-1zM6 35h1v1h-1zM9 35h1v1h-1zM12 35h1v1h-1zM14 35h1v1h-1zM16 35h2v1h-2zM19 35h1v1h-1zM21 35h5v1h-5zM27 35h3v1h-3zM31 35h2v1h-2zM35 35h1v1h-1zM0 36h7v1h-7zM8 36h5v1h-5zM14 36h2v1h-2zM17 36h2v1h-2zM21 36h1v1h-1zM25 36h1v1h-1zM27 36h3v1h-3zM33 36h1v1h-1zM35 36h2v1h-2z"/></svg></div>
+    <div>
+      <p class="lede" style="margin:0 0 0.2em">Talk slides, animations, code —available</p>
+      <p class="cap" style="margin:0">
+        <a class="url" href="https://supernumero.us/files/talks/2026-utsa-what-we-can-compute/" target="_blank" rel="noopener">supernumero.us/files/talks/2026-utsa-what-we-can-compute/</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ overlays ============ -->
+<div class="overlay" id="overlay-appendix">
+  <h2>Appendix — for questions</h2>
+  <div class="split" style="align-items:flex-start">
+    <div class="text">
+      <h3>What a straight line cannot do</h3>
+      <p class="cap">Four points, sixteen sign patterns; a line realizes <b id="okcount">—</b>.
+        The ones it misses are what VC dimension measures. Drag the points.</p>
+      <canvas id="shatter" style="max-width:26rem"></canvas>
+    </div>
+    <div class="text">
+      <h3>Thomae vs Dirichlet</h3>
+      <p class="cap">Thomae's function (1/q at p/q in lowest terms, 0 at irrationals) is Baire-1:
+        continuous at every irrational, discontinuous exactly on a countable — hence meager — set.
+        Dirichlet's indicator of ℚ is nowhere continuous, so by Baire's theorem it cannot be
+        Baire-1. That pair is the tame/wild boundary on the real line.</p>
+      <h3 style="margin-top:1.2em">Where the evolved decoder stops</h3>
+      <p class="cap">R5-E059's advantage does not scale indefinitely: past n = 144 its logical error
+        rate per round turns upward, 2.2 → 3.8 × 10⁻⁴, while the Ambiguity-Clustering family keeps
+        descending. Transfer results are labelled preliminary.</p>
+      <h3 style="margin-top:1.2em">Honest status</h3>
+      <p class="cap"><i>Deep Equilibria</i> — accepted, to appear in <i>Math. Structures in
+        Computer Science</i>. <i>Complexity of Deep Computations</i> — <a class="cite" href="https://arxiv.org/abs/2601.00528" target="_blank" rel="noopener">arXiv:2601.00528</a>, in
+        preparation. EQTC and the two NeurIPS workshop papers — submitted, non-archival.</p>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:1.5rem">Press <kbd>esc</kbd> to go back.</p>
+</div>
+
+<div class="overlay" id="overlay-projects">
+  <h2>What is actually in flight</h2>
+  <div class="proj"><b>Deep Equilibria: Existence and Computability</b> <span class="status live">accepted</span>
+    <div class="meta">Alva, Dueñez, Iovino, Walton · <i>Mathematical Structures in Computer Science</i> · <a class="cite" href="https://arxiv.org/abs/2409.06064" target="_blank" rel="noopener">arXiv:2409.06064</a></div></div>
+  <div class="proj"><b>Complexity of Deep Computations via Topology of Function Spaces</b> <span class="status">in preparation</span>
+    <div class="meta">Dueñez, Iovino, Matos-Wiederhold, Salvetti, Tall · <a class="cite" href="https://arxiv.org/abs/2601.00528" target="_blank" rel="noopener">arXiv:2601.00528</a></div></div>
+  <div class="proj"><b>The No Free Lunch theorem revisited</b> <span class="status">M.S. thesis, in progress</span>
+    <div class="meta">with Kimberly Roe (UTSA) — which structural features permit a partial free lunch</div></div>
+  <div class="proj"><b>Evolving qLDPC decoders</b> <span class="status">submitted, non-archival</span>
+    <div class="meta">Dueñez, Hernandez Sanchez, Dueñez-Guzmán, Sadedin (Gibran.AI) · EQTC 2026 · two NeurIPS 2026 workshops</div></div>
+  <div class="proj"><b>Nondefinability of the Spaces of Tsirelson and Schlumprecht</b> <span class="status">in press</span>
+    <div class="meta">Casazza, Dueñez, Iovino · October 2026</div></div>
+  <div class="proj"><b>Analysis: The Study of Real-Valued and Random-Valued Structures</b> <span class="status">under contract</span>
+    <div class="meta">with Iovino · CRC Press</div></div>
+  <div class="proj" style="border:0"><b>Teaching that feeds this</b>
+    <div class="meta">MAT 4353/6973 Mathematical Foundations of A.I. —
+      <a class="url" href="https://supernumero.us/MathAIspring2026UTSA/" target="_blank" rel="noopener">supernumero.us/MathAIspring2026UTSA</a></div></div>
+  <p class="cap" style="margin-top:1.5rem">Press <kbd>esc</kbd> to go back.</p>
+</div>
+
+<div class="overlay" id="overlay-help">
+  <h2>Keys</h2>
+  <p><kbd>→</kbd> <kbd>space</kbd> next · <kbd>←</kbd> back · <kbd>1</kbd>–<kbd>9</kbd> jump to a slide</p>
+  <p><kbd>f</kbd> flip the fractal 100↔101 · <kbd>0</kbd> reset the fractal view ·
+     <kbd>t</kbd> elapsed-time HUD</p>
+  <p><kbd>[</kbd> <kbd>]</kbd> shrink / grow <em>all</em> type · <kbd>\</kbd> back to 100%</p>
+  <p class="cap">Set this from the back of the room during setup — it is remembered per browser.
+     Do not use the browser's own zoom: below 150% it changes nothing here.</p>
+  <p class="cap">On slide 2: drag the white dot to move z₀, scroll to zoom on the cursor.</p>
+  <p><kbd>a</kbd> appendix · <kbd>p</kbd> projects · <kbd>?</kbd> this · <kbd>esc</kbd> close</p>
+  <p class="cap">Console: <code>talk.goto(3)</code>, <code>talk.setN(101)</code>,
+    <code>talk.flip(true)</code>, <code>talk.poly(&quot;z3m1&quot;)</code>, <code>talk.state</code></p>
+</div>
+
+<div id="hud"><span id="clock">0:00</span><span id="dots"></span></div>
+
+<script>
+"use strict";
+(function () {
+
+  /* ---------------- deck ---------------- */
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const N = slides.length;
+  // Cumulative end-of-slide targets in seconds, for 11 slides: 13:00 against a
+  // 15:00 cap, so there is real headroom now. See PLAN.md section 5 for cuts.
+  //      0 title 45 | 1 two ways 60 | 2 network 50 | 3 Newton 125 | 4 Dirichlet 75
+  //      5 NIP/IP 70 | 6 hierarchy 95 | 7 coin 80 | 8 programs 100 | 9 Pareto 40
+  //      10 references 50
+  const BUDGET = [45, 105, 155, 280, 355, 425, 520, 600, 700, 740, 790];
+  const state = { slide: 0, n: 1, flipping: false, t0: null, timerOn: false, p: 0.7 };
+
+  /* Type scale.  One knob for the room: every font-size in the page is
+     calc(clamp(...) * var(--ts)), so this grows the TYPE without touching the
+     layout -- unlike browser zoom, which is a no-op below 150% here (the sizes
+     are vmin-driven, and vmin shrinks in CSS px exactly as fast as zoom grows
+     it) and which flips the deck into the phone layout past ~2.3x.  Set it once
+     from the back of the room during setup; it is remembered per browser. */
+  // MEASURED ceiling, re-swept 2026-09-18: 1.08 is the largest scale with no
+  // overflow on any slide at 1920x1080, 1600x1000, 1440x900, 1366x768 and
+  // 1280x800.  The binding slide is DEEPNET -- its text column carries the
+  // longest of the two theorem statements, and at 1.10 it runs 10-12px past the
+  // frame at every size except 1920x1080 and 1366x768.  It was 1.15 before that
+  // statement grew; shorten the deepnet prose and this can go back up.  Re-run
+  // the sweep before changing it.
+  const TS_MIN = 0.85, TS_MAX = 1.08;
+  function setType(v) {
+    const t = Math.round(Math.max(TS_MIN, Math.min(TS_MAX, v)) * 100) / 100;
+    state.ts = t;
+    document.documentElement.style.setProperty("--ts", t);
+    try { localStorage.setItem("wwcc-ts", t); } catch (_) {}
+    tsBadge(t);
+    sizeAll();
+    return t;
+  }
+  let tsTimer = null;
+  function tsBadge(t) {
+    let el = document.getElementById("tsbadge");
+    if (!el) { el = document.createElement("div"); el.id = "tsbadge"; document.body.appendChild(el); }
+    el.textContent = "type " + Math.round(t * 100) + "%";
+    el.classList.add("on");
+    clearTimeout(tsTimer);
+    tsTimer = setTimeout(() => el.classList.remove("on"), 1100);
+  }
+
+  const dots = document.getElementById("dots");
+  slides.forEach(() => dots.appendChild(document.createElement("i")));
+  const dotEls = Array.from(dots.children);
+
+  function goto(i) {
+    i = Math.max(0, Math.min(N - 1, i | 0));
+    state.slide = i;
+    slides.forEach((s, k) => s.classList.toggle("active", k === i));
+    dotEls.forEach((d, k) => d.classList.toggle("on", k <= i));
+    if (state.t0 === null) state.t0 = performance.now();
+    try { history.replaceState(null, "", "#" + i); } catch (_) {}
+    sizeAll();
+    return i;
+  }
+
+  const clock = document.getElementById("clock");
+  (function tick() {
+    if (state.timerOn && state.t0 !== null) {
+      const s = Math.floor((performance.now() - state.t0) / 1000);
+      clock.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+      const target = BUDGET[state.slide];
+      clock.classList.toggle("over", s > target + 20);
+      clock.classList.toggle("ahead", s < target - 30);
+    }
+    requestAnimationFrame(tick);
+  })();
+
+  const ovA = document.getElementById("overlay-appendix");
+  const ovP = document.getElementById("overlay-projects");
+  const ovH = document.getElementById("overlay-help");
+  function closeOv() { [ovA, ovP, ovH].forEach(o => o.classList.remove("open")); }
+  function toggleOv(o) { const was = o.classList.contains("open"); closeOv(); if (!was) { o.classList.add("open"); sizeAll(); } }
+
+  document.addEventListener("keydown", e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === "Escape") return closeOv();
+    if (k === "ArrowRight" || k === " " || k === "PageDown") { e.preventDefault(); closeOv(); goto(state.slide + 1); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); closeOv(); goto(state.slide - 1); }
+    else if (k >= "1" && k <= "9") { closeOv(); goto(parseInt(k, 10) - 1); }
+    else if (k === "0") resetView();
+    else if (k === "[") setType(state.ts - 0.05);
+    else if (k === "]") setType(state.ts + 0.05);
+    else if (k === "\\") setType(1);
+    else if (k === "g" || k === "G") setPoly(poly.key === "z3m1" ? "z3m2zp2" : "z3m1");
+    else if (k === "f" || k === "F") setFlip(!state.flipping);
+    else if (k === "t" || k === "T") { state.timerOn = !state.timerOn; clock.classList.toggle("on", state.timerOn); }
+    else if (k === "a" || k === "A") toggleOv(ovA);
+    else if (k === "p" || k === "P") toggleOv(ovP);
+    else if (k === "?" || k === "/") toggleOv(ovH);
+  });
+  document.addEventListener("click", e => {
+    if (e.target.closest("a,button,input,canvas,.overlay,.rung")) return;
+    goto(state.slide + 1);
+  });
+
+  /* ---------------- canvas sizing ---------------- */
+  function fit(canvas, aspect, box) {
+    box = box || canvas.parentElement;
+    if (!box || !box.clientWidth) return false;
+    let used = 0;
+    for (const ch of box.children) { if (ch !== canvas && ch !== canvas.parentElement) used += ch.getBoundingClientRect().height + 8; }
+    const availH = Math.max(80, box.clientHeight - used);
+    const cssW = Math.max(80, Math.min(box.clientWidth, availH * aspect));
+    const cssH = cssW / aspect;
+    canvas.style.width = Math.round(cssW) + "px";
+    canvas.style.height = Math.round(cssH) + "px";
+    const dpr = Math.min(window.devicePixelRatio || 1, cssW < 700 ? 1.5 : 2);
+    const w = Math.max(2, Math.round(cssW * dpr)), h = Math.max(2, Math.round(cssH * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; return true; }
+    return false;
+  }
+
+  function sizeAll() {
+    const a = slides[state.slide];
+    if (a && a.querySelector("#newton")) {
+      const stack = document.getElementById("newtonstack");
+      const fig = stack.parentElement;
+      fit(newtonCanvas, 1.0, fig);
+      stack.style.width = newtonCanvas.style.width;
+      stack.style.height = newtonCanvas.style.height;
+      fxCanvas.style.width = newtonCanvas.style.width;
+      fxCanvas.style.height = newtonCanvas.style.height;
+      fxCanvas.width = newtonCanvas.width; fxCanvas.height = newtonCanvas.height;
+      drawNewton(); drawOrbit();
+    }
+    if (a && a.querySelector("#deepnet")) { fit(deepnetCanvas, 1.45); drawDeepnet(); }
+    if (a && a.querySelector("#dirichlet")) { fit(dirCanvas, 1.5); drawDirichlet(); }
+    if (a && a.querySelector("#nipmat")) { fit(nipCanvas, 1.5); fit(ipCanvas, 1.5); drawNipIp(); }
+    if (a && a.querySelector("#coin")) { fit(coinCanvas, 1.5); drawCoin(); }
+    if (a && a.querySelector("#pareto")) { fit(paretoCanvas, 1.35); drawPareto(); }
+    if (ovA.classList.contains("open")) { fit(shatterCanvas, 1.0); drawShatter(); }
+  }
+  window.addEventListener("resize", sizeAll);
+
+  /* ---------------- slide 2 — Newton ---------------- */
+  const newtonCanvas = document.getElementById("newton");
+  const fxCanvas = document.getElementById("newtonfx");
+  const nslider = document.getElementById("nslider");
+  const nlabel = document.getElementById("nlabel");
+  const flipbtn = document.getElementById("flipbtn");
+  const orbitreadout = document.getElementById("orbitreadout");
+
+  /* Two polynomials, shown by the same shader: f(z) = z^3 + c1 z + c0.
+     z^3 - 1 is the textbook case -- every point outside a measure-zero Julia set
+     converges to one of the three roots, so nothing flips between n and n+1.
+     z^3 - 2z + 2 is the same method on a barely different polynomial, and now an
+     open set of positive area never converges at all: it is trapped in the
+     attracting 2-cycle {0, 1}, which is what cyan and magenta mark.
+     Each carries its own default window, sized so all of its roots are in frame. */
+  const POLYS = [
+    { key: "z3m1", label: "z³ − 1", c1: 0, c0: -1, cycle: [],
+      view: { cx: 0.0, cy: 0.0, halfH: 1.6 } },
+    { key: "z3m2zp2", label: "z³ − 2z + 2", c1: -2, c0: 2, cycle: [[0, 0], [1, 0]],
+      view: { cx: -0.5, cy: 0.0, halfH: 2.0 } }
+  ];
+  let poly = POLYS[0];
+  const VIEW = { ...poly.view };
+
+  function cubicRoots(c1, c0) {
+    const f = (a, b) => { const a2 = a*a - b*b, b2 = 2*a*b;
+      return [a2*a - b2*b + c1*a + c0, a2*b + b2*a + c1*b]; };
+    const df = (a, b) => [3*(a*a - b*b) + c1, 6*a*b];
+    const out = [];
+    for (let k = 0; k < 16; k++) {
+      let a = 0.5*Math.cos(2*Math.PI*k/16), b = 0.5*Math.sin(2*Math.PI*k/16);
+      for (let i = 0; i < 200; i++) {
+        const [fa, fb] = f(a, b), [da, db] = df(a, b), d = da*da + db*db;
+        if (d < 1e-24) break;
+        a -= (fa*da + fb*db)/d; b -= (fb*da - fa*db)/d;
+      }
+      const [fa, fb] = f(a, b);
+      if (Math.hypot(fa, fb) < 1e-9 && !out.some(r => Math.hypot(r[0]-a, r[1]-b) < 1e-6)) out.push([a, b]);
+    }
+    out.sort((p, q) => (p[0]-q[0]) || (p[1]-q[1]));
+    return out;
+  }
+  let ROOTS = cubicRoots(poly.c1, poly.c0);
+
+  const VS = `#version 300 es
+void main(){ vec2 p = vec2((gl_VertexID==1)?3.0:-1.0,(gl_VertexID==2)?3.0:-1.0); gl_Position = vec4(p,0.0,1.0); }`;
+  const FS = `#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform vec2 uRes; uniform vec2 uCenter; uniform float uHalfH; uniform int uN;
+uniform vec2 uPts[5]; uniform vec3 uCols[5]; uniform int uNPts;
+uniform float uC1; uniform float uC0;   // f(z) = z^3 + uC1 z + uC0, both real
+vec2 cmul(vec2 a, vec2 b){ return vec2(a.x*b.x-a.y*b.y, a.x*b.y+a.y*b.x); }
+vec2 cdiv(vec2 a, vec2 b){ float d=dot(b,b); return vec2(a.x*b.x+a.y*b.y, a.y*b.x-a.x*b.y)/d; }
+void main(){
+  float aspect = uRes.x/uRes.y;
+  vec2 uv = (gl_FragCoord.xy/uRes)*2.0-1.0;
+  vec2 z = uCenter + vec2(uv.x*uHalfH*aspect, uv.y*uHalfH);
+  bool dead=false;
+  for(int i=0;i<256;i++){
+    if(i>=uN) break;
+    vec2 z2=cmul(z,z);
+    vec2 f = cmul(z2,z) + uC1*z + vec2(uC0,0.0);
+    vec2 df = 3.0*z2 + vec2(uC1,0.0);
+    if(dot(df,df)<1e-24){ dead=true; break; }
+    z = z - cdiv(f,df);
+    if(dot(z,z)>1e12){ dead=true; break; }
+  }
+  if(dead){ outColor=vec4(0.0,0.0,0.0,1.0); return; }
+  float tot=0.0; vec3 rgb=vec3(0.0);
+  for(int k=0;k<5;k++){
+    if(k>=uNPts) break;
+    float w=1.0/max(length(z-uPts[k]),1e-6); tot+=w; rgb+=w*uCols[k];
+  }
+  outColor = vec4(rgb/tot,1.0);
+}`;
+
+  let gl = null, prog = null, uni = {}, glReady = false, glTried = false;
+  function initGL() {
+    glTried = true;
+    gl = newtonCanvas.getContext("webgl2", { antialias: false });
+    if (!gl) return false;
+    const mk = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o);
+      if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(o)); return null; } return o; };
+    const vs = mk(gl.VERTEX_SHADER, VS), fs = mk(gl.FRAGMENT_SHADER, FS);
+    if (!vs || !fs) return false;
+    prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(prog)); return false; }
+    gl.useProgram(prog);
+    ["uRes","uCenter","uHalfH","uN","uNPts","uC1","uC0","uPts","uCols"]
+      .forEach(k => uni[k] = gl.getUniformLocation(prog, k));
+    gl.bindVertexArray(gl.createVertexArray());
+    uploadPoly();
+    return true;
+  }
+
+  // Roots get red/green/blue; the 2-cycle, when the polynomial has one, gets
+  // cyan/magenta. Colours are blended by inverse distance, as in render_newton.py.
+  function uploadPoly() {
+    if (!gl || !prog) return;
+    const pts = [...ROOTS, ...poly.cycle];
+    const cols = [[1,0,0],[0,1,0],[0,0,1],[0,1,1],[1,0,1]].slice(0, pts.length);
+    const padded = pts.concat(Array(5 - pts.length).fill([0,0]));
+    const paddedC = cols.concat(Array(5 - cols.length).fill([0,0,0]));
+    gl.uniform2fv(uni.uPts, new Float32Array(padded.flat()));
+    gl.uniform3fv(uni.uCols, new Float32Array(paddedC.flat()));
+    gl.uniform1i(uni.uNPts, pts.length);
+    gl.uniform1f(uni.uC1, poly.c1);
+    gl.uniform1f(uni.uC0, poly.c0);
+  }
+  function drawNewton() {
+    if (!glTried) glReady = initGL();
+    if (!glReady) { newtonCanvas.style.background = "#12151a"; return; }
+    gl.viewport(0,0,newtonCanvas.width,newtonCanvas.height);
+    gl.uniform2f(uni.uRes, newtonCanvas.width, newtonCanvas.height);
+    gl.uniform2f(uni.uCenter, VIEW.cx, VIEW.cy);
+    gl.uniform1f(uni.uHalfH, VIEW.halfH);
+    gl.uniform1i(uni.uN, state.n);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  const polyname = document.getElementById("polyname");
+  const polystory = document.getElementById("polystory");
+  const polycompare = document.getElementById("polycompare");
+  const polycap = document.getElementById("polycap");
+
+  const COPY = {
+    z3m1: {
+      story: 'Red, green, blue are the three cube roots of 1. Almost every starting point ' +
+             'converges to one of them. The boundary where the basins meet — the ' +
+             '<em class="hi">Julia set</em> — is an infinitely fine fractal, and it has ' +
+             'measure zero.',
+      compare: 'Run it to 24 steps, then 25. <em class="hi">Not one pixel changes.</em> ' +
+               'Every point that was ever going to settle has settled — this is what a ' +
+               'well-behaved computation of infinite depth looks like. The black dots are ' +
+               'the three roots it settles onto.',
+      cap: 'The classical Newton fractal. Colours are blended by inverse distance to the roots, ' +
+           'as in the figures of <i>Complexity of Deep Computations via Topology of Function ' +
+           'Spaces</i>. Window chosen so all three roots are in frame.'
+    },
+    z3m2zp2: {
+      story: 'Change the polynomial slightly and the same method breaks. Red, green, blue are ' +
+             'still roots — but <span style="color:var(--cyan)">cyan</span> and ' +
+             '<span style="color:var(--magenta)">magenta</span> are not roots at all: an ' +
+             '<em class="hi">attracting 2-cycle</em> at {0, 1}. Points there never converge. ' +
+             'They alternate, forever.',
+      compare: 'Compare 24 with 25. Almost ninety-nine percent of the picture is frozen. The ' +
+               '<em class="hi">1.1%</em> still trading cyan for magenta is exactly the part ' +
+               'that never settles — and unlike the Julia set, it has positive area. The black ' +
+               'dots are the three roots, plus the two points 0 and 1 of the cycle.',
+      cap: 'Even and odd iterates converge to two <em>different</em> Baire-1 limits. Same ' +
+           'palette as the figures in <i>Complexity of Deep Computations via Topology of ' +
+           'Function Spaces</i>, on a window chosen so that all three roots are in frame, ' +
+           'including the real one at −1.77.'
+    }
+  };
+
+  function setPoly(key) {
+    const next = POLYS.find(q => q.key === key);
+    if (!next) return;
+    poly = next;
+    ROOTS = cubicRoots(poly.c1, poly.c0);
+    Object.assign(VIEW, poly.view);
+    uploadPoly();
+    polyname.textContent = "f(z) = " + poly.label;
+    polystory.innerHTML = COPY[poly.key].story;
+    polycompare.innerHTML = COPY[poly.key].compare;
+    polycap.innerHTML = COPY[poly.key].cap;
+    document.querySelectorAll(".polybtn").forEach(b =>
+      b.setAttribute("aria-pressed", b.dataset.poly === poly.key ? "true" : "false"));
+    drawNewton(); drawOrbit();
+    return poly.key;
+  }
+  document.querySelectorAll(".polybtn").forEach(b =>
+    b.addEventListener("click", () => setPoly(b.dataset.poly)));
+
+  function setN(n) {
+    state.n = Math.max(1, Math.min(256, n|0));
+    nslider.value = Math.min(25, state.n);
+    nlabel.textContent = "n = " + state.n;
+    drawNewton();
+    return state.n;
+  }
+  nslider.addEventListener("input", () => { setFlip(false); setN(+nslider.value); });
+  let flipTimer = null;
+  function setFlip(on) {
+    state.flipping = !!on;
+    flipbtn.setAttribute("aria-pressed", state.flipping ? "true" : "false");
+    if (flipTimer) { clearInterval(flipTimer); flipTimer = null; }
+    if (state.flipping) { setN(24); flipTimer = setInterval(() => setN(state.n === 24 ? 25 : 24), 900); }
+  }
+  flipbtn.addEventListener("click", () => setFlip(!state.flipping));
+
+  // ---- orbit overlay: drag z0, watch the iterates ----
+  let z0 = [-0.30, 0.42];
+  function toPix(z) {
+    const w = fxCanvas.width, h = fxCanvas.height, aspect = w/h;
+    return [ ((z[0]-VIEW.cx)/(VIEW.halfH*aspect)*0.5 + 0.5) * w,
+             (0.5 - (z[1]-VIEW.cy)/VIEW.halfH*0.5) * h ];
+  }
+  function toZ(px, py) {
+    const w = fxCanvas.width, h = fxCanvas.height, aspect = w/h;
+    return [ VIEW.cx + (px/w - 0.5)*2*VIEW.halfH*aspect, VIEW.cy + (0.5 - py/h)*2*VIEW.halfH ];
+  }
+  function newtonStep(z) {
+    const [a,b] = z, a2 = a*a - b*b, b2 = 2*a*b;
+    const fa = a2*a - b2*b + poly.c1*a + poly.c0, fb = a2*b + b2*a + poly.c1*b;
+    const da = 3*a2 + poly.c1, db = 3*b2;
+    const d = da*da + db*db;
+    if (d < 1e-24) return null;
+    return [a - (fa*da + fb*db)/d, b - (fb*da - fa*db)/d];
+  }
+  function drawOrbit() {
+    const c = fxCanvas.getContext("2d"), w = fxCanvas.width, h = fxCanvas.height;
+    c.clearRect(0,0,w,h);
+    // Black dots on the roots, and on the 2-cycle when the polynomial has one:
+    // convergence reads far better when the targets are visible.
+    const Sm = w / 520;
+    [...ROOTS, ...poly.cycle].forEach(q => {
+      const [mx, my] = toPix(q);
+      c.beginPath(); c.arc(mx, my, Math.max(3, 5 * Sm), 0, 6.283);
+      c.fillStyle = "#000"; c.fill();
+      c.strokeStyle = "rgba(255,255,255,0.85)"; c.lineWidth = Math.max(1, 1.3 * Sm); c.stroke();
+    });
+    const pts = [z0.slice()];
+    let z = z0.slice();
+    for (let i = 0; i < 60; i++) { z = newtonStep(z); if (!z || !isFinite(z[0]) || !isFinite(z[1])) break; pts.push(z.slice()); }
+    const S = w/520;
+    c.strokeStyle = "rgba(255,255,255,0.85)"; c.lineWidth = Math.max(1, 1.6*S);
+    c.beginPath();
+    pts.forEach((q,i) => { const [px,py] = toPix(q); i ? c.lineTo(px,py) : c.moveTo(px,py); });
+    c.stroke();
+    pts.slice(1).forEach((q,i) => {
+      const [px,py] = toPix(q);
+      c.beginPath(); c.arc(px,py, Math.max(1.2, (i<8?3:1.8)*S), 0, 6.283);
+      c.fillStyle = i < 8 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.35)"; c.fill();
+    });
+    const [hx,hy] = toPix(z0);
+    c.beginPath(); c.arc(hx,hy, Math.max(4, 6*S), 0, 6.283);
+    c.fillStyle = "#fff"; c.fill(); c.strokeStyle = "#0b0d10"; c.lineWidth = Math.max(1,2*S); c.stroke();
+
+    // classify the tail
+    const tail = pts.slice(-8);
+    let verdict = "escaped to infinity";
+    if (tail.length >= 4) {
+      const near = p => ROOTS.findIndex(r => Math.hypot(r[0]-p[0], r[1]-p[1]) < 1e-4);
+      const last = tail[tail.length-1], prev = tail[tail.length-2];
+      const ri = near(last);
+      if (ri >= 0) verdict = "converged to a root — it settles and stays";
+      else if (poly.cycle.length &&
+               Math.hypot(last[0]-prev[0], last[1]-prev[1]) > 0.3 &&
+               Math.hypot(last[0]-tail[tail.length-3][0], last[1]-tail[tail.length-3][1]) < 1e-3)
+        verdict = "caught in the 2-cycle 0 ↔ 1 — it never settles";
+      else if (!poly.cycle.length) verdict = "still wandering — it started on the Julia set";
+    }
+    orbitreadout.textContent = "Orbit of the white dot: " + verdict + ".";
+  }
+  let dragging = false;
+  function pointerZ(ev) {
+    const b = fxCanvas.getBoundingClientRect();
+    return toZ((ev.clientX - b.left)/b.width * fxCanvas.width, (ev.clientY - b.top)/b.height * fxCanvas.height);
+  }
+  fxCanvas.addEventListener("pointerdown", ev => { dragging = true; fxCanvas.setPointerCapture(ev.pointerId); z0 = pointerZ(ev); drawOrbit(); });
+  fxCanvas.addEventListener("pointermove", ev => { if (dragging) { z0 = pointerZ(ev); drawOrbit(); } });
+  fxCanvas.addEventListener("pointerup", () => { dragging = false; });
+
+  // Wheel zoom, anchored on the cursor: the complex number under the pointer
+  // stays under the pointer, which is the only zoom that feels right when you
+  // are chasing a feature of the fractal.
+  //
+  // The lower clamp is a precision limit, not a taste one: the shader runs in
+  // 32-bit floats, so below a half-height of ~1e-4 the per-pixel step falls
+  // under float resolution and the image goes blocky rather than deep.
+  const ZOOM_MIN = 1e-4, ZOOM_MAX = 8;
+  fxCanvas.addEventListener("wheel", ev => {
+    ev.preventDefault();
+    const before = pointerZ(ev);
+    const k = Math.exp(ev.deltaY * 0.0015);
+    const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, VIEW.halfH * k));
+    if (next === VIEW.halfH) return;
+    VIEW.halfH = next;
+    const after = pointerZ(ev);
+    VIEW.cx += before[0] - after[0];
+    VIEW.cy += before[1] - after[1];
+    drawNewton(); drawOrbit();
+  }, { passive: false });
+
+  function resetView() { Object.assign(VIEW, poly.view); drawNewton(); drawOrbit(); return { ...VIEW }; }
+  function setView(cx, cy, halfH) {
+    VIEW.cx = cx; VIEW.cy = cy;
+    VIEW.halfH = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, halfH));
+    drawNewton(); drawOrbit(); return { ...VIEW };
+  }
+
+  /* ---------------- deep network (after the figure in Deep Equilibria) ------
+     Input layer, then tied-weight hidden layers, then a dashed "phantom" layer
+     standing for the asymptotic output state -- the limit of infinitely many
+     layers, which no finite network computes. The slider grows the stack so the
+     limit is something the audience watches recede rather than take on faith. */
+
+  const deepnetCanvas = document.getElementById("deepnet");
+  const depthslider = document.getElementById("depthslider");
+  const depthval = document.getElementById("depthval");
+  let depth = 2;
+
+  function drawDeepnet() {
+    const c = deepnetCanvas.getContext("2d"), W = deepnetCanvas.width, H = deepnetCanvas.height;
+    const S = W / 1000;
+    c.fillStyle = "#12151a"; c.fillRect(0, 0, W, H);
+
+    const NIN = 3, NH = 7;
+    // Every layer is drawn. Adding one squeezes the others leftward and shrinks
+    // the nodes, so growing depth is something you watch happen rather than a
+    // number changing; 8 is where the nodes stop being legible on a projector.
+    const shown = Math.min(depth, 8);
+    const cols = 1 + shown + 1;
+    const padL = 70 * S, padR = 70 * S;
+    const gap = (W - padL - padR) / (cols - 1);
+    const top = 52 * S, bot = H - 44 * S;
+    const yOf = (i, n) => top + (bot - top) * (n === 1 ? 0.5 : i / (n - 1));
+    const colX = j => padL + j * gap;
+
+    const layers = [{ x: colX(0), n: NIN, kind: "in" }];
+    for (let j = 0; j < shown; j++) layers.push({ x: colX(j + 1), n: NH, kind: "hid", idx: j });
+    layers.push({ x: colX(cols - 1), n: NH, kind: "phantom" });
+
+    const rNode = Math.max(4 * S, Math.min(13 * S, gap * 0.30));
+    for (let L = 0; L < layers.length - 1; L++) {
+      const A = layers[L], B = layers[L + 1];
+      const ghost = B.kind === "phantom";
+      for (let i = 0; i < A.n; i++) for (let j = 0; j < B.n; j++) {
+        c.beginPath();
+        c.moveTo(A.x + rNode, yOf(i, A.n));
+        c.lineTo(B.x - rNode, yOf(j, B.n));
+        if (ghost) { c.strokeStyle = "rgba(122,132,146,0.13)"; c.lineWidth = Math.max(0.5, 0.7 * S); }
+        else { c.strokeStyle = "hsla(" + ((i * 47 + j * 23) % 360) + ", 62%, 60%, 0.30)"; c.lineWidth = Math.max(0.5, 0.9 * S); }
+        c.stroke();
+      }
+    }
+
+    const r = rNode, label = r > 8.5 * S;
+    layers.forEach((L, li) => {
+      for (let i = 0; i < L.n; i++) {
+        const y = yOf(i, L.n);
+        c.beginPath(); c.arc(L.x, y, r, 0, 6.283);
+        if (L.kind === "phantom") {
+          c.setLineDash([3.5 * S, 3 * S]); c.fillStyle = "#171b21"; c.fill();
+          c.strokeStyle = "#7f8892"; c.lineWidth = Math.max(1, 1.4 * S); c.stroke(); c.setLineDash([]);
+        } else {
+          c.fillStyle = L.kind === "in" ? "#1d2a38" : "#1b222b"; c.fill();
+          c.strokeStyle = L.kind === "in" ? "#7fa8d6" : "#4a5563";
+          c.lineWidth = Math.max(1, 1.2 * S); c.stroke();
+        }
+        if (label) {
+          c.fillStyle = L.kind === "phantom" ? "#9aa3ad" : "#e7ecf2";
+          c.font = (r * 0.85) + "px ui-serif, Georgia, serif";
+          c.textAlign = "center"; c.textBaseline = "middle";
+          c.fillText((L.kind === "in" ? "w" : L.kind === "phantom" ? "z" : "y") + (i + 1), L.x, y);
+        }
+      }
+      c.font = "600 " + (11.5 * S) + "px -apple-system, system-ui, sans-serif";
+      c.textBaseline = "alphabetic"; c.textAlign = "center";
+      c.fillStyle = L.kind === "phantom" ? "#9aa3ad" : "#7f8892";
+      const crowded = shown > 5;
+      const txt = L.kind === "in" ? "input"
+        : L.kind === "phantom" ? "phantom layer"
+        : (li === layers.length - 2) ? (shown >= 8 ? "layer n" : "layer " + (L.idx + 1))
+        : (crowded && L.idx > 0) ? "" : "layer " + (L.idx + 1);
+      if (txt) c.fillText(txt, L.x, bot + 28 * S);
+    });
+
+    {
+      const xm = (layers[layers.length - 2].x + layers[layers.length - 1].x) / 2;
+      c.fillStyle = "#7f8892"; c.font = "700 " + (18 * S) + "px -apple-system, system-ui, sans-serif";
+      c.textAlign = "center"; c.fillText("· · ·", xm, (top + bot) / 2);
+    }
+
+    c.fillStyle = "#9aa3ad"; c.font = (12 * S) + "px -apple-system, system-ui, sans-serif";
+    c.textAlign = "right";
+    c.fillText("asymptotic output state — the limit of infinitely many layers",
+               W - 16 * S, top - 24 * S);
+    c.textAlign = "left"; c.fillStyle = "#ff7a33";
+    c.font = "600 " + (12 * S) + "px -apple-system, system-ui, sans-serif";
+    c.fillText("every layer is the same map — the weights are tied", padL - 22 * S, top - 24 * S);
+  }
+  depthslider.addEventListener("input", () => {
+    depth = +depthslider.value; depthval.textContent = depth; drawDeepnet();
+  });
+
+  /* ---------------- building Dirichlet ------------------------------------
+     f_{k,m}(x) = cos^{2k}(m! pi x), continuous for every k and m.  Raising k
+     collapses it onto g_m = 1[m! x in Z]; raising m fills in every rational and
+     the limit is Dirichlet's function, nowhere continuous and so NOT Baire-1.
+     Evaluated by the fractional-part trick so m! x never overflows, and
+     supersampled per pixel column so the spikes are drawn, not aliased. */
+
+  const dirCanvas = document.getElementById("dirichlet");
+  const kslider = document.getElementById("kslider"), mfslider = document.getElementById("mfslider");
+  const kval = document.getElementById("kval"), mfval = document.getElementById("mfval");
+  const dircap = document.getElementById("dircap");
+  let kPow = 6, mFac = 2;
+  const FACTORIAL = [1, 1, 2, 6, 24, 120, 720, 5040];
+
+  function drawDirichlet() {
+    const c = dirCanvas.getContext("2d"), W = dirCanvas.width, H = dirCanvas.height, S = W / 900;
+    c.fillStyle = "#12151a"; c.fillRect(0, 0, W, H);
+    const L = 50 * S, R = W - 18 * S, T = 58 * S, B = H - 46 * S;
+    const X = x => L + x * (R - L), Y = v => B - v * (B - T);
+    const mf = FACTORIAL[mFac];
+
+    c.strokeStyle = "#2a2f37"; c.lineWidth = Math.max(1, S);
+    c.fillStyle = "#9aa3ad"; c.font = (12 * S) + "px -apple-system, system-ui, sans-serif";
+    [0, 0.5, 1].forEach(v => {
+      c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(R, Y(v)); c.stroke();
+      c.textAlign = "right"; c.fillText(v.toFixed(1), L - 6 * S, Y(v) + 4 * S);
+    });
+    [0, 0.25, 0.5, 0.75, 1].forEach(t => { c.textAlign = "center"; c.fillText(t, X(t), B + 18 * S); });
+    c.fillText("x", (L + R) / 2, B + 36 * S);
+
+    const nSpikes = mf + 1;
+    if (nSpikes <= 1600) {
+      c.strokeStyle = "rgba(232,107,208,0.5)"; c.lineWidth = Math.max(1, 1.1 * S);
+      for (let kk = 0; kk <= mf; kk++) {
+        const x = X(kk / mf);
+        c.beginPath(); c.moveTo(x, Y(0)); c.lineTo(x, Y(1)); c.stroke();
+      }
+    }
+
+    const cols = Math.max(2, Math.round(R - L));
+    c.strokeStyle = "#4ad9e4"; c.lineWidth = Math.max(1.2, 1.6 * S);
+    c.beginPath();
+    for (let i = 0; i <= cols; i++) {
+      let hi = 0;
+      for (let s = 0; s < 6; s++) {
+        const x = (i + s / 6) / cols;
+        const cs = Math.pow(Math.cos(Math.PI * ((mf * x) % 1)), 2);
+        const v = cs > 1e-300 ? Math.pow(cs, kPow) : 0;
+        if (v > hi) hi = v;
+      }
+      const px = L + i, py = Y(hi);
+      i ? c.lineTo(px, py) : c.moveTo(px, py);
+    }
+    c.stroke();
+
+    c.font = "700 " + (12.5 * S) + "px -apple-system, system-ui, sans-serif"; c.textAlign = "left";
+    c.fillStyle = "#4ad9e4";
+    c.fillText("f(x) = cos^" + (2 * kPow) + "(" + mf + "·πx)  — continuous", L, T - 34 * S);
+    c.fillStyle = "#e86bd0";
+    c.fillText("gₘ = 1 at the " + nSpikes + " points k/" + mf, L, T - 15 * S);
+
+    dircap.innerHTML = "At <b>k = " + kPow + "</b> the curve still has width; push k up and it becomes the " +
+      nSpikes + " spikes of <span class='math'>g<sub>m</sub></span>. At <b>m = " + mFac +
+      "</b> those sit at multiples of 1/" + mf + " — raise m and they reach every rational.";
+  }
+  kslider.addEventListener("input", () => { kPow = +kslider.value; kval.textContent = kPow; drawDirichlet(); });
+  mfslider.addEventListener("input", () => { mFac = +mfslider.value; mfval.textContent = mFac; drawDirichlet(); });
+
+  /* ---------------- NIP vs IP independence matrices ------------------------
+     Rows are test points, columns are functions, green where it answers yes.
+     Intervals cannot produce (+,-,+): that ONE missing column is exactly what
+     finite VC dimension means.  All binary functions produce everything. */
+
+  const nipCanvas = document.getElementById("nipmat"), ipCanvas = document.getElementById("ipmat");
+  const NPTS = 5;
+  const FORBIDDEN = [1, 0, 1];
+
+  function intervalColumns() {
+    const cols = [];
+    for (let i = 0; i < NPTS; i++) for (let j = i; j < NPTS; j++)
+      cols.push(Array.from({ length: NPTS }, (_, r) => (r >= i && r <= j) ? 1 : 0));
+    cols.push(Array(NPTS).fill(0));
+    return cols;
+  }
+  function binaryColumns() {
+    return Array.from({ length: 1 << NPTS }, (_, m) =>
+      Array.from({ length: NPTS }, (_, r) => (m >> r) & 1));
+  }
+
+  /* The words "yes" and "no" are green and red EVERYWHERE they appear, on canvas
+     as well as in HTML.  Canvas has no rich text, so a label is a list of runs
+     [text, colour] laid down end to end.  `runs` also shrinks the font until the
+     whole label fits the width it is given, because these labels are long. */
+  function runsWidth(c, runs) {
+    let w = 0; for (const [t] of runs) w += c.measureText(t).width; return w;
+  }
+  function drawRuns(c, runs, x, y, maxW, px, font, align) {
+    let size = px;
+    const set = p => { c.font = font.replace("%S", p); };
+    set(size);
+    while (maxW && runsWidth(c, runs) > maxW && size > px * 0.62) { size -= 0.4; set(size); }
+    let cx = x;
+    if (align === "center") cx = x - runsWidth(c, runs) / 2;
+    c.textAlign = "left";
+    for (const [t, col] of runs) { c.fillStyle = col; c.fillText(t, cx, y); cx += c.measureText(t).width; }
+    return cx - x;
+  }
+  const ORDINAL = ["", "first", "second", "third", "fourth", "fifth", "sixth",
+                   "seventh", "eighth", "ninth", "tenth"];
+
+  function drawMatrix(canvas, cols, title, showIntervalKey) {
+    const c = canvas.getContext("2d"), W = canvas.width, H = canvas.height, S = W / 520;
+    c.fillStyle = "#12151a"; c.fillRect(0, 0, W, H);
+    const L = 52 * S, R = W - 12 * S;
+    // When the key is shown, the top quarter carries a picture of what one
+    // column actually IS -- five points on a line and an interval over them --
+    // so "intervals" is never an unexplained word.
+    const keyH = showIntervalKey ? 74 * S : 0;
+    const T = 34 * S + keyH, B = H - 26 * S;
+    const cw = (R - L) / cols.length, ch = (B - T) / NPTS;
+
+    if (showIntervalKey) {
+      const ky = 46 * S, x0 = L + 10 * S, x1 = R - 60 * S;
+      const px = i => x0 + (x1 - x0) * (i / (NPTS - 1));
+      // the example interval [x2, x4]
+      c.fillStyle = "rgba(47,122,70,0.38)";
+      c.fillRect(px(1) - 9 * S, ky - 15 * S, px(3) - px(1) + 18 * S, 30 * S);
+      c.strokeStyle = "#2f7a46"; c.lineWidth = Math.max(1, 1.4 * S);
+      c.strokeRect(px(1) - 9 * S, ky - 15 * S, px(3) - px(1) + 18 * S, 30 * S);
+      c.strokeStyle = "#5a6472"; c.lineWidth = Math.max(1, S);
+      c.beginPath(); c.moveTo(x0 - 16 * S, ky); c.lineTo(x1 + 16 * S, ky); c.stroke();
+      for (let i = 0; i < NPTS; i++) {
+        c.beginPath(); c.arc(px(i), ky, 4.2 * S, 0, 6.283);
+        c.fillStyle = (i >= 1 && i <= 3) ? "#7fd69a" : "#ff8f8f"; c.fill();
+        c.fillStyle = "#9aa3ad"; c.font = (10.5 * S) + "px ui-serif, Georgia, serif";
+        c.textAlign = "center"; c.fillText("x" + (i + 1), px(i), ky + 20 * S);
+      }
+      c.fillStyle = "#7fd69a"; c.font = "700 " + (11 * S) + "px -apple-system, system-ui, sans-serif";
+      c.textAlign = "left"; c.fillText("[a, b]", px(3) + 16 * S, ky + 4 * S);
+      drawRuns(c, [
+        ["5-bit patterns obtained by choosing intervals of consecutive ", "#9aa3ad"],
+        ["yes", "#7fd69a"],
+        [" bits (green)", "#9aa3ad"]
+      ], L, ky - 26 * S, R - L, 10.5 * S,
+         "%Spx -apple-system, system-ui, sans-serif");
+    }
+
+    cols.forEach((col, j) => col.forEach((v, r) => {
+      c.fillStyle = v ? "#2f7a46" : "#7a2b2b";
+      c.fillRect(L + j * cw + 0.5, T + r * ch + 0.5, Math.max(1, cw - 1), Math.max(1, ch - 1));
+    }));
+    c.fillStyle = "#9aa3ad"; c.font = (11 * S) + "px ui-serif, Georgia, serif"; c.textAlign = "right";
+    for (let r = 0; r < NPTS; r++) c.fillText("x" + (r + 1), L - 7 * S, T + r * ch + ch * 0.68);
+    drawRuns(c, title, L, T - 13 * S, R - L, 12.5 * S,
+             "700 %Spx -apple-system, system-ui, sans-serif");
+
+    // mark the example column, so the key connects to the matrix
+    if (showIntervalKey) {
+      const want = Array.from({ length: NPTS }, (_, r) => (r >= 1 && r <= 3) ? 1 : 0);
+      const at = cols.findIndex(col => col.every((v, r) => v === want[r]));
+      if (at >= 0) {
+        c.strokeStyle = "#7fd69a"; c.lineWidth = Math.max(1.2, 1.6 * S);
+        c.strokeRect(L + at * cw - 1, T - 1, cw + 2, B - T + 2);
+      }
+    }
+
+    // The pattern is named in the colours it actually is, not in +/- notation.
+    const swatch = (x, y, bw, bh) => FORBIDDEN.forEach((v, i) => {
+      c.fillStyle = v ? "#2f7a46" : "#7a2b2b";
+      c.fillRect(x + i * (bw + 2 * S), y, bw, bh);
+      c.strokeStyle = v ? "#7fd69a" : "#ff8f8f"; c.lineWidth = Math.max(1, S);
+      c.strokeRect(x + i * (bw + 2 * S), y, bw, bh);
+    });
+    const hit = cols.findIndex(col => FORBIDDEN.every((v, r) => col[r] === v));
+    const bw = 15 * S, bh = 11 * S, sy = B + 8 * S;
+    c.font = "700 " + (10.5 * S) + "px -apple-system, system-ui, sans-serif";
+    c.textBaseline = "alphabetic";
+    if (hit >= 0) {
+      c.strokeStyle = "#ffd24a"; c.lineWidth = Math.max(1.5, 2 * S);
+      c.strokeRect(L + hit * cw - 1, T - 1, cw + 2, B - T + 2);
+      const sx = L + hit * cw + cw / 2 - (3 * bw + 4 * S) / 2;
+      swatch(sx, sy, bw, bh);
+      const which = ORDINAL[hit + 1] ? "the " + ORDINAL[hit + 1] + " column" : "column " + (hit + 1);
+      drawRuns(c, [["pattern appears in some column (" + which + " above)", "#ffd24a"]],
+               sx + 3 * bw + 10 * S, sy + bh - S, R - (sx + 3 * bw + 10 * S), 10.5 * S,
+               "700 %Spx -apple-system, system-ui, sans-serif");
+    } else {
+      swatch(L, sy, bw, bh);
+      drawRuns(c, [["no column contains the pattern", "#ffd24a"]],
+               L + 3 * bw + 10 * S, sy + bh - S, R - (L + 3 * bw + 10 * S), 10.5 * S,
+               "700 %Spx -apple-system, system-ui, sans-serif");
+    }
+    return hit;
+  }
+  function drawNipIp() {
+    drawMatrix(nipCanvas, intervalColumns(), [["the class of intervals", "#e7ecf2"]], true);
+    drawMatrix(ipCanvas, binaryColumns(), [
+      ["all 2\u2075 = 32 possible 5-bit ", "#e7ecf2"],
+      ["yes", "#7fd69a"], [" / ", "#e7ecf2"], ["no", "#ff8f8f"],
+      [" patterns", "#e7ecf2"]
+    ], false);
+  }
+
+  /* ---------------- the hierarchy of tameness ------------------------------
+     The ISQGD talk's own tree (Rosenthal compacta, splitting first on
+     metrizability), with each node carrying the concrete computation that
+     realizes it. */
+
+  const TREE = [
+    { id: "root", lvl: 0, label: "Rosenthal compacta<br><span class='dim'>NIP — tame</span>",
+      detail: "The whole tame world: closures sitting inside Baire class 1. Equivalently the family is NIP, " +
+              "equivalently it has finite VC dimension, equivalently it is PAC-learnable. Everything below is a " +
+              "refinement <em>inside</em> tameness." },
+    { id: "metr", lvl: 1, label: "Metrizable<br><b>NIP₃</b>",
+      detail: "<b>Square-root iteration.</b> Newton's method for p(x) = x² − a: the deep limit is +√a on one " +
+              "side, −√a on the other. The closure is the Alexandroff compactification of a countable discrete " +
+              "set — metrizable, the tamest level. Limits are unique and well behaved." },
+    { id: "nonmetr", lvl: 1, label: "Non-metrizable",
+      detail: "Still tame, but the closure admits no metric. Todorčević's trichotomy says exactly what can " +
+              "happen here — and its proof runs through forcing and infinite Ramsey theory. Decades on, there is " +
+              "still no elementary one. Argyros–Dodos–Kanellopoulos refine it to seven minimal prototypes." },
+    { id: "hs", lvl: 2, label: "Hereditarily separable<br><b>NIP₂</b>",
+      detail: "<b>Finite-precision threshold classifiers on 2<sup>ℕ</sup>.</b> Closure: the <b>split Cantor set</b>, " +
+              "2<sup>ℕ</sup>×{0,1} in lexicographic order — hereditarily separable but not metrizable. The " +
+              "infinite-precision classifiers are Baire-1 with a single discontinuity, and no finite Boolean " +
+              "expression defines them." },
+    { id: "fc", lvl: 2, label: "First countable<br><b>NIP₁</b>",
+      detail: "<b>Lexicographic three-valued interval tests.</b> Is x below, inside, or above " +
+              "[t0<sup>∞</sup>, t1<sup>∞</sup>]? First countable, but no longer hereditarily separable. " +
+              "(Earlier drafts called this a 'bit-shift family'; the shift action is a different construction.)" },
+    { id: "nhs", lvl: 2, label: "Neither<br><b>NIP only</b>",
+      detail: "<b>Finite-precision prefix tests.</b> The limits include every equality test x ↦ [y = x] — a " +
+              "discrete family of size continuum. Closure: the extended Alexandroff space — the <b>double " +
+              "arrow</b>'s relative — which is not even first countable. One point fails to be a " +
+              "G<sub>δ</sub>, and that single failure is what breaks it." }
+  ];
+  const treeBox = document.getElementById("tree");
+  const rungdetail = document.getElementById("rungdetail");
+  let treeSel = "root";
+  function nodeEl(n) {
+    const d = document.createElement("div");
+    d.className = "tnode" + (n.id === treeSel ? " sel" : "") + (n.lvl === 0 ? " troot" : "");
+    d.innerHTML = n.label;
+    d.addEventListener("click", () => { treeSel = n.id; buildTree(); });
+    return d;
+  }
+  function buildTree() {
+    treeBox.innerHTML = "";
+    const byId = id => TREE.find(n => n.id === id);
+
+    const r0 = document.createElement("div"); r0.className = "treerow";
+    r0.appendChild(nodeEl(byId("root"))); treeBox.appendChild(r0);
+
+    const r1 = document.createElement("div"); r1.className = "treerow";
+    r1.appendChild(nodeEl(byId("metr"))); r1.appendChild(nodeEl(byId("nonmetr")));
+    treeBox.appendChild(r1);
+
+    // The three finer levels are children of Non-metrizable ONLY, so this row is
+    // offset by a spacer the width of the Metrizable branch -- otherwise the
+    // diagram claims a parentage the mathematics does not have.
+    const r2 = document.createElement("div"); r2.className = "treerow";
+    const spacer = document.createElement("div"); spacer.className = "tspacer";
+    r2.appendChild(spacer);
+    const kids = document.createElement("div"); kids.className = "tkids";
+    ["hs", "fc", "nhs"].forEach(id => kids.appendChild(nodeEl(byId(id))));
+    r2.appendChild(kids); treeBox.appendChild(r2);
+
+    rungdetail.innerHTML = '<p class="cap" style="margin:0">' + byId(treeSel).detail + "</p>";
+  }
+
+  /* ---------------- slide 5 — the coin ---------------- */
+  const coinCanvas = document.getElementById("coin");
+  const pslider = document.getElementById("pslider"), pval = document.getElementById("pval");
+  let sample = [];
+  function resample() {
+    sample = [];
+    for (let i = 0; i < 4000; i++) sample.push(Math.random() < state.p ? 1 : 0);
+    drawCoin();
+  }
+  function drawCoin() {
+    /* Both quantities are plotted as ERRORS, because that is the only way the
+       contrast is visible: estimating the bias and predicting the next flip give
+       numerically identical "accuracy" curves (predicting the majority is right a
+       p-hat fraction of the time), which would hide the whole point. As errors
+       they separate: one goes to zero, the other is pinned at min(p, 1-p). */
+    const c = coinCanvas.getContext("2d"), W = coinCanvas.width, H = coinCanvas.height, S = W/900;
+    c.fillStyle = "#12151a"; c.fillRect(0,0,W,H);
+    const L = 70*S, R = W - 20*S, T = 22*S, B = H - 48*S;
+    const x = i => L + Math.log10(Math.max(1,i)) / Math.log10(sample.length) * (R-L);
+    const y = v => B - v / 0.56 * (B - T);
+    c.strokeStyle = "#2a2f37"; c.lineWidth = Math.max(1,S);
+    c.fillStyle = "#9aa3ad"; c.font = (12*S) + "px -apple-system, system-ui, sans-serif";
+    [0,0.1,0.2,0.3,0.4,0.5].forEach(v => {
+      c.beginPath(); c.moveTo(L,y(v)); c.lineTo(R,y(v)); c.stroke();
+      c.textAlign="right"; c.fillText(v.toFixed(1), L-6*S, y(v)+4*S);
+    });
+    [1,10,100,1000].forEach(t => { c.textAlign="center"; c.fillText(t, x(t), B+18*S); });
+    c.fillText("number of flips (log scale)", (L+R)/2, B+36*S);
+    c.save(); c.translate(16*S,(T+B)/2); c.rotate(-Math.PI/2); c.textAlign="center";
+    c.fillText("error", 0, 0); c.restore();
+
+    const floor = Math.min(state.p, 1-state.p);
+    c.setLineDash([5*S,5*S]); c.strokeStyle = "#8a5568"; c.beginPath();
+    c.moveTo(L,y(floor)); c.lineTo(R,y(floor)); c.stroke(); c.setLineDash([]);
+
+    let heads = 0, wrong = 0;
+    const estErr = [], predErr = [];
+    for (let i = 1; i <= sample.length; i++) {
+      const guess = i === 1 ? 1 : (heads/(i-1) >= 0.5 ? 1 : 0);   // predict the majority so far
+      if (guess !== sample[i-1]) wrong++;
+      heads += sample[i-1];
+      estErr.push([i, Math.abs(heads/i - state.p)]);
+      predErr.push([i, wrong/i]);
+    }
+    const line = (data, color, width) => {
+      c.strokeStyle = color; c.lineWidth = Math.max(1.3, width*S); c.beginPath();
+      data.forEach(([i,v], k) => { const px = x(i), py = y(Math.min(v,0.56)); k ? c.lineTo(px,py) : c.moveTo(px,py); });
+      c.stroke();
+    };
+    line(predErr, "#e86bd0", 2.2);
+    line(estErr, "#4ad9e4", 2.2);
+
+    c.font = "700 " + (13*S) + "px -apple-system, system-ui, sans-serif";
+    c.textAlign = "left";
+    c.fillStyle = "#e86bd0";
+    c.fillText("predicting the next flip — stuck at " + floor.toFixed(2), L+10*S, y(floor)-9*S);
+    c.fillStyle = "#4ad9e4";
+    c.fillText("learning the bias — error → 0", L+10*S, y(0.055));
+  }
+
+  pslider.addEventListener("input", () => { state.p = +pslider.value; pval.textContent = state.p.toFixed(2); resample(); });
+  document.getElementById("resample").addEventListener("click", resample);
+
+  /* ---------------- slide 6 — the programs ----------------
+     Verbatim from evorobust-neurips2026.tex, Appendix app:code. */
+  const CODE_PRUNED =
+`def solve(state):
+    # 1. Guided decimation with messages continued across
+    #    rounds, twice, priors reseeded from posteriors between.
+    decimate_and_continue(state, 45, 31, rule=PRODUCT_SUM, gamma=0.395)
+    reseed_priors_from_posteriors(state, 4)
+    decimate_and_continue(state, 23, 34, rule=PRODUCT_SUM, gamma=0.255)
+
+    # 2. Change frame, build an information set on the
+    #    syndrome, widen it maximally.
+    permute_problem(state, 0)
+    syndrome_guided_reduce(state)
+    enrich_blocks(state, kappa=1.0)
+
+    # 3. One GF(2) back-substitution. Nothing is enumerated.
+    return solve_on_basis(state)`;
+
+  const CODE_RAW =
+`def solve(decodest: 'DecodeState') -> 'DecodeState':
+    rankkey: 'RankKey' = const1_RankKey_PRIOR
+    if clusters_valid(syndrome_guided_reduce(select_best(
+            reseed_priors_from_posteriors(decimate_and_continue(
+                decodest, 45, 31, rule=const1_BpRule_PRODUCT_SUM,
+                gamma=0.3949630770316421), 4)))):
+        if True <= 1:
+            permute_problem(grow_clusters(decimate_and_continue(
+                decodest, 23, 34, rule=const1_BpRule_PRODUCT_SUM,
+                gamma=0.25508986558327035), 10), False)
+            bprule: 'BpRule' = const1_BpRule_PRODUCT_SUM
+        for num in range(bp_converged(syndrome_guided_reduce(decodest))):
+            decodest
+    return solve_on_basis(enrich_blocks(assemble_cluster_solutions(decodest),
+                                        clusters_valid(decodest)))`;
+
+  const CODE_HUMAN =
+`def solve(state):
+    state = run_bp(state, 45, BpRule.PRODUCT_SUM, 0.625, 0.0,
+                   Schedule.PARALLEL, 0.3)
+    if bp_converged(state):
+        return state
+    state = reduce_marked_rows(state)
+    state = enrich_blocks(state, 0.1)
+    state = forced_logical(state)
+    state = enumerate_patterns(state, 2, 20, Scope.PER_CLUSTER)
+    state = assemble_cluster_solutions(state)
+    return state`;
+
+  const KEYWORDS = /\b(def|if|for|in|return|range|True|False)\b/g;
+  function hl(src) {
+    return src
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/(#[^\n]*)/g, '<span class="c">$1</span>')
+      .replace(KEYWORDS, '<span class="k">$&</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span class="n">$&</span>');
+  }
+  const evolvedPre = document.getElementById("evolved");
+  const humanPre = document.getElementById("human");
+  const rawbtn = document.getElementById("rawbtn");
+  const codecap = document.getElementById("codecap");
+  let showRaw = false;
+  function paintCode() {
+    evolvedPre.innerHTML = hl(showRaw ? CODE_RAW : CODE_PRUNED);
+    humanPre.innerHTML = hl(CODE_HUMAN);
+    rawbtn.setAttribute("aria-pressed", showRaw ? "true" : "false");
+    rawbtn.textContent = showRaw ? "show pruned" : "show as emitted";
+    codecap.innerHTML = showRaw
+      ? "This is what the search actually emitted, transcribed with no editing. <b>About half of it never changes a prediction</b> — the guard is always taken, the loop bound is a Boolean, two assignments are never read. The type layer even let <code>if True &lt;= 1</code> through. Pruning it away is machine-verified prediction-identical on 9,216 validation shots."
+      : "Left: the effective algorithm the search found — two decimation passes with the priors reseeded between them, then one GF(2) solve, enumerating nothing. Right: the strongest published decoder, hand-written in the same language. <b>They share exactly one operation.</b>";
+  }
+  rawbtn.addEventListener("click", () => { showRaw = !showRaw; paintCode(); });
+
+  /* ---------------- slide 7 — Pareto ---------------- */
+  const paretoCanvas = document.getElementById("pareto");
+  const DECODERS = [
+    { name:"BP+OSD-0",      cost:1.00, acc:0.9455, kind:"panel" },
+    { name:"BP+OSD-CS",     cost:20.0, acc:0.9550, kind:"panel" },
+    { name:"BP+AC (tuned)", cost:1.35, acc:0.9602, kind:"panel" },
+    { name:"Relay-BP ext.", cost:28.0, acc:0.9695, kind:"panel" },
+    { name:"R5-E058",       cost:0.90, acc:0.9595, kind:"star"  },
+    { name:"R5-E060",       cost:0.95, acc:0.9575, kind:"evo"   },
+    { name:"R5-E059",       cost:1.34, acc:0.9619, kind:"star"  },
+    { name:"R5-E075",       cost:1.33, acc:0.9653, kind:"evo"   },
+    { name:"(most accurate found)", cost:27.0, acc:0.9674, kind:"grey" }
+  ];
+  function drawPareto() {
+    const c = paretoCanvas.getContext("2d"), W = paretoCanvas.width, H = paretoCanvas.height, S = W/900;
+    c.fillStyle = "#12151a"; c.fillRect(0,0,W,H);
+    const L = 92*S, R = W - 24*S, T = 24*S, B = H - 58*S;
+    const x = v => L + (Math.log10(v)-Math.log10(0.8))/(Math.log10(34)-Math.log10(0.8))*(R-L);
+    const y = v => B - (v-0.943)/(0.972-0.943)*(B-T);
+    c.strokeStyle = "#2a2f37"; c.lineWidth = Math.max(1,S);
+    c.fillStyle = "#9aa3ad"; c.font = (12*S)+"px -apple-system, system-ui, sans-serif";
+    [1,2,5,10,20].forEach(t => { c.beginPath(); c.moveTo(x(t),T); c.lineTo(x(t),B); c.stroke();
+      c.textAlign="center"; c.fillText(t+"×", x(t), B+19*S); });
+    [0.945,0.950,0.955,0.960,0.965,0.970].forEach(t => { c.beginPath(); c.moveTo(L,y(t)); c.lineTo(R,y(t)); c.stroke();
+      c.textAlign="right"; c.fillText(t.toFixed(3), L-7*S, y(t)+4*S); });
+    c.textAlign="center"; c.fillText("cost (× BP+OSD-0, log scale)", (L+R)/2, B+41*S);
+    c.save(); c.translate(19*S,(T+B)/2); c.rotate(-Math.PI/2); c.fillText("joint accuracy",0,0); c.restore();
+    const COL = { panel:"#7fa8d6", evo:"#ff7a33", star:"#ff7a33", grey:"#5a6472" };
+    DECODERS.forEach(d => {
+      const px = x(d.cost), py = y(d.acc), r = (d.kind==="star"?8:5.5)*S;
+      c.beginPath();
+      if (d.kind==="panel"||d.kind==="grey") c.rect(px-r,py-r,2*r,2*r); else c.arc(px,py,r,0,6.283);
+      c.fillStyle = COL[d.kind]; c.fill();
+      if (d.kind==="star") { c.strokeStyle="#fff"; c.lineWidth=2*S; c.stroke(); }
+      c.fillStyle = d.kind==="grey" ? "#5a6472" : "#f2efe9";
+      c.font = (d.kind==="star"?700:400)+" "+(12.5*S)+"px -apple-system, system-ui, sans-serif";
+      c.textAlign = d.cost>8 ? "right":"left";
+      c.fillText(d.name, px + (d.cost>8?-1:1)*(r+6*S), py+4*S);
+    });
+    c.strokeStyle="#7fd69a"; c.fillStyle="#7fd69a"; c.lineWidth=2*S;
+    const ax = L+250*S, ay = T+104*S;
+    c.beginPath(); c.moveTo(ax,ay); c.lineTo(ax-52*S, ay-26*S); c.stroke();
+    c.beginPath(); c.moveTo(ax-58*S,ay-29*S); c.lineTo(ax-44*S,ay-30*S); c.lineTo(ax-49*S,ay-18*S); c.fill();
+    c.font=(11.5*S)+"px -apple-system, system-ui, sans-serif"; c.textAlign="left";
+    c.fillText("cheaper and more accurate", ax-46*S, ay+14*S);
+  }
+
+  /* ---------------- appendix — shattering ---------------- */
+  const shatterCanvas = document.getElementById("shatter");
+  const okcount = document.getElementById("okcount");
+  let pts4 = [[0.28,0.28],[0.72,0.28],[0.72,0.72],[0.28,0.72]];
+  function separable(pts, labels) {
+    const pos=[], neg=[];
+    for (let i=0;i<pts.length;i++) (labels & (1<<i) ? pos : neg).push(pts[i]);
+    if (!pos.length || !neg.length) return true;
+    for (let a=0;a<720;a++) {
+      const th=Math.PI*a/720, cx=Math.cos(th), cy=Math.sin(th);
+      let pmin=Infinity,pmax=-Infinity,nmin=Infinity,nmax=-Infinity;
+      for (const p of pos){const v=p[0]*cx+p[1]*cy;pmin=Math.min(pmin,v);pmax=Math.max(pmax,v);}
+      for (const p of neg){const v=p[0]*cx+p[1]*cy;nmin=Math.min(nmin,v);nmax=Math.max(nmax,v);}
+      if (pmin-nmax>1e-9 || nmin-pmax>1e-9) return true;
+    }
+    return false;
+  }
+  function drawShatter() {
+    const c = shatterCanvas.getContext("2d"), W=shatterCanvas.width, H=shatterCanvas.height;
+    c.fillStyle="#12151a"; c.fillRect(0,0,W,H);
+    let ok=0; for (let m=0;m<16;m++) if (separable(pts4,m)) ok++;
+    okcount.textContent = ok + " of 16";
+    const r = Math.max(5, W/45);
+    pts4.forEach((p,i) => {
+      c.beginPath(); c.arc(p[0]*W,(1-p[1])*H,r,0,6.283);
+      c.fillStyle = i%2 ? "#4ad9e4" : "#e86bd0"; c.fill();
+      c.strokeStyle="#0b0d10"; c.lineWidth=Math.max(1,W/300); c.stroke();
+    });
+  }
+  let dragIdx=-1;
+  shatterCanvas.addEventListener("pointerdown", ev => {
+    const b=shatterCanvas.getBoundingClientRect();
+    const x=(ev.clientX-b.left)/b.width, y=1-(ev.clientY-b.top)/b.height;
+    let best=-1,bd=0.09; pts4.forEach((p,i)=>{const d=Math.hypot(p[0]-x,p[1]-y); if(d<bd){bd=d;best=i;}});
+    dragIdx=best; if(best>=0) shatterCanvas.setPointerCapture(ev.pointerId);
+  });
+  shatterCanvas.addEventListener("pointermove", ev => {
+    if (dragIdx<0) return;
+    const b=shatterCanvas.getBoundingClientRect();
+    pts4[dragIdx]=[Math.max(0.06,Math.min(0.94,(ev.clientX-b.left)/b.width)),
+                   Math.max(0.06,Math.min(0.94,1-(ev.clientY-b.top)/b.height))];
+    drawShatter();
+  });
+  shatterCanvas.addEventListener("pointerup", () => { dragIdx=-1; });
+
+  /* ---------------- boot ---------------- */
+  buildTree(); paintCode(); setPoly("z3m1");
+  pval.textContent = state.p.toFixed(2);
+  resample();
+  const fromHash = parseInt((location.hash||"").slice(1), 10);
+  goto(Number.isFinite(fromHash) ? fromHash : 0);
+  state.t0 = null;
+  (function () {
+    let saved = 1;
+    try { saved = parseFloat(localStorage.getItem("wwcc-ts")) || 1; } catch (_) {}
+    state.ts = 1;
+    if (saved !== 1) setType(saved); else document.documentElement.style.setProperty("--ts", 1);
+  })();
+
+  setTimeout(sizeAll, 60);
+
+  window.talk = {
+    goto, next: () => goto(state.slide+1), prev: () => goto(state.slide-1),
+    setN, flip: setFlip,
+    view: setView, resetView, getView: () => ({ ...VIEW }),
+    poly: setPoly, getPoly: () => poly.key,
+    type: setType, getType: () => state.ts,
+    timer: on => { state.timerOn = on === undefined ? !state.timerOn : !!on; clock.classList.toggle("on", state.timerOn); },
+    state
+  };
+})();
+</script>
+</body>
+</html>
