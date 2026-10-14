@@ -25,5 +25,11 @@ main:
   - title: "Teaching"
     url: /teaching/
 
+  # Not a page in this repo: the Problem-Solving Club is its own Jekyll site,
+  # published as a project site under this domain at /psclub/. A root-relative
+  # URL is all it takes -- the masthead renders it like any other entry.
+  - title: "Problem-Solving Club"
+    url: /psclub/
+
   - title: "Thanks"
     url: /thanks/
