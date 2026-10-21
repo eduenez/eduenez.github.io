@@ -8,6 +8,8 @@
 #
 # status: refereed | accepted | submitted | in_prep
 # highlight: true marks a "selected publications" subset (none yet)
+# redirect_from: [old permalinks] keeps old page addresses working after a
+#   bibtex key is renamed (the permalink is /publication/<slug of the key>)
 
 publications:
   # -- Refereed --
@@ -40,8 +42,10 @@ publications:
     status: refereed
 
   # -- Preprints and work in progress --
-  - bibtex_key: Duenez-Iovino-SalvettiMartinez-Wiederhold-Tall:2026
+  - bibtex_key: Duenez-Iovino-MatosWiederhold-Salvetti-Tall:2026
     status: in_prep
+    # key renamed in math-bibliography (October 2026); keep the page's old address working
+    redirect_from: [/publication/duenez-iovino-salvettimartinez-wiederhold-tall-2026]
   - bibtex_key: Alva-Duenez-Iovino-Walton:2024
     status: accepted
     venue_note: "To appear in Mathematical Structures in Computer Science"

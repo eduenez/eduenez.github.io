@@ -156,6 +156,8 @@ def generate_publications(name_variants):
         url = paper_url(entry)
         if url:
             front_matter["paperurl"] = url
+        if pub.get("redirect_from"):
+            front_matter["redirect_from"] = pub["redirect_from"]
         text = "---\n" + yaml_str(front_matter) + "\n---\n"
         (out_dir / f"{slug}.md").write_text(text, encoding="utf-8")
 
