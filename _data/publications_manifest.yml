@@ -45,12 +45,14 @@ publications:
   # -- Preprints and work in progress --
   - bibtex_key: Aubone-Duenez-Iovino:2026a
     status: preprint
+  - bibtex_key: Duenez-Iovino:2026c
+    status: preprint
   - bibtex_key: Duenez-Iovino:2026b
     status: preprint
   - bibtex_key: Duenez-Iovino:2026a
     status: preprint
   - bibtex_key: Duenez-Iovino-MatosWiederhold-Salvetti-Tall:2026
-    status: in_prep
+    status: preprint
     # key renamed in math-bibliography (October 2026); keep the page's old address working
     redirect_from: [/publication/duenez-iovino-salvettimartinez-wiederhold-tall-2026]
   - bibtex_key: Alva-Duenez-Iovino-Walton:2024
