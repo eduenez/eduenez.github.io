@@ -9,7 +9,7 @@ import re
 import yaml
 from pylatexenc.latex2text import LatexNodes2Text
 
-from cvlib import ROOT, load_bib_entries, load_yaml as _load_yaml
+from cvlib import ROOT, arxiv_id, load_bib_entries, load_yaml as _load_yaml
 
 L2T = LatexNodes2Text()
 
@@ -17,6 +17,7 @@ STATUS_TO_CATEGORY = {
     "refereed": "refereed",
     "accepted": "preprints",
     "submitted": "preprints",
+    "preprint": "preprints",
     "in_prep": "preprints",
 }
 
@@ -85,7 +86,8 @@ def guess_venue(entry):
     for key in ("journal", "booktitle", "publisher"):
         if entry.get(key):
             return clean(entry[key])
-    return ""
+    aid = arxiv_id(entry)
+    return f"arXiv:{aid}" if aid else ""
 
 
 def build_citation(entry, name_variants):
@@ -117,7 +119,8 @@ def paper_url(entry):
             if key == "doi" and not v.startswith("http"):
                 v = f"https://doi.org/{v}"
             return v
-    return ""
+    aid = arxiv_id(entry)
+    return f"https://arxiv.org/abs/{aid}" if aid else ""
 
 
 def generate_publications(name_variants):

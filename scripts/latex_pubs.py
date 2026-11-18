@@ -2,7 +2,10 @@
 bibtexparser entries (still LaTeX-escaped -- unlike the HTML path, we pass
 bib fields through mostly as-is since they're already valid LaTeX)."""
 
+from cvlib import arxiv_id as find_arxiv_id
+
 STATUS_NOTE = {
+    "preprint": "Preprint.",
     "in_prep": "In preparation.",
     "accepted": "Accepted.",
     "submitted": "Submitted.",
@@ -68,6 +71,9 @@ def arxiv_href(entry):
     if "arxiv.org/abs/" in url:
         arxiv_id = url.rsplit("/", 1)[-1]
         return f"\\href{{{url}}}{{arXiv:{arxiv_id}}}"
+    aid = find_arxiv_id(entry)  # eprint/archiveprefix, or "arXiv:NNNN.NNNNN" in the note
+    if aid:
+        return f"\\href{{https://arxiv.org/abs/{aid}}}{{arXiv:{aid}}}"
     return None
 
 
